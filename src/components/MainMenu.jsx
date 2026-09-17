@@ -1,8 +1,21 @@
 import React, { useRef } from 'react';
 import { importCaseFromJson } from '../services/caseFileIO';
 import { API_PROVIDERS } from '../constants/providers';
+import { DeskClock } from './DeskClock';
+import { SteamingCoffee } from './SteamingCoffee';
+import { checkHarryPotterEasterEgg } from '../constants/harryPotterCase';
 
-export function MainMenu({ onStartNew, onLoadDemo, onCaseLoaded, onOpenSettings, onOpenMyApi, currentConfig }) {
+export function MainMenu({
+  onStartNew,
+  onLoadDemo,
+  onCaseLoaded,
+  onOpenSettings,
+  onOpenMyApi,
+  onStartCoopSetup,
+  onOpenAchievements,
+  onLoadHarryPotter,
+  currentConfig
+}) {
   const fileInputRef = useRef(null);
   const provider = API_PROVIDERS[currentConfig?.provider] || API_PROVIDERS['groq'];
   const hasKey = Boolean(currentConfig?.apiKey);
@@ -20,114 +33,165 @@ export function MainMenu({ onStartNew, onLoadDemo, onCaseLoaded, onOpenSettings,
     }
   };
 
+  const handleNuevoCasoClick = () => {
+    // Check Harry Potter Easter Egg (9:45 - 10:00)
+    if (checkHarryPotterEasterEgg()) {
+      onLoadHarryPotter();
+      return;
+    }
+    onStartNew();
+  };
+
   return (
     <div className="workspace" style={{ paddingBottom: '60px' }}>
-      <div className="cover-dossier">
-        {/* PHYSICAL NOIR ELEMENTS */}
-        <div className="clip-metal" />
-        <div className="coffee-stain" />
+      <div className="detective-desk-surface">
+        {/* DESK HEADER BAR: CLOCK, DEPT TITLE, STEAMING COFFEE */}
+        <div className="desk-objects-bar">
+          <div className="desk-corner-left">
+            <SteamingCoffee />
+          </div>
 
-        {/* QUICK ACCESS BAR — top right of the dossier */}
-        <div className="cover-quick-bar">
-          <button 
-            type="button" 
-            className="cover-quick-btn"
-            onClick={onOpenMyApi}
-            title="Ver consumo y comparativa de 10 proveedores de IA"
-          >
-            <span className="cover-quick-icon">📊</span>
-            <span className="cover-quick-label">Mi API</span>
-          </button>
-          <div className="cover-quick-divider" />
-          <button 
-            type="button" 
-            className="cover-quick-btn"
-            onClick={onOpenSettings}
-            title="Configurar proveedor, modelo y clave de API"
-          >
-            <span className="cover-quick-icon">⚙️</span>
-            <span className="cover-quick-label">Ajustes</span>
-          </button>
-        </div>
+          <div className="desk-center-branding">
+            <div className="desk-agency-badge">PRECINCT NO. 7 // HOMICIDE DIVISION</div>
+            <h1 className="desk-brand-title">VEREDIKT</h1>
+            <div className="desk-brand-subtitle">
+              MESA DE ARCHIVOS CRIMINALES & DEDUCCIÓN FORENSE
+            </div>
+          </div>
 
-        {/* COVER HEADER */}
-        <div className="cover-header">
-          <div className="cover-badge-text">División de Crímenes No Resueltos & Delitos Graves</div>
-          <h1 className="cover-main-title">VEREDIKT</h1>
-          <div className="cover-case-label">SUMARIO POLICIAL CONFIDENCIAL // LEGAJO PENAL</div>
-        </div>
-
-        {/* STAMPS */}
-        <div style={{ textAlign: 'center', marginBottom: '28px' }}>
-          <span className="stamp">CLASIFICADO</span>
-          <span className="stamp blue" style={{ marginLeft: '16px' }}>SUMARIO #1947</span>
-        </div>
-
-        {/* COVER CONTENT & METADATA */}
-        <div className="cover-content">
-          <p className="cover-warning">
-            <strong>ADVERTENCIA OFICIAL:</strong> Los documentos contenidos en este legajo corresponden a escenas del crimen, declaraciones juradas, peritajes dactiloscópicos y testimonios bajo reserva sumaria. Toda deducción apresurada puede absolver a un culpable o encarcelar a un inocente.
-          </p>
-          <div className="cover-grid-meta">
-            <div><strong>PROTOCOLO:</strong> IA Quirúrgica (6 Fases)</div>
-            <div><strong>SISTEMA:</strong> BYOK (Claves Seguras en Navegador)</div>
-            <div><strong>ESTADO DEL SUMARIO:</strong> Activo / Pendiente</div>
-            <div><strong>PERITAJES FORENSES:</strong> Estrictamente limitados (2 máx)</div>
+          <div className="desk-corner-right">
+            <DeskClock />
           </div>
         </div>
 
-        {/* PRIMARY ACTIONS */}
-        <div className="cover-actions">
-          <button 
-            type="button" 
-            className="btn-wood primary btn-big-action" 
-            onClick={onStartNew}
-          >
-            📁 Abrir Nuevo Expediente Criminal
-          </button>
-
-          <button 
-            type="button" 
-            className="btn-wood secondary btn-big-action" 
-            onClick={onLoadDemo}
-            title="Jugar de inmediato el caso del relojero Pendelton sin consumir tokens"
-          >
-            🕵️ Caso de Muestra Modelo (Modo Offline)
-          </button>
-
-          <button 
-            type="button" 
-            className="btn-wood btn-import-case" 
-            onClick={() => fileInputRef.current?.click()}
-            title="Cargar un expediente previamente guardado en formato JSON"
-          >
-            📂 Importar Expediente Guardado (.json)
-          </button>
-          <input 
-            type="file" 
-            ref={fileInputRef} 
-            onChange={handleFileChange} 
-            accept=".json" 
-            style={{ display: 'none' }} 
-          />
-        </div>
-
-        {/* STATUS STRIP — active connection info */}
-        <div className="cover-status-strip">
-          <div className="cover-status-left">
-            <span className="cover-status-dot" data-active={hasKey ? 'true' : 'false'} />
-            <span className="cover-status-text">
-              {hasKey 
-                ? <>Canal activo: <strong>{provider.name}</strong> {provider.freeTier ? '(Free Tier)' : ''}</>
-                : <>Sin clave configurada — <button type="button" className="cover-status-link" onClick={onOpenSettings}>configurar ahora</button></>
-              }
+        {/* QUICK SETTINGS & STATUS BAR */}
+        <div className="desk-status-strip">
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <span style={{ fontSize: '13px', color: '#bca685' }}>Motor de IA activo:</span>
+            <span className="desk-provider-tag" onClick={onOpenSettings} title="Cambiar proveedor o modelo">
+              {provider.name}
             </span>
+            <span className={`status-dot ${hasKey ? 'active' : 'inactive'}`} />
           </div>
-          <div className="cover-status-right">
-            <span className="cover-status-proto">PROTOCOLO BYOK v4.0</span>
+
+          <div style={{ display: 'flex', gap: '10px' }}>
+            <button
+              type="button"
+              className="desk-tool-btn"
+              onClick={onOpenMyApi}
+              title="Estadísticas y comparativa de modelos"
+            >
+              📊 Mi API
+            </button>
+            <button
+              type="button"
+              className="desk-tool-btn"
+              onClick={onOpenSettings}
+              title="Configuración de claves y endpoints"
+            >
+              ⚙️ Ajustes
+            </button>
           </div>
         </div>
 
+        {/* FOLDERS GRID (ESCRITORIO NOIR) */}
+        <div className="folders-grid">
+          {/* 1. NUEVO CASO */}
+          <button
+            type="button"
+            className="folder-btn folder-primary"
+            onClick={handleNuevoCasoClick}
+          >
+            <div className="folder-tab">EXPEDIENTE 01</div>
+            <div className="folder-content">
+              <span className="folder-icon">📁</span>
+              <div className="folder-title">NUEVO CASO</div>
+              <div className="folder-desc">
+                La IA genera un expediente policial inédito con sospechosos y pistas forenses.
+              </div>
+            </div>
+            <div className="folder-stamp-mark">GENERAR</div>
+          </button>
+
+          {/* 2. COMUNIDAD (IMPORTAR) */}
+          <button
+            type="button"
+            className="folder-btn folder-community"
+            onClick={() => fileInputRef.current?.click()}
+          >
+            <div className="folder-tab">COMUNIDAD</div>
+            <div className="folder-content">
+              <span className="folder-icon">📂</span>
+              <div className="folder-title">COMUNIDAD</div>
+              <div className="folder-desc">
+                Importar caso (.json) creado o compartido por otro detective.
+              </div>
+            </div>
+            <div className="folder-stamp-mark">IMPORTAR</div>
+          </button>
+
+          {/* 3. MIS CASOS (CASO DEMO / HISTORIAL) */}
+          <button
+            type="button"
+            className="folder-btn folder-history"
+            onClick={onLoadDemo}
+          >
+            <div className="folder-tab">ARCHIVO LOCAL</div>
+            <div className="folder-content">
+              <span className="folder-icon">🗄️</span>
+              <div className="folder-title">MIS CASOS</div>
+              <div className="folder-desc">
+                Abrir caso modelo precargado (offline) sin consumir tokens de API.
+              </div>
+            </div>
+            <div className="folder-stamp-mark">OFFLINE</div>
+          </button>
+
+          {/* 4. LOGROS */}
+          <button
+            type="button"
+            className="folder-btn folder-achievements"
+            onClick={onOpenAchievements}
+          >
+            <div className="folder-tab">CONDECORACIONES</div>
+            <div className="folder-content">
+              <span className="folder-icon">🏆</span>
+              <div className="folder-title">LOGROS</div>
+              <div className="folder-desc">
+                Tus trofeos periciales, casos resueltos a tiempo y méritos policiales.
+              </div>
+            </div>
+            <div className="folder-stamp-mark">TROFEOS</div>
+          </button>
+
+          {/* 5. MODO COOPERATIVO (FULL WIDTH) */}
+          <button
+            type="button"
+            className="folder-btn folder-coop full-span"
+            onClick={onStartCoopSetup}
+          >
+            <div className="folder-tab">EQUIPO FORENSE</div>
+            <div className="folder-content-coop">
+              <span className="folder-icon" style={{ fontSize: '38px' }}>👥</span>
+              <div>
+                <div className="folder-title" style={{ fontSize: '20px' }}>MODO COOPERATIVO</div>
+                <div className="folder-desc" style={{ fontSize: '13px' }}>
+                  Varios detectives en la misma pantalla. Todos analizan el mismo caso y envían su deducción en turnos secretos.
+                </div>
+              </div>
+            </div>
+            <div className="folder-stamp-mark">2–4 JUGADORES</div>
+          </button>
+        </div>
+
+        {/* HIDDEN FILE INPUT FOR IMPORT */}
+        <input
+          type="file"
+          ref={fileInputRef}
+          style={{ display: 'none' }}
+          accept=".json,application/json"
+          onChange={handleFileChange}
+        />
       </div>
     </div>
   );

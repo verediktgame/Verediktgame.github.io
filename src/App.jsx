@@ -1,26 +1,35 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { SafeStorage } from './services/storage';
 import { DEMO_CASE } from './constants/demoCase';
+import { CASO_HARRY_POTTER, checkHarryPotterEasterEgg } from './constants/harryPotterCase';
+import { recordCaseFinished, recordHarryPotterStart } from './constants/achievements';
 import { generateCaseWithLLM } from './services/caseGenerator';
+import { importCaseFromJson } from './services/caseFileIO';
 import { evaluateVerdict } from './services/verdictEvaluator';
 
 import { DeskHeader } from './components/DeskHeader';
-import { MainMenu } from './components/MainMenu';
 import { SetupDossier } from './components/SetupDossier';
 import { Dossier } from './components/Investigation/Dossier';
 import { VerdictScreen } from './components/Verdict/VerdictScreen';
 
+import { CoopSetup } from './components/Coop/CoopSetup';
+import { CoopRankingScreen } from './components/Coop/CoopRankingScreen';
+
 import { ApiSettingsModal } from './components/Modals/ApiSettingsModal';
 import { MyApiModal } from './components/Modals/MyApiModal';
+import { AchievementsModal } from './components/Modals/AchievementsModal';
 import { InterrogationModal } from './components/Modals/InterrogationModal';
+import { AchievementToast } from './components/AchievementToast';
 
 export function App() {
-  const [currentScreen, setCurrentScreen] = useState('menu'); // 'menu' | 'setup' | 'investigation' | 'verdict'
+  const [currentScreen, setCurrentScreen] = useState('menu'); // 'menu' | 'setup' | 'coop_setup' | 'investigation' | 'verdict' | 'coop_ranking'
   const [apiConfig, setApiConfig] = useState(SafeStorage.getApiConfig());
 
   // Modal visibility
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [isMyApiOpen, setIsMyApiOpen] = useState(false);
+  const [isAchievementsOpen, setIsAchievementsOpen] = useState(false);
+  const [activeAchievementToast, setActiveAchievementToast] = useState(null);
   const [interrogationSuspect, setInterrogationSuspect] = useState(null);
 
   // Active Case State
@@ -28,6 +37,17 @@ export function App() {
   const [interrogationsState, setInterrogationsState] = useState({}); // { [suspectId]: [qId, ...] }
   const [analyzedEvidenceIds, setAnalyzedEvidenceIds] = useState([]); // [eId, ...]
   const [verdictResult, setVerdictResult] = useState(null);
+
+  // Timer & Easter Egg tracking
+  const [casoStartTime, setCasoStartTime] = useState(Date.now());
+  const [isHarryPotter, setIsHarryPotter] = useState(false);
+
+  // Cooperative Mode State
+  const [coopMode, setCoopMode] = useState(false);
+  const [coopPlayers, setCoopPlayers] = useState(['Detective 1', 'Detective 2']);
+  const [coopAccusations, setCoopAccusations] = useState({});
+  const [coopCurrentPlayerIndex, setCoopCurrentPlayerIndex] = useState(0);
+  const [coopResults, setCoopResults] = useState(null);
 
   // Generation state
   const [isGenerating, setIsGenerating] = useState(false);
@@ -39,6 +59,9 @@ export function App() {
   // Evaluation state
   const [isEvaluating, setIsEvaluating] = useState(false);
 
+  // Hidden file input for importing shared cases (used by the POV menu)
+  const fileInputRef = useRef(null);
+
   // Session persistence check on mount
   useEffect(() => {
     const session = SafeStorage.getGameSession();
@@ -47,7 +70,14 @@ export function App() {
       setInterrogationsState(session.interrogationsState || {});
       setAnalyzedEvidenceIds(session.analyzedEvidenceIds || []);
       setVerdictResult(session.verdictResult || null);
+      setCoopMode(Boolean(session.coopMode));
+      setCoopPlayers(session.coopPlayers || ['Detective 1', 'Detective 2']);
+      setCoopAccusations(session.coopAccusations || {});
+      setCoopCurrentPlayerIndex(session.coopCurrentPlayerIndex || 0);
+      setCoopResults(session.coopResults || null);
+      setIsHarryPotter(Boolean(session.isHarryPotter));
       setCurrentScreen(session.currentScreen || 'investigation');
+      setCasoStartTime(Date.now());
     }
   }, []);
 
@@ -59,10 +89,28 @@ export function App() {
         interrogationsState,
         analyzedEvidenceIds,
         verdictResult,
+        coopMode,
+        coopPlayers,
+        coopAccusations,
+        coopCurrentPlayerIndex,
+        coopResults,
+        isHarryPotter,
         currentScreen
       });
     }
-  }, [caseData, interrogationsState, analyzedEvidenceIds, verdictResult, currentScreen]);
+  }, [
+    caseData,
+    interrogationsState,
+    analyzedEvidenceIds,
+    verdictResult,
+    coopMode,
+    coopPlayers,
+    coopAccusations,
+    coopCurrentPlayerIndex,
+    coopResults,
+    isHarryPotter,
+    currentScreen
+  ]);
 
   const handleSaveApiConfig = (newConfig) => {
     setApiConfig(newConfig);
@@ -82,11 +130,32 @@ export function App() {
   };
 
   const handleStartNew = () => {
+    setCoopMode(false);
+    setIsHarryPotter(false);
     setGenError('');
     setCurrentScreen('setup');
   };
 
+  const handleStartCoopSetup = () => {
+    setCoopMode(true);
+    setIsHarryPotter(false);
+    setGenError('');
+    setCurrentScreen('coop_setup');
+  };
+
+  const handleStartCoop = (cleanNames, ciudad, dificultad) => {
+    setCoopMode(true);
+    setCoopPlayers(cleanNames);
+    setCoopCurrentPlayerIndex(0);
+    setCoopAccusations({});
+    setCoopResults(null);
+    setIsHarryPotter(false);
+    handleGenerateCase(ciudad, dificultad);
+  };
+
   const handleLoadDemo = () => {
+    setCoopMode(false);
+    setIsHarryPotter(false);
     const demo = {
       publicInfo: JSON.parse(JSON.stringify(DEMO_CASE.publicInfo)),
       truth: JSON.parse(JSON.stringify(DEMO_CASE.truth)),
@@ -96,10 +165,36 @@ export function App() {
     setInterrogationsState({});
     setAnalyzedEvidenceIds([]);
     setVerdictResult(null);
+    setCasoStartTime(Date.now());
+    setCurrentScreen('investigation');
+  };
+
+  const handleLoadHarryPotter = () => {
+    setCoopMode(false);
+    setIsHarryPotter(true);
+    const hp = {
+      publicInfo: JSON.parse(JSON.stringify(CASO_HARRY_POTTER.publicInfo)),
+      truth: JSON.parse(JSON.stringify(CASO_HARRY_POTTER.truth)),
+      isOffline: true
+    };
+    setCaseData(hp);
+    setInterrogationsState({});
+    setAnalyzedEvidenceIds([]);
+    setVerdictResult(null);
+    setCasoStartTime(Date.now());
+
+    // Trigger Harry Potter achievement unlock
+    const newLogros = recordHarryPotterStart();
+    if (newLogros && newLogros.length > 0) {
+      setActiveAchievementToast(newLogros[0]);
+    }
+
     setCurrentScreen('investigation');
   };
 
   const handleCaseLoaded = (imported) => {
+    setCoopMode(false);
+    setIsHarryPotter(false);
     const loaded = {
       publicInfo: imported.publicInfo,
       truth: imported.truth,
@@ -109,6 +204,7 @@ export function App() {
     setInterrogationsState({});
     setAnalyzedEvidenceIds([]);
     setVerdictResult(null);
+    setCasoStartTime(Date.now());
     setCurrentScreen('investigation');
   };
 
@@ -134,6 +230,7 @@ export function App() {
       setInterrogationsState({});
       setAnalyzedEvidenceIds([]);
       setVerdictResult(null);
+      setCasoStartTime(Date.now());
       setCurrentScreen('investigation');
     } catch (err) {
       setGenError(err.message || 'Error desconocido durante la generación.');
@@ -171,9 +268,12 @@ export function App() {
     });
   };
 
+  // Solo Accusation
   const handleSubmitAccusation = async ({ acusadoId, armaId, motivo, reconstruccion }) => {
     if (!caseData?.truth) return;
     setIsEvaluating(true);
+
+    const tiempoSegundos = Math.max(1, Math.floor((Date.now() - casoStartTime) / 1000));
 
     try {
       const evalRes = await evaluateVerdict({
@@ -189,6 +289,23 @@ export function App() {
         onRetryStatus: (msg) => console.log('Verdict retry:', msg)
       });
 
+      const totalScore = evalRes.puntajeTotal !== undefined ? evalRes.puntajeTotal : (evalRes.puntaje || 0);
+
+      // Record stats and check for achievements
+      const newlyUnlocked = recordCaseFinished({
+        puntaje: totalScore,
+        tiempoSegundos,
+        forensesUsados: analyzedEvidenceIds.length,
+        interrogacionesRealizadas: Object.keys(interrogationsState).length,
+        acertoCulpable: Boolean(evalRes.desglose?.culpable?.acerto),
+        esCoopVictoria: false,
+        esHarryPotter
+      });
+
+      if (newlyUnlocked && newlyUnlocked.length > 0) {
+        setActiveAchievementToast(newlyUnlocked[0]);
+      }
+
       setVerdictResult(evalRes);
       setCurrentScreen('verdict');
     } catch (err) {
@@ -198,16 +315,158 @@ export function App() {
     }
   };
 
+  // Turn-by-turn Cooperative Accusation
+  const handleSubmitPlayerTurn = async (turnData) => {
+    const updatedAccusations = {
+      ...coopAccusations,
+      [coopCurrentPlayerIndex]: turnData
+    };
+    setCoopAccusations(updatedAccusations);
+
+    // If more players remain, go to next player turn
+    if (coopCurrentPlayerIndex < coopPlayers.length - 1) {
+      setCoopCurrentPlayerIndex(prev => prev + 1);
+      return;
+    }
+
+    // All players have submitted: evaluate each player's deduction in sequence
+    setIsEvaluating(true);
+    const tiempoSegundos = Math.max(1, Math.floor((Date.now() - casoStartTime) / 1000));
+
+    try {
+      const results = [];
+
+      for (let i = 0; i < coopPlayers.length; i++) {
+        const pTurn = updatedAccusations[i];
+        if (!pTurn) continue;
+
+        const evalRes = await evaluateVerdict({
+          truth: caseData.truth,
+          suspects: caseData.publicInfo.sospechosos,
+          evidences: caseData.publicInfo.evidencias,
+          acusadoId: pTurn.acusadoId,
+          armaId: pTurn.armaId,
+          motivo: pTurn.motivo,
+          reconstruccion: pTurn.reconstruccion,
+          apiConfig,
+          isOffline: caseData.isOffline,
+          onRetryStatus: (msg) => console.log(`Verdict retry for ${coopPlayers[i]}:`, msg)
+        });
+
+        const pScore = evalRes.puntajeTotal !== undefined ? evalRes.puntajeTotal : (evalRes.puntaje || 0);
+
+        results.push({
+          player: coopPlayers[i],
+          score: pScore,
+          condena: evalRes.condena,
+          narrativaCondena: evalRes.narrativaCondena,
+          desglose: evalRes.desglose
+        });
+      }
+
+      // Check achievements for coop
+      const topScore = Math.max(...results.map(r => r.score));
+      const newlyUnlocked = recordCaseFinished({
+        puntaje: topScore,
+        tiempoSegundos,
+        forensesUsados: analyzedEvidenceIds.length,
+        interrogacionesRealizadas: Object.keys(interrogationsState).length,
+        acertoCulpable: results.some(r => r.desglose?.culpable?.acerto),
+        esCoopVictoria: true,
+        esHarryPotter
+      });
+
+      if (newlyUnlocked && newlyUnlocked.length > 0) {
+        setActiveAchievementToast(newlyUnlocked[0]);
+      }
+
+      setCoopResults(results);
+      setCurrentScreen('coop_ranking');
+    } catch (err) {
+      alert(`Error al evaluar acusaciones cooperativas: ${err.message}`);
+    } finally {
+      setIsEvaluating(false);
+    }
+  };
+
   const handlePlayAgain = () => {
     SafeStorage.clearGameSession();
     setCaseData(null);
     setVerdictResult(null);
-    setCurrentScreen('setup');
+    setCoopResults(null);
+    if (coopMode) {
+      setCurrentScreen('coop_setup');
+    } else {
+      setCurrentScreen('setup');
+    }
   };
 
   const handleGoHome = () => {
     setCurrentScreen('menu');
   };
+
+  const handleNuevoCasoClick = () => {
+    if (checkHarryPotterEasterEgg()) {
+      handleLoadHarryPotter();
+      return;
+    }
+    handleStartNew();
+  };
+
+  const handleFileChange = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    try {
+      const imported = await importCaseFromJson(file);
+      handleCaseLoaded(imported);
+    } catch (err) {
+      alert(`Error al importar el archivo: ${err.message}`);
+    } finally {
+      if (fileInputRef.current) fileInputRef.current.value = '';
+    }
+  };
+
+  // Bridge between the Three.js POV menu (index.html) and the game's React actions
+  useEffect(() => {
+    window.__verediktMenuAction = (folderId) => {
+      switch (folderId) {
+        case 'nuevo':
+          handleNuevoCasoClick();
+          break;
+        case 'comunidad':
+          fileInputRef.current?.click();
+          break;
+        case 'casos':
+          handleLoadDemo();
+          break;
+        case 'logros':
+          setIsAchievementsOpen(true);
+          break;
+        case 'coop':
+          handleStartCoopSetup();
+          break;
+        default:
+          break;
+      }
+    };
+    window.__verediktOpenSettings = () => setIsSettingsOpen(true);
+    window.__verediktOpenMyApi = () => setIsMyApiOpen(true);
+
+    return () => {
+      delete window.__verediktMenuAction;
+      delete window.__verediktOpenSettings;
+      delete window.__verediktOpenMyApi;
+    };
+  });
+
+  // Synchronize the POV menu visibility with the current screen
+  useEffect(() => {
+    if (currentScreen === 'menu') {
+      window.dispatchEvent(new CustomEvent('veredikt:menu-show'));
+    } else {
+      window.dispatchEvent(new CustomEvent('veredikt:menu-hide'));
+    }
+  }, [currentScreen]);
 
   return (
     <div className="desk-container">
@@ -219,21 +478,24 @@ export function App() {
         currentScreen={currentScreen}
       />
 
-      <main className="desk-workspace">
-        {currentScreen === 'menu' && (
-          <MainMenu 
-            onStartNew={handleStartNew}
-            onLoadDemo={handleLoadDemo}
-            onCaseLoaded={handleCaseLoaded}
-            onOpenSettings={() => setIsSettingsOpen(true)}
-            onOpenMyApi={() => setIsMyApiOpen(true)}
-            currentConfig={apiConfig}
-          />
-        )}
-
+      <main className="desk-main-area">
         {currentScreen === 'setup' && (
           <SetupDossier 
             onGenerate={handleGenerateCase}
+            isGenerating={isGenerating}
+            currentStep={genStep}
+            statusText={genStatus}
+            genError={genError}
+            onRetry={handleRetryGeneration}
+            onBack={() => setCurrentScreen('menu')}
+            onOpenSettings={() => setIsSettingsOpen(true)}
+            hasApiKey={Boolean(apiConfig.apiKey)}
+          />
+        )}
+
+        {currentScreen === 'coop_setup' && (
+          <CoopSetup
+            onStartCoop={handleStartCoop}
             isGenerating={isGenerating}
             currentStep={genStep}
             statusText={genStatus}
@@ -254,12 +516,26 @@ export function App() {
             onAnalyzeEvidence={handleAnalyzeEvidence}
             onSubmitAccusation={handleSubmitAccusation}
             isEvaluating={isEvaluating}
+            isCoop={coopMode}
+            players={coopPlayers}
+            currentPlayerIndex={coopCurrentPlayerIndex}
+            onSubmitPlayerTurn={handleSubmitPlayerTurn}
           />
         )}
 
         {currentScreen === 'verdict' && verdictResult && caseData && (
           <VerdictScreen 
             verdictResult={verdictResult}
+            truth={caseData.truth}
+            publicInfo={caseData.publicInfo}
+            onPlayAgain={handlePlayAgain}
+            onGoHome={handleGoHome}
+          />
+        )}
+
+        {currentScreen === 'coop_ranking' && coopResults && caseData && (
+          <CoopRankingScreen
+            coopResults={coopResults}
             truth={caseData.truth}
             publicInfo={caseData.publicInfo}
             onPlayAgain={handlePlayAgain}
@@ -283,6 +559,11 @@ export function App() {
         onSelectProvider={handleSelectProviderFromMyApi}
       />
 
+      <AchievementsModal
+        isOpen={isAchievementsOpen}
+        onClose={() => setIsAchievementsOpen(false)}
+      />
+
       <InterrogationModal 
         isOpen={Boolean(interrogationSuspect)}
         onClose={() => setInterrogationSuspect(null)}
@@ -290,6 +571,21 @@ export function App() {
         askedQuestionIds={interrogationSuspect ? (interrogationsState[interrogationSuspect.id] || []) : []}
         onAskQuestion={handleAskQuestion}
         onConfirmInterrogation={handleConfirmInterrogation}
+      />
+
+      {/* ACHIEVEMENT TOAST */}
+      <AchievementToast
+        achievement={activeAchievementToast}
+        onDismiss={() => setActiveAchievementToast(null)}
+      />
+
+      {/* HIDDEN FILE INPUT FOR IMPORT FROM THE POV MENU */}
+      <input
+        type="file"
+        ref={fileInputRef}
+        style={{ display: 'none' }}
+        accept=".json,application/json"
+        onChange={handleFileChange}
       />
     </div>
   );

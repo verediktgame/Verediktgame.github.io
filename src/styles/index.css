@@ -1528,7 +1528,7 @@
       inset: 0;
       background: rgba(8, 6, 4, 0.85);
       backdrop-filter: blur(5px);
-      z-index: 100;
+      z-index: 1200;
       display: none;
       align-items: center;
       justify-content: center;
@@ -1583,7 +1583,7 @@
       inset: 0;
       background: rgba(8, 6, 4, 0.85);
       backdrop-filter: blur(5px);
-      z-index: 100;
+      z-index: 1200;
       display: none;
       align-items: center;
       justify-content: center;
@@ -1913,3 +1913,479 @@
     .tab-panel {
       position: relative;
     }
+
+    /* ============================================================
+       VEREDIKT v5: DETECTIVE DESK MAIN MENU & WOOD TEXTURE
+       ============================================================ */
+    .detective-desk-surface {
+      background-color: #2C1810;
+      background-image: 
+        repeating-linear-gradient(90deg, rgba(255,255,255,0.015) 0px, rgba(255,255,255,0.015) 2px, transparent 2px, transparent 40px),
+        radial-gradient(ellipse at 50% 20%, rgba(95, 52, 28, 0.45) 0%, rgba(20, 10, 6, 0.9) 100%),
+        linear-gradient(180deg, #3d2216 0%, #2c1810 50%, #1a0e08 100%);
+      border: 3px solid #5a3c26;
+      border-radius: 6px;
+      box-shadow: 
+        0 25px 60px rgba(0,0,0,0.85),
+        inset 0 0 80px rgba(0,0,0,0.7);
+      padding: 36px 40px 48px;
+      position: relative;
+    }
+
+    .desk-objects-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 20px;
+      border-bottom: 2px solid #513622;
+      padding-bottom: 24px;
+      margin-bottom: 22px;
+    }
+
+    .desk-center-branding {
+      text-align: center;
+      flex-grow: 1;
+    }
+
+    .desk-agency-badge {
+      display: inline-block;
+      font-size: 11px;
+      letter-spacing: 3px;
+      color: #caa77c;
+      font-family: var(--font-mono);
+      font-weight: 700;
+      margin-bottom: 6px;
+      text-transform: uppercase;
+    }
+
+    .desk-brand-title {
+      font-family: var(--font-title);
+      font-size: 52px;
+      letter-spacing: 6px;
+      color: #ebd7be;
+      margin: 0;
+      line-height: 1;
+      text-shadow: 2px 3px 6px rgba(0,0,0,0.8);
+    }
+
+    .desk-brand-subtitle {
+      font-size: 13px;
+      letter-spacing: 2px;
+      color: #9d8366;
+      margin-top: 8px;
+      font-family: var(--font-typewriter);
+    }
+
+    .desk-status-strip {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 12px;
+      background: rgba(20, 11, 7, 0.65);
+      border: 1px solid #4a3220;
+      padding: 10px 18px;
+      border-radius: 4px;
+      margin-bottom: 30px;
+    }
+
+    .desk-provider-tag {
+      background: #3e2617;
+      color: #e5cdb0;
+      border: 1px solid #6b4c33;
+      padding: 3px 10px;
+      border-radius: 3px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .desk-provider-tag:hover {
+      background: #5a3923;
+    }
+
+    .desk-tool-btn {
+      background: #25160d;
+      border: 1px solid #5a3c26;
+      color: #d1beaa;
+      font-size: 12px;
+      padding: 6px 14px;
+      border-radius: 3px;
+      cursor: pointer;
+      font-family: var(--font-mono);
+      transition: all 0.2s;
+    }
+    .desk-tool-btn:hover {
+      background: #3d2517;
+      color: #fff;
+      border-color: #8c603e;
+    }
+
+    /* ============================================================
+       FOLDER BUTTONS GRID (ESCRITORIO NOIR)
+       ============================================================ */
+    .folders-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 24px;
+    }
+
+    .folder-btn {
+      transform: translateY(0);
+      transition: transform 0.15s ease, box-shadow 0.15s ease;
+      cursor: pointer;
+      position: relative;
+      border: 1px solid #8f744e;
+      border-top: none;
+      background: #d4bf98;
+      border-radius: 0 6px 6px 6px;
+      text-align: left;
+      padding: 26px 22px 20px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      min-height: 150px;
+    }
+
+    .folder-btn:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 8px 20px rgba(0,0,0,0.4);
+    }
+
+    .folder-tab {
+      position: absolute;
+      top: -16px;
+      left: 0;
+      background: #beaa83;
+      border: 1px solid #8f744e;
+      border-bottom: none;
+      border-radius: 6px 6px 0 0;
+      padding: 3px 14px;
+      font-family: var(--font-typewriter);
+      font-size: 10px;
+      letter-spacing: 1.5px;
+      font-weight: bold;
+      color: #2e2417;
+      text-transform: uppercase;
+    }
+
+    .folder-btn:hover .folder-tab {
+      background: #d4bf98;
+    }
+
+    .folder-primary {
+      background: #d6c096;
+      border-color: #8f744e;
+    }
+    .folder-primary:hover {
+      background: #e2cc9f;
+    }
+
+    .folder-community {
+      background: #cbb48b;
+    }
+    .folder-community:hover {
+      background: #dac196;
+    }
+
+    .folder-history {
+      background: #c4ad83;
+    }
+    .folder-history:hover {
+      background: #d4bc91;
+    }
+
+    .folder-achievements {
+      background: #dfcb9b;
+    }
+    .folder-achievements:hover {
+      background: #eed8a7;
+    }
+
+    .folder-coop {
+      background: #bfa67b;
+      border-color: #7b623d;
+    }
+    .folder-coop:hover {
+      background: #ceb488;
+    }
+
+    .folder-btn.full-span {
+      grid-column: 1 / -1;
+      min-height: 100px;
+      padding: 20px 24px;
+    }
+
+    .folder-content {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .folder-content-coop {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+    }
+
+    .folder-icon {
+      font-size: 32px;
+      line-height: 1;
+    }
+
+    .folder-title {
+      font-family: var(--font-title);
+      font-size: 20px;
+      font-weight: 800;
+      letter-spacing: 1.5px;
+      color: #1a1208;
+    }
+
+    .folder-desc {
+      font-size: 13px;
+      line-height: 1.5;
+      color: #4b3d2b;
+      font-family: var(--font-mono);
+    }
+
+    .folder-stamp-mark {
+      align-self: flex-end;
+      font-size: 10px;
+      font-family: var(--font-typewriter);
+      letter-spacing: 2px;
+      color: #782323;
+      border: 1px dashed #782323;
+      padding: 2px 8px;
+      border-radius: 2px;
+      margin-top: 10px;
+      opacity: 0.85;
+      font-weight: bold;
+    }
+
+    /* ============================================================
+       STEAMING COFFEE VAPOR ANIMATION
+       ============================================================ */
+    @keyframes vapor {
+      0% {
+        transform: translateY(0) scaleX(1);
+        opacity: 0;
+      }
+      25% {
+        opacity: 0.75;
+      }
+      50% {
+        transform: translateY(-12px) scaleX(1.15) rotate(2deg);
+        opacity: 0.55;
+      }
+      80% {
+        opacity: 0.25;
+      }
+      100% {
+        transform: translateY(-24px) scaleX(1.35) rotate(-2deg);
+        opacity: 0;
+      }
+    }
+
+    .vapor-line {
+      animation: vapor 2s ease-in-out infinite;
+      transform-origin: bottom center;
+    }
+    .vapor-1 { animation-delay: 0s; }
+    .vapor-2 { animation-delay: 0.65s; }
+    .vapor-3 { animation-delay: 1.3s; }
+
+    /* ============================================================
+       SLIDING DETECTIVE NOTES DRAWER (PANEL LATERAL)
+       ============================================================ */
+    .notes-edge-btn {
+      position: fixed;
+      top: 42%;
+      right: 0;
+      transform: translateY(-50%);
+      z-index: 1000;
+      background: #24180f;
+      border: 2px solid #8f724d;
+      border-right: none;
+      color: #ecd5b6;
+      border-radius: 6px 0 0 6px;
+      padding: 14px 9px;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+      box-shadow: -4px 4px 14px rgba(0,0,0,0.5);
+      transition: all 0.2s ease;
+    }
+
+    .notes-edge-btn:hover {
+      background: #3d2919;
+      color: #fff;
+      padding-right: 12px;
+    }
+
+    .notes-btn-icon {
+      font-size: 16px;
+    }
+
+    .notes-btn-text {
+      writing-mode: vertical-rl;
+      text-orientation: mixed;
+      letter-spacing: 3px;
+      font-family: var(--font-typewriter);
+      font-size: 12px;
+      font-weight: bold;
+    }
+
+    .notes-panel {
+      position: fixed;
+      top: 0;
+      right: 0;
+      width: 360px;
+      max-width: 90vw;
+      height: 100vh;
+      background: #f5eedb;
+      border-left: 3px solid #6b4d31;
+      box-shadow: -10px 0 35px rgba(0,0,0,0.7);
+      z-index: 1050;
+      transform: translateX(100%);
+      transition: transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+      display: flex;
+      flex-direction: column;
+      padding: 24px 20px 20px;
+    }
+
+    .notes-panel.open {
+      transform: translateX(0);
+    }
+
+    .notes-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 2px solid #c4b087;
+      padding-bottom: 12px;
+      margin-bottom: 16px;
+    }
+
+    .notes-title {
+      font-family: var(--font-title);
+      font-size: 16px;
+      letter-spacing: 1.5px;
+      font-weight: 800;
+      color: #24180f;
+    }
+
+    .notes-close-btn {
+      background: #2b1c11;
+      color: #e5cdb0;
+      border: 1px solid #5a3c26;
+      border-radius: 3px;
+      width: 28px;
+      height: 28px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      font-size: 14px;
+      transition: background 0.2s;
+    }
+    .notes-close-btn:hover {
+      background: #541d1d;
+      color: #fff;
+    }
+
+    .notes-textarea {
+      flex-grow: 1;
+      width: 100%;
+      background: #faf6ea;
+      border: 1px solid #c4b087;
+      border-radius: 3px;
+      padding: 14px;
+      font-family: var(--font-mono);
+      font-size: 13.5px;
+      line-height: 1.6;
+      color: #1f170f;
+      resize: none;
+      outline: none;
+      box-shadow: inset 0 2px 6px rgba(0,0,0,0.05);
+    }
+
+    .notes-textarea:focus {
+      border-color: #7a5534;
+      background: #fff;
+    }
+
+    .notes-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 14px;
+      font-size: 12px;
+    }
+
+    .notes-clear-btn {
+      background: none;
+      border: 1px dashed #8b3434;
+      color: #8b3434;
+      padding: 4px 10px;
+      border-radius: 3px;
+      cursor: pointer;
+      font-size: 11px;
+      font-family: var(--font-mono);
+      transition: all 0.2s;
+    }
+    .notes-clear-btn:hover {
+      background: #8b3434;
+      color: #fff;
+    }
+
+    .notes-counter {
+      color: #665039;
+      font-family: monospace;
+    }
+
+    /* ============================================================
+       ACHIEVEMENT TOAST NOTIFICATION
+       ============================================================ */
+    .achievement-toast {
+      position: fixed;
+      bottom: -120px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #1c140d;
+      border: 2px solid #8B6914;
+      color: #d8c8b4;
+      padding: 14px 24px;
+      border-radius: 4px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      transition: bottom 0.4s ease;
+      z-index: 9999;
+      font-family: var(--font-mono), monospace;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.8);
+      max-width: 90vw;
+    }
+
+    .achievement-toast.show {
+      bottom: 30px;
+    }
+
+    /* Responsive adjustments */
+    @media (max-width: 768px) {
+      .folders-grid {
+        grid-template-columns: 1fr;
+      }
+      .desk-objects-bar {
+        flex-direction: column;
+      }
+      .detective-desk-surface {
+        padding: 24px 18px;
+      }
+      .desk-brand-title {
+        font-size: 38px;
+      }
+    }
+

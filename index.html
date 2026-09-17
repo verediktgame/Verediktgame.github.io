@@ -7,9 +7,1235 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Courier+Prime:ital,wght@0,400;0,700;1,400&family=Special+Elite&family=Cinzel:wght@700;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    html, body { background: #0b0806; }
+
+    .desk-btn {
+      font-family: 'Courier Prime', monospace;
+      font-size: 12.5px;
+      letter-spacing: 1.6px;
+      text-transform: uppercase;
+      color: #e8dcc4;
+      background: linear-gradient(180deg, #2a1b10 0%, #1c1209 100%);
+      border: 1px solid #7a5a24;
+      border-radius: 3px;
+      padding: 11px 18px;
+      cursor: pointer;
+      text-align: left;
+      box-shadow:
+        inset 0 1px 0 rgba(201, 168, 76, 0.22),
+        0 6px 16px rgba(0, 0, 0, 0.7);
+      transition: background 0.18s ease, color 0.18s ease, border-color 0.18s ease, transform 0.18s ease;
+    }
+    .desk-btn:hover {
+      color: #fff6e2;
+      border-color: #c9a84c;
+      background: linear-gradient(180deg, #3d2919 0%, #271a0f 100%);
+      transform: translateY(-1px);
+    }
+    .desk-btn:active { transform: translateY(0); }
+    .desk-btn:focus-visible { outline: 2px solid #c9a84c; outline-offset: 2px; }
+
+    #sceneFx {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 1001;
+      background: radial-gradient(ellipse 118% 92% at 50% 40%,
+        rgba(0, 0, 0, 0) 34%,
+        rgba(0, 0, 0, 0.28) 68%,
+        rgba(0, 0, 0, 0.78) 100%);
+    }
+    #sceneFx::after {
+      content: "";
+      position: absolute;
+      inset: -60%;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+      opacity: 0.045;
+      animation: verediktGrain 0.8s steps(4) infinite;
+    }
+    @keyframes verediktGrain {
+      0%   { transform: translate(0, 0); }
+      25%  { transform: translate(-3%, 2%); }
+      50%  { transform: translate(2%, -3%); }
+      75%  { transform: translate(-2%, -2%); }
+      100% { transform: translate(3%, 1%); }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      #sceneFx::after { animation: none; }
+    }
+  </style>
 </head>
 <body>
   <div id="root"></div>
   <script type="module" src="/src/main.jsx"></script>
+
+  <!-- Canvas Three.js — menú POV -->
+  <canvas id="menuCanvas" style="position:fixed; top:0; left:0; width:100%; height:100%; z-index:1000;"></canvas>
+
+  <!-- Atmósfera cinematográfica (viñeta + grano) -->
+  <div id="sceneFx" style="position:fixed; inset:0; pointer-events:none; z-index:1001;"></div>
+
+  <!-- Overlay de fade -->
+  <div id="sceneOverlay" style="position:fixed; top:0; left:0; width:100%; height:100%; background:#000; opacity:0; pointer-events:none; z-index:1002; transition:opacity 0.4s;"></div>
+
+  <!-- Botones de configuración API (solo Estado B) -->
+  <div id="deskButtons" style="display:none; position:fixed; bottom:24px; right:24px; flex-direction:column; gap:8px; z-index:1003;">
+    <button type="button" onclick="openApiConfig()" class="desk-btn">⚙ Configurar API</button>
+    <button type="button" onclick="openApiInfo()" class="desk-btn">📊 Mi API</button>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script>
+    (function () {
+      'use strict';
+
+      var canvasEl = document.getElementById('menuCanvas');
+      var overlayEl = document.getElementById('sceneOverlay');
+      var fxEl = document.getElementById('sceneFx');
+      var deskButtonsEl = document.getElementById('deskButtons');
+
+      if (!canvasEl) return;
+
+      if (typeof THREE === 'undefined') {
+        canvasEl.style.display = 'none';
+        if (overlayEl) overlayEl.style.display = 'none';
+        if (fxEl) fxEl.style.display = 'none';
+        return;
+      }
+
+      var reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+      // ==================== BRIDGE CON EL JUEGO ====================
+      window.openApiConfig = function () {
+        if (typeof window.__verediktOpenSettings === 'function') window.__verediktOpenSettings();
+      };
+      window.openApiInfo = function () {
+        if (typeof window.__verediktOpenMyApi === 'function') window.__verediktOpenMyApi();
+      };
+
+      // ==================== RENDERER / SCENE / CAMERA ====================
+      var renderer = new THREE.WebGLRenderer({ canvas: canvasEl, antialias: true });
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+      renderer.setSize(window.innerWidth, window.innerHeight);
+      renderer.shadowMap.enabled = true;
+      renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+      renderer.outputEncoding = THREE.sRGBEncoding;
+      renderer.toneMapping = THREE.ACESFilmicToneMapping;
+      renderer.toneMappingExposure = 1.25;
+      renderer.setClearColor(0x0e0906, 1);
+
+      var scene = new THREE.Scene();
+      scene.background = new THREE.Color(0x0e0906);
+      scene.fog = new THREE.FogExp2(0x160e07, 0.038);
+
+      var camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 100);
+      camera.position.set(0, 1.6, 3.5);
+      camera.rotation.set(0, 0, 0);
+
+      var CAM_WALL = {
+        position: new THREE.Vector3(0, 1.6, 3.5),
+        rotation: new THREE.Euler(0, 0, 0)
+      };
+      var CAM_DESK = {
+        position: new THREE.Vector3(0, 1.6, 3.5),
+        rotation: new THREE.Euler(-0.72, 0, 0)
+      };
+
+      var MAX_ANISO = renderer.capabilities.getMaxAnisotropy();
+      var painters = [];
+
+      // ==================== TEXTURAS PROCEDURALES ====================
+      function makeCanvasTexture(w, h, paint, repeatX, repeatY) {
+        var c = document.createElement('canvas');
+        c.width = w; c.height = h;
+        var ctx = c.getContext('2d');
+        var tex = new THREE.CanvasTexture(c);
+        tex.encoding = THREE.sRGBEncoding;
+        tex.anisotropy = MAX_ANISO;
+        if (repeatX || repeatY) {
+          tex.wrapS = tex.wrapT = THREE.RepeatWrapping;
+          tex.repeat.set(repeatX || 1, repeatY || 1);
+        }
+        var painter = function () { paint(ctx, w, h); tex.needsUpdate = true; };
+        painter();
+        painters.push(painter);
+        return tex;
+      }
+
+      function hatch(ctx, w, h, count, alpha, maxSize) {
+        for (var i = 0; i < count; i++) {
+          var s = 0.5 + Math.random() * (maxSize || 2);
+          var a = alpha * (0.3 + Math.random() * 0.7);
+          ctx.fillStyle = Math.random() > 0.5
+            ? 'rgba(255,236,200,' + a + ')'
+            : 'rgba(0,0,0,' + a + ')';
+          ctx.fillRect(Math.random() * w, Math.random() * h, s, s);
+        }
+      }
+
+      function vignette(ctx, w, h, strength) {
+        var g = ctx.createRadialGradient(w / 2, h / 2, w * 0.2, w / 2, h / 2, w * 0.75);
+        g.addColorStop(0, 'rgba(0,0,0,0)');
+        g.addColorStop(1, 'rgba(0,0,0,' + strength + ')');
+        ctx.fillStyle = g;
+        ctx.fillRect(0, 0, w, h);
+      }
+
+      function paintWood(ctx, w, h) {
+        ctx.fillStyle = '#4a3018';
+        ctx.fillRect(0, 0, w, h);
+        for (var i = 0; i < 260; i++) {
+          var y = Math.random() * h;
+          ctx.strokeStyle = 'rgba(0,0,0,' + (0.03 + Math.random() * 0.09) + ')';
+          ctx.lineWidth = 0.5 + Math.random() * 1.6;
+          ctx.beginPath();
+          for (var x = 0; x <= w; x += 18) {
+            var yy = y + Math.sin((x + i) * 0.018) * 3 + (Math.random() - 0.5) * 2.2;
+            if (x === 0) ctx.moveTo(x, yy); else ctx.lineTo(x, yy);
+          }
+          ctx.stroke();
+        }
+        for (var k = 0; k < 7; k++) {
+          var kx = Math.random() * w, ky = Math.random() * h;
+          ctx.strokeStyle = 'rgba(0,0,0,0.22)';
+          for (var r = 0; r < 4; r++) {
+            ctx.lineWidth = 1.4;
+            ctx.beginPath();
+            ctx.ellipse(kx, ky, 6 + r * 5, 3 + r * 2.4, Math.random(), 0, Math.PI * 2);
+            ctx.stroke();
+          }
+        }
+        hatch(ctx, w, h, 500, 0.05, 1.5);
+        vignette(ctx, w, h, 0.28);
+      }
+
+      function paintWall(ctx, w, h) {
+        ctx.fillStyle = '#4a3524';
+        ctx.fillRect(0, 0, w, h);
+        hatch(ctx, w, h, 2600, 0.06, 2.4);
+        for (var i = 0; i < 40; i++) {
+          var x = Math.random() * w;
+          ctx.strokeStyle = 'rgba(0,0,0,' + (0.02 + Math.random() * 0.05) + ')';
+          ctx.lineWidth = 4 + Math.random() * 26;
+          ctx.beginPath();
+          ctx.moveTo(x, 0);
+          ctx.lineTo(x + (Math.random() - 0.5) * 40, h);
+          ctx.stroke();
+        }
+        var g = ctx.createLinearGradient(0, 0, 0, h);
+        g.addColorStop(0, 'rgba(0,0,0,0.26)');
+        g.addColorStop(0.5, 'rgba(0,0,0,0.03)');
+        g.addColorStop(1, 'rgba(0,0,0,0.4)');
+        ctx.fillStyle = g;
+        ctx.fillRect(0, 0, w, h);
+      }
+
+      function paintFloor(ctx, w, h) {
+        ctx.fillStyle = '#26190f';
+        ctx.fillRect(0, 0, w, h);
+        var planks = 6;
+        for (var p = 0; p < planks; p++) {
+          var y = (p / planks) * h;
+          ctx.fillStyle = p % 2 ? 'rgba(255,220,170,0.025)' : 'rgba(0,0,0,0.12)';
+          ctx.fillRect(0, y, w, h / planks);
+          ctx.strokeStyle = 'rgba(0,0,0,0.6)';
+          ctx.lineWidth = 2;
+          ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(w, y); ctx.stroke();
+          for (var i = 0; i < 40; i++) {
+            var gy = y + Math.random() * (h / planks);
+            ctx.strokeStyle = 'rgba(0,0,0,' + (0.04 + Math.random() * 0.08) + ')';
+            ctx.lineWidth = 0.6 + Math.random();
+            ctx.beginPath();
+            ctx.moveTo(0, gy);
+            ctx.bezierCurveTo(w * 0.3, gy + (Math.random() - 0.5) * 8, w * 0.7, gy + (Math.random() - 0.5) * 8, w, gy);
+            ctx.stroke();
+          }
+        }
+        vignette(ctx, w, h, 0.4);
+      }
+
+      function paintCork(ctx, w, h) {
+        ctx.fillStyle = '#8a5a2b';
+        ctx.fillRect(0, 0, w, h);
+        for (var i = 0; i < 5200; i++) {
+          var s = 1 + Math.random() * 4;
+          ctx.fillStyle = Math.random() > 0.5
+            ? 'rgba(60,34,12,' + (0.15 + Math.random() * 0.35) + ')'
+            : 'rgba(196,146,86,' + (0.12 + Math.random() * 0.3) + ')';
+          ctx.beginPath();
+          ctx.arc(Math.random() * w, Math.random() * h, s, 0, Math.PI * 2);
+          ctx.fill();
+        }
+        vignette(ctx, w, h, 0.3);
+      }
+
+      function paintBlinds(ctx, w, h) {
+        ctx.clearRect(0, 0, w, h);
+        var slats = 12;
+        for (var i = 0; i < slats; i++) {
+          var y = (i / slats) * h;
+          var g = ctx.createLinearGradient(0, y, 0, y + h / slats);
+          g.addColorStop(0, '#1b2333');
+          g.addColorStop(0.5, '#2c3a52');
+          g.addColorStop(1, '#0e1420');
+          ctx.fillStyle = g;
+          ctx.fillRect(0, y, w, h / slats * 0.72);
+        }
+      }
+
+      function paintKeys(ctx, w, h) {
+        ctx.fillStyle = '#221610';
+        ctx.fillRect(0, 0, w, h);
+        var rows = 3, cols = 9;
+        for (var r = 0; r < rows; r++) {
+          for (var c = 0; c < cols; c++) {
+            var x = (c + 0.5) * (w / cols);
+            var y = (r + 0.5) * (h / rows);
+            ctx.fillStyle = '#0d0906';
+            ctx.beginPath(); ctx.arc(x, y + 2, 9, 0, Math.PI * 2); ctx.fill();
+            ctx.fillStyle = '#e8dcc4';
+            ctx.beginPath(); ctx.arc(x, y, 8, 0, Math.PI * 2); ctx.fill();
+            ctx.fillStyle = 'rgba(0,0,0,0.35)';
+            ctx.beginPath(); ctx.arc(x, y, 4.5, 0, Math.PI * 2); ctx.fill();
+          }
+        }
+        vignette(ctx, w, h, 0.35);
+      }
+
+      function paintTypePaper(ctx, w, h) {
+        ctx.fillStyle = '#e9dfc6';
+        ctx.fillRect(0, 0, w, h);
+        hatch(ctx, w, h, 900, 0.05, 1.4);
+        ctx.fillStyle = '#2a2016';
+        ctx.font = 'bold 15px "Special Elite", "Courier New", monospace';
+        ctx.textAlign = 'center';
+        ctx.fillText('VEREDIKT', w / 2, 34);
+        ctx.font = '10px "Courier Prime", monospace';
+        ctx.fillText('DIVISION DE HOMICIDIOS', w / 2, 50);
+        ctx.strokeStyle = 'rgba(0,0,0,0.4)';
+        ctx.beginPath(); ctx.moveTo(30, 62); ctx.lineTo(w - 30, 62); ctx.stroke();
+        for (var i = 0; i < 7; i++) {
+          var y = 86 + i * 20;
+          ctx.fillStyle = 'rgba(30,22,14,' + (0.35 + Math.random() * 0.3) + ')';
+          var len = w * (0.45 + Math.random() * 0.4);
+          ctx.fillRect(34, y, len, 2.4);
+        }
+      }
+
+      function makePaperTexture(title) {
+        return makeCanvasTexture(320, 420, function (ctx, w, h) {
+          ctx.fillStyle = '#ece2c9';
+          ctx.fillRect(0, 0, w, h);
+          hatch(ctx, w, h, 700, 0.05, 1.4);
+          ctx.fillStyle = '#1e1610';
+          ctx.font = 'bold 20px "Special Elite", "Courier New", monospace';
+          ctx.textAlign = 'center';
+          ctx.fillText(title, w / 2, 46);
+          ctx.strokeStyle = 'rgba(140,40,40,0.7)';
+          ctx.lineWidth = 2;
+          ctx.strokeRect(18, 18, w - 36, h - 36);
+          for (var i = 0; i < 11; i++) {
+            var y = 88 + i * 26;
+            ctx.fillStyle = 'rgba(30,22,14,' + (0.28 + Math.random() * 0.32) + ')';
+            var len = w * (0.4 + Math.random() * 0.44);
+            ctx.fillRect(34, y, len, 2.6);
+          }
+          ctx.save();
+          ctx.translate(w * 0.68, h * 0.8);
+          ctx.rotate(-0.22);
+          ctx.strokeStyle = 'rgba(150,25,25,0.75)';
+          ctx.lineWidth = 3;
+          ctx.strokeRect(-62, -20, 124, 40);
+          ctx.fillStyle = 'rgba(150,25,25,0.75)';
+          ctx.font = 'bold 15px "Courier Prime", monospace';
+          ctx.textAlign = 'center';
+          ctx.fillText('CONFIDENCIAL', 0, 6);
+          ctx.restore();
+        });
+      }
+
+      function paintManila(ctx, w, h, def, hover) {
+        var g = ctx.createLinearGradient(0, 0, w, h);
+        g.addColorStop(0, hover ? '#d8b071' : '#c49a5c');
+        g.addColorStop(1, hover ? '#b98e4e' : '#a87f47');
+        ctx.fillStyle = g;
+        ctx.fillRect(0, 0, w, h);
+        hatch(ctx, w, h, 1400, 0.05, 1.6);
+
+        ctx.fillStyle = hover ? '#e3c084' : '#cdaa6a';
+        ctx.fillRect(0, 0, w, 64);
+        ctx.strokeStyle = 'rgba(70,44,20,0.55)';
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+        ctx.moveTo(0, 64); ctx.lineTo(w, 64);
+        ctx.stroke();
+
+        ctx.fillStyle = 'rgba(245,238,220,0.92)';
+        ctx.fillRect(w * 0.6, 40, w * 0.36, h - 66);
+        ctx.strokeStyle = 'rgba(90,70,40,0.4)';
+        ctx.lineWidth = 1.4;
+        ctx.strokeRect(w * 0.6, 40, w * 0.36, h - 66);
+        for (var i = 0; i < 9; i++) {
+          ctx.fillStyle = 'rgba(40,32,22,' + (0.2 + Math.random() * 0.25) + ')';
+          ctx.fillRect(w * 0.63, 62 + i * ((h - 90) / 9), w * (0.12 + Math.random() * 0.2), 2);
+        }
+
+        ctx.strokeStyle = hover ? '#f0d089' : '#7a5a24';
+        ctx.lineWidth = 4;
+        ctx.strokeRect(3, 3, w - 6, h - 6);
+
+        ctx.fillStyle = '#1e1610';
+        ctx.font = 'bold 30px "Special Elite", "Courier New", monospace';
+        ctx.textAlign = 'center';
+        ctx.fillText(def.label, w * 0.34, 44);
+
+        ctx.fillStyle = 'rgba(30,22,14,0.82)';
+        ctx.font = '17px "Courier Prime", monospace';
+        ctx.textAlign = 'left';
+        ctx.fillText(def.sub, 22, h - 40);
+
+        ctx.fillStyle = 'rgba(140,25,25,0.85)';
+        ctx.font = 'bold 15px "Courier Prime", monospace';
+        ctx.textAlign = 'left';
+        ctx.fillText(def.code, 22, h - 16);
+      }
+
+      // ==================== LUCES ====================
+      var ambient = new THREE.AmbientLight(0x3a2a1e, 1.0);
+      scene.add(ambient);
+
+      var hemi = new THREE.HemisphereLight(0x4a5c80, 0x1c130b, 0.6);
+      scene.add(hemi);
+
+      var deskSpot = new THREE.SpotLight(0xffbe70, 2.5, 11, 1.02, 0.8, 1.25);
+      deskSpot.position.set(1.34, 0.62, 0.72);
+      deskSpot.target.position.set(-0.1, 0, 1.7);
+      deskSpot.castShadow = true;
+      deskSpot.shadow.mapSize.width = 1024;
+      deskSpot.shadow.mapSize.height = 1024;
+      deskSpot.shadow.camera.near = 0.3;
+      deskSpot.shadow.camera.far = 9;
+      deskSpot.shadow.bias = -0.0007;
+      deskSpot.shadow.radius = 4;
+      scene.add(deskSpot);
+      scene.add(deskSpot.target);
+
+      var lampGlow = new THREE.PointLight(0xffa848, 0.75, 4.2, 1.8);
+      lampGlow.position.set(1.34, 0.58, 0.72);
+      scene.add(lampGlow);
+
+      var windowLight = new THREE.DirectionalLight(0x93b4e6, 0.62);
+      windowLight.position.set(-3.4, 3.4, -1.6);
+      windowLight.target.position.set(0, 0.6, 1.6);
+      scene.add(windowLight);
+      scene.add(windowLight.target);
+
+      var wallWash = new THREE.PointLight(0xffc98a, 0.95, 9, 1.5);
+      wallWash.position.set(0.2, 3.4, -0.9);
+      scene.add(wallWash);
+
+      var fillLight = new THREE.PointLight(0x5f6f9a, 0.6, 18, 1.1);
+      fillLight.position.set(-4.2, 1.6, 3.2);
+      scene.add(fillLight);
+
+      var deskBounce = new THREE.PointLight(0xffc890, 0.38, 6, 1.6);
+      deskBounce.position.set(0, 0.5, 2.8);
+      scene.add(deskBounce);
+
+      // ==================== TEXTURAS BASE ====================
+      var woodTopTex = makeCanvasTexture(512, 512, paintWood);
+      var woodSideTex = makeCanvasTexture(256, 256, paintWood);
+      var wallTex = makeCanvasTexture(512, 512, paintWall, 3, 1.5);
+      var floorTex = makeCanvasTexture(512, 512, paintFloor, 7, 7);
+      var corkTex = makeCanvasTexture(512, 512, paintCork);
+      var blindsTex = makeCanvasTexture(256, 512, paintBlinds);
+      var keysTex = makeCanvasTexture(512, 180, paintKeys);
+      var paperTex = makePaperTexture('EXPEDIENTE');
+      var typePaperTex = makeCanvasTexture(320, 420, paintTypePaper);
+
+      var woodTopMat = new THREE.MeshStandardMaterial({ map: woodTopTex, roughness: 0.62, metalness: 0.05 });
+      var woodSideMat = new THREE.MeshStandardMaterial({ map: woodSideTex, color: 0x8a6a48, roughness: 0.7, metalness: 0.05 });
+      var wallMat = new THREE.MeshStandardMaterial({ map: wallTex, roughness: 0.96, metalness: 0 });
+      var floorMat = new THREE.MeshStandardMaterial({ map: floorTex, roughness: 0.9, metalness: 0.02 });
+      var corkMat = new THREE.MeshStandardMaterial({ map: corkTex, roughness: 0.95, metalness: 0 });
+      var paperMat = new THREE.MeshStandardMaterial({ map: paperTex, roughness: 0.9, metalness: 0 });
+      var darkMetal = new THREE.MeshStandardMaterial({ color: 0x1c1712, roughness: 0.5, metalness: 0.7 });
+      var brass = new THREE.MeshStandardMaterial({ color: 0x9a7b2e, roughness: 0.38, metalness: 0.85 });
+
+      // ==================== HABITACIÓN ====================
+      var floor = new THREE.Mesh(new THREE.PlaneGeometry(30, 30), floorMat);
+      floor.rotation.x = -Math.PI / 2;
+      floor.position.set(0, -0.75, 1.5);
+      floor.receiveShadow = true;
+      scene.add(floor);
+
+      var wall = new THREE.Mesh(new THREE.PlaneGeometry(18, 8), wallMat);
+      wall.position.set(0, 3.25, -2);
+      wall.receiveShadow = true;
+      scene.add(wall);
+
+      var wainscot = new THREE.Mesh(
+        new THREE.BoxGeometry(18, 1.55, 0.12),
+        new THREE.MeshStandardMaterial({ map: woodSideTex, color: 0x6b4c30, roughness: 0.72, metalness: 0.04 })
+      );
+      wainscot.position.set(0, -0.02, -1.95);
+      wainscot.receiveShadow = true;
+      scene.add(wainscot);
+
+      var molding = new THREE.Mesh(new THREE.BoxGeometry(18, 0.09, 0.2), brass);
+      molding.position.set(0, 0.78, -1.93);
+      scene.add(molding);
+
+      // ==================== ESCRITORIO ====================
+      var desk = new THREE.Mesh(
+        new THREE.BoxGeometry(5.4, 0.14, 3.2),
+        [woodSideMat, woodSideMat, woodTopMat, woodSideMat, woodTopMat, woodSideMat]
+      );
+      desk.position.set(0, -0.07, 1.5);
+      desk.receiveShadow = true;
+      desk.castShadow = true;
+      scene.add(desk);
+
+      var deskFront = new THREE.Mesh(new THREE.BoxGeometry(5.4, 1.0, 0.1), woodSideMat);
+      deskFront.position.set(0, -0.65, 3.05);
+      deskFront.receiveShadow = true;
+      scene.add(deskFront);
+
+      // ==================== LÁMPARA DE ESCRITORIO ====================
+      var lamp = new THREE.Group();
+      lamp.position.set(1.62, 0, 0.72);
+      lamp.add(new THREE.Mesh(new THREE.BoxGeometry(0.3, 0.04, 0.3), darkMetal));
+      var lampStem = new THREE.Mesh(new THREE.BoxGeometry(0.035, 0.66, 0.035), darkMetal);
+      lampStem.position.y = 0.35;
+      lamp.add(lampStem);
+      var lampArm = new THREE.Mesh(new THREE.BoxGeometry(0.28, 0.035, 0.035), darkMetal);
+      lampArm.position.set(-0.14, 0.68, 0);
+      lamp.add(lampArm);
+      var shade = new THREE.Mesh(new THREE.BoxGeometry(0.36, 0.1, 0.24), new THREE.MeshStandardMaterial({ color: 0x2c3a2a, roughness: 0.4, metalness: 0.6 }));
+      shade.position.set(-0.28, 0.66, 0);
+      shade.castShadow = true;
+      lamp.add(shade);
+      var bulb = new THREE.Mesh(new THREE.PlaneGeometry(0.32, 0.2), new THREE.MeshBasicMaterial({ color: 0xffd9a0 }));
+      bulb.rotation.x = -Math.PI / 2;
+      bulb.position.set(-0.28, 0.605, 0);
+      lamp.add(bulb);
+      lamp.traverse(function (o) { if (o.isMesh) o.castShadow = true; });
+      scene.add(lamp);
+
+      var lampHalo = new THREE.Sprite(new THREE.SpriteMaterial({
+        map: softCircleTexture(128, 255, 196, 120),
+        transparent: true,
+        opacity: 0.32,
+        depthWrite: false,
+        blending: THREE.AdditiveBlending
+      }));
+      lampHalo.position.set(1.34, 0.6, 0.72);
+      lampHalo.scale.set(0.95, 0.95, 0.95);
+      scene.add(lampHalo);
+
+      // ==================== MÁQUINA DE ESCRIBIR ====================
+      var typewriter = new THREE.Group();
+      typewriter.position.set(1.42, 0, 2.15);
+      typewriter.rotation.y = -0.34;
+      var twBody = new THREE.Mesh(new THREE.BoxGeometry(0.54, 0.12, 0.44), darkMetal);
+      twBody.position.y = 0.06;
+      typewriter.add(twBody);
+      var twBack = new THREE.Mesh(new THREE.BoxGeometry(0.54, 0.3, 0.09), darkMetal);
+      twBack.position.set(0, 0.21, -0.18);
+      typewriter.add(twBack);
+      var twRoller = new THREE.Mesh(new THREE.BoxGeometry(0.5, 0.05, 0.05), new THREE.MeshStandardMaterial({ color: 0x0e0b08, roughness: 0.6, metalness: 0.3 }));
+      twRoller.position.set(0, 0.32, -0.13);
+      typewriter.add(twRoller);
+      var twKeys = new THREE.Mesh(new THREE.PlaneGeometry(0.44, 0.16), new THREE.MeshStandardMaterial({ map: keysTex, roughness: 0.7, metalness: 0.2 }));
+      twKeys.rotation.x = -Math.PI / 2;
+      twKeys.position.set(0, 0.121, 0.03);
+      typewriter.add(twKeys);
+      var twPaper = new THREE.Mesh(new THREE.PlaneGeometry(0.42, 0.52), new THREE.MeshStandardMaterial({ map: typePaperTex, roughness: 0.92, metalness: 0, side: THREE.DoubleSide }));
+      twPaper.position.set(0, 0.52, -0.19);
+      twPaper.rotation.x = -0.34;
+      typewriter.add(twPaper);
+      typewriter.traverse(function (o) { if (o.isMesh) { o.castShadow = true; o.receiveShadow = true; } });
+      scene.add(typewriter);
+
+      // ==================== CAFÉ ====================
+      var mug = new THREE.Group();
+      mug.position.set(-1.45, 0, 2.85);
+      var mugBody = new THREE.Mesh(new THREE.BoxGeometry(0.15, 0.17, 0.15), new THREE.MeshStandardMaterial({ color: 0x2b2620, roughness: 0.42, metalness: 0.15 }));
+      mugBody.position.y = 0.085;
+      mug.add(mugBody);
+      var mugCoffee = new THREE.Mesh(new THREE.PlaneGeometry(0.12, 0.12), new THREE.MeshStandardMaterial({ color: 0x241408, roughness: 0.25, metalness: 0.1 }));
+      mugCoffee.rotation.x = -Math.PI / 2;
+      mugCoffee.position.y = 0.171;
+      mug.add(mugCoffee);
+      var mugHandle = new THREE.Mesh(new THREE.BoxGeometry(0.045, 0.11, 0.03), new THREE.MeshStandardMaterial({ color: 0x2b2620, roughness: 0.42, metalness: 0.15 }));
+      mugHandle.position.set(0.1, 0.09, 0);
+      mug.add(mugHandle);
+      mug.traverse(function (o) { if (o.isMesh) o.castShadow = true; });
+      scene.add(mug);
+
+      // ==================== CENICERO ====================
+      var ashtray = new THREE.Mesh(new THREE.BoxGeometry(0.24, 0.035, 0.24), new THREE.MeshStandardMaterial({ color: 0x1a1512, roughness: 0.35, metalness: 0.4 }));
+      ashtray.position.set(0.72, 0.018, 2.48);
+      ashtray.castShadow = true;
+      ashtray.receiveShadow = true;
+      scene.add(ashtray);
+      var cig = new THREE.Mesh(new THREE.BoxGeometry(0.14, 0.018, 0.018), new THREE.MeshStandardMaterial({ color: 0xe8dcc4, roughness: 0.9 }));
+      cig.position.set(0.72, 0.04, 2.48);
+      cig.rotation.y = 0.5;
+      scene.add(cig);
+
+      // ==================== PAPELES SUELTOS ====================
+      [
+        { x: -2.45, z: 0.55, ry: 0.5, tex: paperTex },
+        { x: 2.1, z: 0.5, ry: -0.4, tex: typePaperTex },
+        { x: 1.0, z: 2.75, ry: 0.2, tex: paperTex }
+      ].forEach(function (p) {
+        var m = new THREE.Mesh(new THREE.PlaneGeometry(0.5, 0.66), new THREE.MeshStandardMaterial({ map: p.tex, roughness: 0.92, metalness: 0 }));
+        m.rotation.x = -Math.PI / 2;
+        m.rotation.z = p.ry;
+        m.position.set(p.x, 0.004, p.z);
+        m.receiveShadow = true;
+        scene.add(m);
+      });
+
+      // ==================== CARPETAS ====================
+      var CARPETAS = [
+        { id: 'nuevo',     label: 'NUEVO CASO',  sub: 'La IA redacta el expediente', code: 'EXP-01', x: -1.6, z: 0.8 },
+        { id: 'comunidad', label: 'COMUNIDAD',   sub: 'Importar un expediente',       code: 'EXP-02', x:  0.4, z: 0.8 },
+        { id: 'casos',     label: 'MIS CASOS',   sub: 'Historial local',              code: 'EXP-03', x: -1.6, z: 1.9 },
+        { id: 'logros',    label: 'LOGROS',      sub: 'Tus condecoraciones',          code: 'EXP-04', x:  0.4, z: 1.9 }
+      ];
+      var CARPETA_COOP = { id: 'coop', label: 'COOPERATIVO', sub: 'Varios detectives, una pantalla', code: 'EXP-05', x: -0.6, z: 2.7 };
+
+      var folderStackMat = new THREE.MeshStandardMaterial({ color: 0xe6dcc2, roughness: 0.95, metalness: 0 });
+      var folderSideMat = new THREE.MeshStandardMaterial({ color: 0xa87f47, roughness: 0.85, metalness: 0.02 });
+
+      var folderDefs = CARPETAS.concat([CARPETA_COOP]);
+      var folders = [];
+      var folderPlanes = [];
+
+      folderDefs.forEach(function (def, index) {
+        var baseTex = makeCanvasTexture(512, 360, function (ctx, w, h) { paintManila(ctx, w, h, def, false); });
+        var hoverTex = makeCanvasTexture(512, 360, function (ctx, w, h) { paintManila(ctx, w, h, def, true); });
+
+        var group = new THREE.Group();
+        group.position.set(def.x, 0, def.z);
+
+        var stack = new THREE.Mesh(new THREE.BoxGeometry(0.98, 0.012, 0.66), folderStackMat);
+        stack.position.y = 0.006;
+        stack.rotation.y = index % 2 ? 0.05 : -0.045;
+        stack.receiveShadow = true;
+        group.add(stack);
+
+        var body = new THREE.Mesh(new THREE.BoxGeometry(1.1, 0.03, 0.75), folderSideMat);
+        body.position.y = 0.03;
+        body.castShadow = true;
+        body.receiveShadow = true;
+        group.add(body);
+
+        var top = new THREE.Mesh(
+          new THREE.PlaneGeometry(1.1, 0.75),
+          new THREE.MeshStandardMaterial({ map: baseTex, roughness: 0.82, metalness: 0.02 })
+        );
+        top.rotation.x = -Math.PI / 2;
+        top.position.y = 0.046;
+        top.receiveShadow = true;
+        group.add(top);
+
+        group.userData.targetY = 0;
+        group.userData.targetRotZ = 0;
+        scene.add(group);
+
+        var entry = { id: def.id, group: group, top: top, baseTex: baseTex, hoverTex: hoverTex };
+        folders.push(entry);
+        top.userData.entry = entry;
+        folderPlanes.push(top);
+      });
+
+      function setFolderHover(entry, on) {
+        if (!entry) return;
+        entry.top.material.map = on ? entry.hoverTex : entry.baseTex;
+        entry.top.material.emissive.setHex(on ? 0x3a2508 : 0x000000);
+        entry.top.material.emissiveIntensity = on ? 0.55 : 0;
+        entry.top.material.needsUpdate = true;
+        entry.group.userData.targetY = on ? 0.075 : 0;
+        entry.group.userData.targetRotZ = on ? 0.04 : 0;
+      }
+
+      var cabinet = new THREE.Group();
+      cabinet.position.set(3.7, 0, -1.25);
+      var cabinetBody = new THREE.Mesh(
+        new THREE.BoxGeometry(1.0, 1.3, 0.66),
+        new THREE.MeshStandardMaterial({ color: 0x2b2a28, roughness: 0.55, metalness: 0.45 })
+      );
+      cabinetBody.position.y = -0.1;
+      cabinetBody.castShadow = true;
+      cabinetBody.receiveShadow = true;
+      cabinet.add(cabinetBody);
+      [-0.52, -0.1, 0.32].forEach(function (dy) {
+        var drawer = new THREE.Mesh(
+          new THREE.BoxGeometry(0.88, 0.32, 0.03),
+          new THREE.MeshStandardMaterial({ color: 0x232220, roughness: 0.5, metalness: 0.5 })
+        );
+        drawer.position.set(0, dy, 0.34);
+        drawer.castShadow = true;
+        cabinet.add(drawer);
+        var pull = new THREE.Mesh(new THREE.BoxGeometry(0.28, 0.035, 0.035), brass);
+        pull.position.set(0, dy, 0.37);
+        cabinet.add(pull);
+      });
+      var caseStack = new THREE.Mesh(new THREE.BoxGeometry(0.62, 0.08, 0.42), folderStackMat);
+      caseStack.position.set(0, 0.59, 0);
+      caseStack.rotation.y = 0.12;
+      caseStack.castShadow = true;
+      caseStack.receiveShadow = true;
+      cabinet.add(caseStack);
+      var caseTop = new THREE.Mesh(new THREE.BoxGeometry(0.58, 0.05, 0.38), folderSideMat);
+      caseTop.position.set(0.02, 0.65, 0.01);
+      caseTop.rotation.y = -0.08;
+      caseTop.castShadow = true;
+      cabinet.add(caseTop);
+      scene.add(cabinet);
+
+      // ==================== PARED: LETRERO ====================
+      var signTex = makeCanvasTexture(768, 192, function (ctx, w, h) {
+        var g = ctx.createLinearGradient(0, 0, 0, h);
+        g.addColorStop(0, '#c9a84c');
+        g.addColorStop(0.5, '#a07d2e');
+        g.addColorStop(1, '#7a5a1e');
+        ctx.fillStyle = g;
+        ctx.fillRect(0, 0, w, h);
+        hatch(ctx, w, h, 900, 0.05, 1.6);
+        ctx.strokeStyle = 'rgba(30,20,6,0.85)';
+        ctx.lineWidth = 8;
+        ctx.strokeRect(10, 10, w - 20, h - 20);
+        ctx.strokeStyle = 'rgba(255,240,190,0.35)';
+        ctx.lineWidth = 2;
+        ctx.strokeRect(20, 20, w - 40, h - 40);
+        ctx.fillStyle = '#1a1206';
+        ctx.textAlign = 'center';
+        ctx.font = 'bold 58px "Special Elite", "Courier New", monospace';
+        ctx.fillText('VEREDIKT', w / 2, h / 2 - 6);
+        ctx.font = '22px "Courier Prime", monospace';
+        ctx.fillText('INVESTIGACIONES  ·  DIVISIÓN DE HOMICIDIOS', w / 2, h / 2 + 34);
+        ctx.fillStyle = 'rgba(30,20,6,0.75)';
+        ctx.font = '14px "Courier Prime", monospace';
+        ctx.fillText('PRECINCT Nº 7   —   EST. 1947', w / 2, h - 30);
+      });
+
+      var sign = new THREE.Mesh(
+        new THREE.PlaneGeometry(2.6, 0.65),
+        new THREE.MeshStandardMaterial({ map: signTex, metalness: 0.72, roughness: 0.34, emissive: 0x1a0f00, emissiveMap: signTex, emissiveIntensity: 0.32 })
+      );
+      sign.position.set(0, 2.45, -1.94);
+      scene.add(sign);
+
+      var signBack = new THREE.Mesh(new THREE.BoxGeometry(2.72, 0.77, 0.06), darkMetal);
+      signBack.position.set(0, 2.45, -1.97);
+      scene.add(signBack);
+
+      // ==================== PARED: RELOJ ====================
+      var clockCanvas = document.createElement('canvas');
+      clockCanvas.width = clockCanvas.height = 512;
+      var clockTexture = new THREE.CanvasTexture(clockCanvas);
+      clockTexture.encoding = THREE.sRGBEncoding;
+      clockTexture.anisotropy = MAX_ANISO;
+
+      function drawClock() {
+        var ctx = clockCanvas.getContext('2d');
+        var cx = 256, cy = 256, r = 240;
+        var now = new Date();
+        ctx.clearRect(0, 0, 512, 512);
+
+        var ring = ctx.createLinearGradient(0, 0, 512, 512);
+        ring.addColorStop(0, '#e0c476');
+        ring.addColorStop(0.5, '#8f6c22');
+        ring.addColorStop(1, '#5f4716');
+        ctx.fillStyle = ring;
+        ctx.beginPath(); ctx.arc(cx, cy, r, 0, Math.PI * 2); ctx.fill();
+
+        var dial = ctx.createRadialGradient(cx - 60, cy - 70, 40, cx, cy, r);
+        dial.addColorStop(0, '#efe6cf');
+        dial.addColorStop(1, '#c9bb98');
+        ctx.fillStyle = dial;
+        ctx.beginPath(); ctx.arc(cx, cy, r - 22, 0, Math.PI * 2); ctx.fill();
+
+        for (var i = 0; i < 60; i++) {
+          var a = (i / 60) * Math.PI * 2 - Math.PI / 2;
+          var major = i % 5 === 0;
+          var inner = major ? 150 : 178;
+          ctx.strokeStyle = major ? '#241a0e' : 'rgba(36,26,14,0.5)';
+          ctx.lineWidth = major ? 9 : 3;
+          ctx.beginPath();
+          ctx.moveTo(cx + Math.cos(a) * inner, cy + Math.sin(a) * inner);
+          ctx.lineTo(cx + Math.cos(a) * 200, cy + Math.sin(a) * 200);
+          ctx.stroke();
+        }
+
+        ctx.fillStyle = '#241a0e';
+        ctx.font = 'bold 62px "Special Elite", "Courier New", monospace';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText('12', cx, cy - 150);
+        ctx.fillText('3', cx + 150, cy);
+        ctx.fillText('6', cx, cy + 150);
+        ctx.fillText('9', cx - 150, cy);
+
+        function hand(angle, len, width, color) {
+          ctx.strokeStyle = color;
+          ctx.lineWidth = width;
+          ctx.lineCap = 'round';
+          ctx.beginPath();
+          ctx.moveTo(cx - Math.cos(angle) * 24, cy - Math.sin(angle) * 24);
+          ctx.lineTo(cx + Math.cos(angle) * len, cy + Math.sin(angle) * len);
+          ctx.stroke();
+        }
+
+        var h = ((now.getHours() % 12) + now.getMinutes() / 60) / 12 * Math.PI * 2 - Math.PI / 2;
+        var m = (now.getMinutes() / 60) * Math.PI * 2 - Math.PI / 2;
+        var s = (now.getSeconds() / 60) * Math.PI * 2 - Math.PI / 2;
+        hand(h, 96, 15, '#241a0e');
+        hand(m, 138, 10, '#241a0e');
+        hand(s, 150, 4, '#8c1d1d');
+
+        ctx.fillStyle = '#8f6c22';
+        ctx.beginPath(); ctx.arc(cx, cy, 12, 0, Math.PI * 2); ctx.fill();
+
+        ctx.strokeStyle = 'rgba(255,255,255,0.22)';
+        ctx.lineWidth = 10;
+        ctx.beginPath();
+        ctx.arc(cx, cy, r - 40, Math.PI * 1.15, Math.PI * 1.65);
+        ctx.stroke();
+
+        clockTexture.needsUpdate = true;
+      }
+      setInterval(drawClock, 1000);
+      drawClock();
+
+      var clock = new THREE.Mesh(
+        new THREE.CircleGeometry(0.42, 64),
+        new THREE.MeshStandardMaterial({ map: clockTexture, roughness: 0.4, metalness: 0.35 })
+      );
+      clock.position.set(2.1, 2.5, -1.94);
+      scene.add(clock);
+
+      var framedPhoto = new THREE.Group();
+      framedPhoto.position.set(3.9, 2.2, -1.94);
+      var photoMat = new THREE.MeshStandardMaterial({ map: paperTex, roughness: 0.9, metalness: 0 });
+      var photoFrame = new THREE.Mesh(new THREE.BoxGeometry(0.78, 0.96, 0.06), new THREE.MeshStandardMaterial({ color: 0x2a1a0e, roughness: 0.55, metalness: 0.2 }));
+      photoFrame.position.z = -0.03;
+      framedPhoto.add(photoFrame);
+      var photo = new THREE.Mesh(new THREE.PlaneGeometry(0.62, 0.8), photoMat);
+      photo.position.z = 0.031;
+      framedPhoto.add(photo);
+      scene.add(framedPhoto);
+
+      // ==================== PARED: VENTANA CON PERSIANAS ====================
+      var windowGroup = new THREE.Group();
+      windowGroup.position.set(-3.75, 2.35, -1.96);
+
+      var nightPane = new THREE.Mesh(
+        new THREE.PlaneGeometry(1.9, 2.2),
+        new THREE.MeshBasicMaterial({ color: 0x14203a })
+      );
+      nightPane.position.z = -0.02;
+      windowGroup.add(nightPane);
+
+      var blinds = new THREE.Mesh(
+        new THREE.PlaneGeometry(1.82, 2.12),
+        new THREE.MeshBasicMaterial({ map: blindsTex, transparent: true, opacity: 0.97 })
+      );
+      blinds.position.z = 0.01;
+      windowGroup.add(blinds);
+
+      var windowFrameMat = new THREE.MeshStandardMaterial({ color: 0x241610, roughness: 0.6, metalness: 0.15 });
+      [[0, 1.14, 2.02, 0.12], [0, -1.14, 2.02, 0.12], [-0.99, 0, 0.12, 2.4], [0.99, 0, 0.12, 2.4]].forEach(function (f) {
+        var bar = new THREE.Mesh(new THREE.BoxGeometry(f[2], f[3], 0.12), windowFrameMat);
+        bar.position.set(f[0], f[1], 0.04);
+        windowGroup.add(bar);
+      });
+      var mullion = new THREE.Mesh(new THREE.BoxGeometry(0.07, 2.2, 0.08), windowFrameMat);
+      mullion.position.z = 0.03;
+      windowGroup.add(mullion);
+      scene.add(windowGroup);
+
+      // ==================== PARED: CORCHO CON CASO ====================
+      var board = new THREE.Group();
+      board.position.set(-1.35, 1.4, -1.94);
+      board.rotation.set(0, 0, 0);
+
+      var boardPaper = new THREE.Mesh(new THREE.PlaneGeometry(2.0, 1.15), corkMat);
+      board.add(boardPaper);
+
+      var boardFrameMat = new THREE.MeshStandardMaterial({ color: 0x3a2414, roughness: 0.7, metalness: 0.05 });
+      [[0, 0.6, 2.12, 0.09], [0, -0.6, 2.12, 0.09], [-1.03, 0, 0.09, 1.29], [1.03, 0, 0.09, 1.29]].forEach(function (f) {
+        var bar = new THREE.Mesh(new THREE.BoxGeometry(f[2], f[3], 0.07), boardFrameMat);
+        bar.position.set(f[0], f[1], 0.02);
+        board.add(bar);
+      });
+
+      var pins = [];
+      [
+        { x: -0.62, y: 0.28, s: 0.46 },
+        { x: 0.05, y: 0.36, s: 0.42 },
+        { x: 0.6, y: 0.1, s: 0.5 },
+        { x: -0.2, y: -0.28, s: 0.5 },
+        { x: 0.55, y: -0.34, s: 0.44 }
+      ].forEach(function (p, i) {
+        var note = new THREE.Mesh(
+          new THREE.PlaneGeometry(p.s, p.s * 1.3),
+          new THREE.MeshStandardMaterial({ map: i % 2 ? paperTex : typePaperTex, roughness: 0.92, metalness: 0 })
+        );
+        note.position.set(p.x, p.y, 0.04);
+        note.rotation.z = (Math.random() - 0.5) * 0.22;
+        board.add(note);
+        var pin = new THREE.Mesh(new THREE.SphereGeometry(0.022, 10, 10), new THREE.MeshStandardMaterial({ color: 0x8c1d1d, roughness: 0.4, metalness: 0.3 }));
+        pin.position.set(p.x, p.y + p.s * 0.62, 0.06);
+        board.add(pin);
+        pins.push(new THREE.Vector3(p.x, p.y + p.s * 0.62, 0.06));
+      });
+
+      var stringMat = new THREE.MeshBasicMaterial({ color: 0x8c1d1d });
+      function addString(a, b) {
+        var mid = a.clone().add(b).multiplyScalar(0.5);
+        var len = a.distanceTo(b);
+        var angle = Math.atan2(b.y - a.y, b.x - a.x);
+        var seg = new THREE.Mesh(new THREE.BoxGeometry(len, 0.006, 0.006), stringMat);
+        seg.position.copy(mid);
+        seg.rotation.z = angle;
+        board.add(seg);
+      }
+      addString(pins[0], pins[2]);
+      addString(pins[1], pins[3]);
+      addString(pins[2], pins[4]);
+      addString(pins[0], pins[3]);
+      scene.add(board);
+
+      // ==================== PARED: HINT ====================
+      var hintTex = makeCanvasTexture(768, 96, function (ctx, w, h) {
+        ctx.clearRect(0, 0, w, h);
+        ctx.fillStyle = '#6b4a2e';
+        ctx.font = '26px "Courier Prime", monospace';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText('[  click para bajar la mirada  ]', w / 2, h / 2);
+      });
+      var hint = new THREE.Mesh(
+        new THREE.PlaneGeometry(2.3, 0.29),
+        new THREE.MeshBasicMaterial({ map: hintTex, transparent: true, opacity: 0.4, depthWrite: false })
+      );
+      hint.position.set(0, 1.75, -1.94);
+      scene.add(hint);
+
+      // ==================== ATMÓSFERA: POLVO / HUMO / VAPOR ====================
+      function softCircleTexture(size, r, g, b) {
+        var c = document.createElement('canvas');
+        c.width = c.height = size;
+        var ctx = c.getContext('2d');
+        var grad = ctx.createRadialGradient(size / 2, size / 2, 0, size / 2, size / 2, size / 2);
+        grad.addColorStop(0, 'rgba(' + r + ',' + g + ',' + b + ',0.85)');
+        grad.addColorStop(0.45, 'rgba(' + r + ',' + g + ',' + b + ',0.28)');
+        grad.addColorStop(1, 'rgba(' + r + ',' + g + ',' + b + ',0)');
+        ctx.fillStyle = grad;
+        ctx.fillRect(0, 0, size, size);
+        var tex = new THREE.CanvasTexture(c);
+        tex.encoding = THREE.sRGBEncoding;
+        return tex;
+      }
+
+      var dustTex = softCircleTexture(64, 255, 220, 170);
+      var dust = [];
+      for (var d = 0; d < 34; d++) {
+        var mat = new THREE.SpriteMaterial({ map: dustTex, transparent: true, opacity: 0.12 + Math.random() * 0.2, depthWrite: false, blending: THREE.AdditiveBlending });
+        var sp = new THREE.Sprite(mat);
+        sp.position.set((Math.random() - 0.5) * 3.4, 0.1 + Math.random() * 1.3, 0.2 + Math.random() * 2.8);
+        var sc = 0.015 + Math.random() * 0.035;
+        sp.scale.set(sc, sc, sc);
+        sp.userData = { vy: 0.02 + Math.random() * 0.05, phase: Math.random() * Math.PI * 2, baseX: sp.position.x };
+        scene.add(sp);
+        dust.push(sp);
+      }
+
+      var smokeTex = softCircleTexture(128, 200, 190, 175);
+      var smoke = [];
+      function addSmoke(x, y, z, scale, speed, opacity) {
+        var mat = new THREE.SpriteMaterial({ map: smokeTex, transparent: true, opacity: opacity, depthWrite: false });
+        var sp = new THREE.Sprite(mat);
+        sp.position.set(x, y, z);
+        sp.scale.set(scale, scale, scale);
+        sp.userData = { baseY: y, speed: speed, life: Math.random(), scaleBase: scale, baseOpacity: opacity };
+        scene.add(sp);
+        smoke.push(sp);
+      }
+      addSmoke(0.72, 0.08, 2.48, 0.16, 0.16, 0.22);
+      addSmoke(0.74, 0.08, 2.48, 0.2, 0.11, 0.14);
+      addSmoke(-1.45, 0.2, 2.85, 0.14, 0.2, 0.16);
+      addSmoke(-1.43, 0.2, 2.85, 0.18, 0.14, 0.1);
+
+      // ==================== ESTADO ====================
+      var currentState = 'wall';
+      var camPitch = 0;
+      var animating = false;
+      var menuActive = true;
+      var hoveredEntry = null;
+      var idleTimer = null;
+      var fadeTimer = null;
+      var firstShow = true;
+      var introActive = false;
+      var introStart = 0;
+
+      var raycaster = new THREE.Raycaster();
+      var mouse = new THREE.Vector2(0, 0);
+
+      function fadeOut(callback) {
+        overlayEl.style.transition = 'opacity 0.4s';
+        overlayEl.style.opacity = '1';
+        if (fadeTimer) clearTimeout(fadeTimer);
+        fadeTimer = setTimeout(callback, reduceMotion ? 0 : 400);
+      }
+
+      function fadeIn() {
+        if (fadeTimer) { clearTimeout(fadeTimer); fadeTimer = null; }
+        overlayEl.style.transition = 'opacity 0.4s';
+        overlayEl.style.opacity = '0';
+      }
+
+      function resetIdleTimer() {
+        if (idleTimer) { clearTimeout(idleTimer); idleTimer = null; }
+        if (!menuActive || currentState !== 'wall' || animating) return;
+        idleTimer = setTimeout(transitionToDesk, 3000);
+      }
+
+      // ==================== TRANSICIÓN A -> B ====================
+      function transitionToDesk() {
+        if (!menuActive || animating || currentState === 'desk') return;
+        animating = true;
+        introActive = false;
+        if (idleTimer) { clearTimeout(idleTimer); idleTimer = null; }
+        hint.visible = false;
+
+        var startRot = camPitch;
+        var endRot = CAM_DESK.rotation.x;
+
+        function finish() {
+          camPitch = endRot;
+          camera.rotation.x = endRot;
+          currentState = 'desk';
+          animating = false;
+          document.body.style.cursor = 'default';
+          deskButtonsEl.style.display = 'flex';
+        }
+
+        if (reduceMotion) { finish(); return; }
+
+        var duration = 1500;
+        var start = performance.now();
+        function step(now) {
+          var t = Math.min((now - start) / duration, 1);
+          var ease = t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+          camPitch = startRot + (endRot - startRot) * ease;
+          if (t < 1) requestAnimationFrame(step);
+          else finish();
+        }
+        requestAnimationFrame(step);
+      }
+
+      // ==================== SELECCIÓN DE CARPETA ====================
+      function handleMenuAction(folderId) {
+        menuActive = false;
+        canvasEl.style.display = 'none';
+        if (fxEl) fxEl.style.display = 'none';
+        deskButtonsEl.style.display = 'none';
+        fadeIn();
+        if (typeof window.__verediktMenuAction === 'function') {
+          window.__verediktMenuAction(folderId);
+        }
+      }
+
+      function selectFolder(folderId) {
+        if (animating) return;
+        animating = true;
+        introActive = false;
+        if (idleTimer) { clearTimeout(idleTimer); idleTimer = null; }
+        if (hoveredEntry) { setFolderHover(hoveredEntry, false); hoveredEntry = null; }
+        document.body.style.cursor = 'default';
+
+        var startFOV = camera.fov;
+        var endFOV = 20;
+
+        function finish() {
+          fadeOut(function () { handleMenuAction(folderId); });
+        }
+
+        if (reduceMotion) {
+          camera.fov = endFOV;
+          camera.updateProjectionMatrix();
+          finish();
+          return;
+        }
+
+        var duration = 900;
+        var start = performance.now();
+        function step(now) {
+          var t = Math.min((now - start) / duration, 1);
+          var ease = t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+          camera.fov = startFOV + (endFOV - startFOV) * ease;
+          camera.updateProjectionMatrix();
+          if (t < 1) requestAnimationFrame(step);
+          else finish();
+        }
+        requestAnimationFrame(step);
+      }
+
+      // ==================== MOSTRAR / OCULTAR ====================
+      function showMenu() {
+        menuActive = true;
+        canvasEl.style.display = 'block';
+        if (fxEl) fxEl.style.display = 'block';
+
+        camera.position.copy(CAM_WALL.position);
+        camera.rotation.set(0, 0, 0);
+        camPitch = firstShow && !reduceMotion ? -0.17 : 0;
+        camera.rotation.x = camPitch;
+        camera.fov = firstShow && !reduceMotion ? 67 : 60;
+        camera.updateProjectionMatrix();
+
+        currentState = 'wall';
+        animating = false;
+        introActive = firstShow && !reduceMotion;
+        introStart = performance.now();
+        firstShow = false;
+
+        if (hoveredEntry) { setFolderHover(hoveredEntry, false); hoveredEntry = null; }
+        folders.forEach(function (f) { f.group.userData.targetY = 0; f.group.userData.targetRotZ = 0; });
+        document.body.style.cursor = 'default';
+        deskButtonsEl.style.display = 'none';
+        hint.visible = true;
+        fadeIn();
+        resetIdleTimer();
+      }
+
+      function hideMenu() {
+        if (idleTimer) { clearTimeout(idleTimer); idleTimer = null; }
+        menuActive = false;
+        canvasEl.style.display = 'none';
+        if (fxEl) fxEl.style.display = 'none';
+        deskButtonsEl.style.display = 'none';
+      }
+
+      window.addEventListener('veredikt:menu-show', showMenu);
+      window.addEventListener('veredikt:menu-hide', hideMenu);
+
+      // ==================== INPUT ====================
+      window.addEventListener('mousemove', function (e) {
+        if (!menuActive) return;
+        mouse.x = (e.clientX / window.innerWidth) * 2 - 1;
+        mouse.y = -(e.clientY / window.innerHeight) * 2 + 1;
+
+        if (currentState === 'wall') { resetIdleTimer(); return; }
+        if (currentState !== 'desk' || animating) return;
+
+        raycaster.setFromCamera(mouse, camera);
+        var hits = raycaster.intersectObjects(folderPlanes);
+        var entry = hits.length > 0 ? hits[0].object.userData.entry : null;
+
+        if (entry !== hoveredEntry) {
+          if (hoveredEntry) setFolderHover(hoveredEntry, false);
+          hoveredEntry = entry;
+          if (hoveredEntry) setFolderHover(hoveredEntry, true);
+        }
+        document.body.style.cursor = entry ? 'pointer' : 'default';
+      });
+
+      window.addEventListener('click', function (e) {
+        if (!menuActive) return;
+        if (e.target && e.target.closest && e.target.closest('#deskButtons')) return;
+        if (e.target && e.target.closest && e.target.closest('.modal-overlay, .modal-backdrop')) return;
+
+        mouse.x = (e.clientX / window.innerWidth) * 2 - 1;
+        mouse.y = -(e.clientY / window.innerHeight) * 2 + 1;
+        raycaster.setFromCamera(mouse, camera);
+
+        if (currentState === 'wall') { transitionToDesk(); return; }
+        if (currentState === 'desk') {
+          if (animating) return;
+          var hits = raycaster.intersectObjects(folderPlanes);
+          if (hits.length > 0) selectFolder(hits[0].object.userData.entry.id);
+        }
+      });
+
+      window.addEventListener('resize', function () {
+        camera.aspect = window.innerWidth / window.innerHeight;
+        camera.updateProjectionMatrix();
+        renderer.setSize(window.innerWidth, window.innerHeight);
+      });
+
+      // ==================== LOOP ====================
+      var prevNow = performance.now();
+      function renderLoop() {
+        requestAnimationFrame(renderLoop);
+        if (!menuActive) return;
+
+        var now = performance.now();
+        var dt = Math.min((now - prevNow) / 1000, 0.05);
+        prevNow = now;
+        var t = now * 0.001;
+
+        if (introActive) {
+          var it = Math.min((now - introStart) / 1400, 1);
+          var ie = 1 - Math.pow(1 - it, 3);
+          camPitch = -0.17 * (1 - ie);
+          var f = 67 + (60 - 67) * ie;
+          camera.fov = f;
+          camera.updateProjectionMatrix();
+          if (it >= 1) introActive = false;
+        }
+
+        camera.rotation.x = camPitch;
+
+        var swayScale = animating ? 0 : (currentState === 'desk' ? 1 : 0.55);
+        var tgtYaw = Math.sin(t * 0.31) * 0.012 * swayScale + mouse.x * 0.03 * swayScale;
+        var tgtRoll = Math.cos(t * 0.24) * 0.008 * swayScale + mouse.x * 0.012 * swayScale;
+        camera.rotation.y += (tgtYaw - camera.rotation.y) * 0.05;
+        camera.rotation.z += (tgtRoll - camera.rotation.z) * 0.05;
+
+        folders.forEach(function (f) {
+          f.group.position.y += (f.group.userData.targetY - f.group.position.y) * 0.16;
+          f.group.rotation.z += (f.group.userData.targetRotZ - f.group.rotation.z) * 0.16;
+        });
+
+        for (var i = 0; i < dust.length; i++) {
+          var dp = dust[i];
+          dp.position.y += dp.userData.vy * dt;
+          dp.position.x = dp.userData.baseX + Math.sin(t * 0.4 + dp.userData.phase) * 0.06;
+          if (dp.position.y > 1.5) dp.position.y = 0.08;
+        }
+
+        for (var k = 0; k < smoke.length; k++) {
+          var sm = smoke[k];
+          var life = (sm.userData.life + dt * sm.userData.speed) % 1;
+          sm.userData.life = life;
+          sm.position.y = sm.userData.baseY + life * 0.9;
+          var sc = sm.userData.scaleBase * (1 + life * 1.6);
+          sm.scale.set(sc, sc, sc);
+          sm.material.opacity = sm.userData.baseOpacity * (1 - life) * Math.min(1, life * 6);
+        }
+
+        hint.material.opacity = hint.visible ? 0.28 + Math.sin(t * 1.8) * 0.12 : 0;
+
+        renderer.render(scene, camera);
+      }
+      requestAnimationFrame(renderLoop);
+
+      // Re-pinta las texturas cuando las fuentes web están listas
+      if (document.fonts && document.fonts.ready) {
+        document.fonts.ready.then(function () {
+          painters.forEach(function (p) { p(); });
+          drawClock();
+        });
+      }
+    })();
+  </script>
 </body>
 </html>

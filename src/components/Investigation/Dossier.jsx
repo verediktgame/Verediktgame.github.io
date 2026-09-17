@@ -5,6 +5,8 @@ import { TabSospechosos } from './TabSospechosos';
 import { TabEscena } from './TabEscena';
 import { TabEvidencias } from './TabEvidencias';
 import { TabAcusacion } from './TabAcusacion';
+import { CoopTurnAccusation } from '../Coop/CoopTurnAccusation';
+import { DetectiveNotes } from './DetectiveNotes';
 
 export function Dossier({
   publicInfo,
@@ -13,7 +15,11 @@ export function Dossier({
   analyzedEvidenceIds,
   onAnalyzeEvidence,
   onSubmitAccusation,
-  isEvaluating
+  isEvaluating,
+  isCoop = false,
+  players = [],
+  currentPlayerIndex = 0,
+  onSubmitPlayerTurn
 }) {
   const [activeTab, setActiveTab] = useState('informe');
 
@@ -65,7 +71,7 @@ export function Dossier({
               className={`tab-btn accusation-tab ${activeTab === 'acusacion' ? 'active' : ''}`}
               onClick={() => setActiveTab('acusacion')}
             >
-              ⚖ ACUSACIÓN FINAL
+              {isCoop ? '⚖️ ACUSACIÓN POR TURNOS' : '⚖ ACUSACIÓN FINAL'}
             </button>
           </nav>
 
@@ -82,6 +88,11 @@ export function Dossier({
                 </h2>
                 <div className="case-meta-line" id="displayMetaCaso">
                   LUGAR: {publicInfo.lugar || publicInfo.ciudad || 'Desconocido'} | FECHA: {publicInfo.fecha || publicInfo.epoca || 'Reciente'}
+                  {isCoop && (
+                    <span style={{ marginLeft: '12px', color: '#8b1e1e', fontWeight: 'bold' }}>
+                      [MODO COOPERATIVO: {players.length} DETECTIVES]
+                    </span>
+                  )}
                 </div>
               </div>
               <div id="caseStatusStamp">
@@ -133,17 +144,35 @@ export function Dossier({
 
             {activeTab === 'acusacion' && (
               <div id="tabAcusacion" className="tab-panel active">
-                <TabAcusacion
-                  sospechosos={publicInfo.sospechosos}
-                  evidencias={publicInfo.evidencias}
-                  onSubmitAccusation={onSubmitAccusation}
-                  isEvaluating={isEvaluating}
-                />
+                {isCoop ? (
+                  <CoopTurnAccusation
+                    players={players}
+                    currentPlayerIndex={currentPlayerIndex}
+                    sospechosos={publicInfo.sospechosos}
+                    evidencias={publicInfo.evidencias}
+                    onSubmitPlayerTurn={onSubmitPlayerTurn}
+                    isEvaluating={isEvaluating}
+                  />
+                ) : (
+                  <TabAcusacion
+                    sospechosos={publicInfo.sospechosos}
+                    evidencias={publicInfo.evidencias}
+                    onSubmitAccusation={onSubmitAccusation}
+                    isEvaluating={isEvaluating}
+                  />
+                )}
               </div>
             )}
           </div>
         </div>
       </section>
+
+      {/* FLOATING DETECTIVE NOTES DRAWER */}
+      <DetectiveNotes
+        caseTitle={publicInfo.titulo}
+        currentPlayerName={isCoop && players.length > 0 ? players[currentPlayerIndex] : null}
+        isCoop={isCoop}
+      />
     </div>
   );
 }
