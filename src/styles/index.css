@@ -1867,25 +1867,25 @@
       overflow-y: auto;
       box-shadow: 0 8px 24px rgba(0,0,0,0.5);
     }
-    .city-suggestion-item {
+    .city-option {
       padding: 10px 14px;
       cursor: pointer;
       font-family: var(--font-body);
       font-size: 13px;
-      color: #d8c8b4;
+      color: #ffffff;
       border-bottom: 1px solid rgba(74, 56, 38, 0.3);
       transition: background 0.15s ease;
     }
-    .city-suggestion-item:last-child {
+    .city-option:last-child {
       border-bottom: none;
     }
-    .city-suggestion-item:hover,
-    .city-suggestion-item.highlighted {
+    .city-option:hover,
+    .city-option.highlighted {
       background: #35261a;
     }
-    .city-suggestion-item .city-source {
+    .city-option .city-source {
       font-size: 10px;
-      color: #887459;
+      color: #cfc0a8;
       margin-left: 6px;
     }
 
