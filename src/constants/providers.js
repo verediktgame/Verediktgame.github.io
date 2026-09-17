@@ -140,7 +140,20 @@ export const API_PROVIDERS = {
     models: [
       { id: "deepseek/deepseek-r1:free", name: "DeepSeek R1 (Free)", recommended: true, max_output: 8192 },
       { id: "meta-llama/llama-3.3-70b-instruct:free", name: "Llama 3.3 70B (Free)", max_output: 4096 },
-      { id: "meta-llama/llama-3-8b-instruct:free", name: "Llama 3 8B Instruct (Free)", max_output: 4096 }
+      { id: "meta-llama/llama-3-8b-instruct:free", name: "Llama 3 8B Instruct (Free)", max_output: 4096 },
+      { id: "nvidia/nemotron-3.5-lightning:free", name: "Nemotron 3.5 Lightning (Free)", max_output: 8192 },
+      { id: "thinkingmachines/inkling-small:free", name: "Inkling Small (Free)", max_output: 8192 },
+      { id: "poolside/laguna-s-2.1:free", name: "Laguna S 2.1 (Free)", max_output: 8192 },
+      { id: "thinkingmachines/inkling:free", name: "Inkling (Free)", max_output: 8192 },
+      { id: "poolside/laguna-xs-2.1:free", name: "Laguna XS 2.1 (Free)", max_output: 8192 },
+      { id: "cohere/north-mini-code:free", name: "North Mini Code (Free)", max_output: 8192 },
+      { id: "z-ai/glm-5.2:free", name: "GLM 5.2 (Free)", max_output: 8192 },
+      { id: "nvidia/nemotron-3.5-content-safety:free", name: "Nemotron 3.5 Content Safety (Free)", max_output: 8192 },
+      { id: "nvidia/nemotron-3-ultra-550b-a55b:free", name: "Nemotron 3 Ultra (Free)", max_output: 8192 },
+      { id: "nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free", name: "Nemotron 3 Nano Omni (Free)", max_output: 8192 },
+      { id: "google/gemma-4-26b-a4b-it:free", name: "Gemma 4 26B A4B (Free)", max_output: 8192 },
+      { id: "google/gemma-4-31b-it:free", name: "Gemma 4 31B (Free)", max_output: 8192 },
+      { id: "nvidia/nemotron-3-super-120b-a12b:free", name: "Nemotron 3 Super (Free)", max_output: 8192 }
     ]
   },
   github: {
