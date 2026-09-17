@@ -299,7 +299,7 @@ export function App() {
         interrogacionesRealizadas: Object.keys(interrogationsState).length,
         acertoCulpable: Boolean(evalRes.desglose?.culpable?.acerto),
         esCoopVictoria: false,
-        esHarryPotter
+        esHarryPotter: isHarryPotter
       });
 
       if (newlyUnlocked && newlyUnlocked.length > 0) {
@@ -373,7 +373,7 @@ export function App() {
         interrogacionesRealizadas: Object.keys(interrogationsState).length,
         acertoCulpable: results.some(r => r.desglose?.culpable?.acerto),
         esCoopVictoria: true,
-        esHarryPotter
+        esHarryPotter: isHarryPotter
       });
 
       if (newlyUnlocked && newlyUnlocked.length > 0) {
