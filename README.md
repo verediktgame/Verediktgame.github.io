@@ -69,9 +69,11 @@ npm run preview
 
 Pronto vas a encontrar por acá:
 
-- 📧 **Contacto / consultas:** *(próximamente)*
-- ▶️ **YouTube:** *(próximamente)*
-- 🧡 **Patreon:** *(próximamente)*
+📧 Contacto / consultas: verediktgame@gmail.com
+▶️ YouTube: *(próximamente)*
+
+Si queres colaborar o simplemente el juego te gusto y querer aportar un granito de arena
+🧡 MP: *(próximamente)*
 
 ¿Mientras tanto? Jugá un caso y contanos cómo te fue.
 
