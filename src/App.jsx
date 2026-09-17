@@ -413,14 +413,26 @@ export function App() {
     handleStartNew();
   };
 
+  // Restore the POV menu when an action that stays on the "menu" screen
+  // (Achievements, import dialog) is dismissed without moving on.
+  const showPovMenuIfHome = () => {
+    if (currentScreen === 'menu') {
+      window.dispatchEvent(new CustomEvent('veredikt:menu-show'));
+    }
+  };
+
   const handleFileChange = async (e) => {
     const file = e.target.files?.[0];
-    if (!file) return;
+    if (!file) {
+      showPovMenuIfHome();
+      return;
+    }
     try {
       const imported = await importCaseFromJson(file);
       handleCaseLoaded(imported);
     } catch (err) {
       alert(`Error al importar el archivo: ${err.message}`);
+      showPovMenuIfHome();
     } finally {
       if (fileInputRef.current) fileInputRef.current.value = '';
     }
@@ -466,6 +478,16 @@ export function App() {
     } else {
       window.dispatchEvent(new CustomEvent('veredikt:menu-hide'));
     }
+  }, [currentScreen]);
+
+  // The native file picker fires "cancel" when dismissed without choosing a file.
+  // The menu was hidden when the Comunidad folder was selected, so bring it back.
+  useEffect(() => {
+    const input = fileInputRef.current;
+    if (!input) return;
+    const handleCancel = () => showPovMenuIfHome();
+    input.addEventListener('cancel', handleCancel);
+    return () => input.removeEventListener('cancel', handleCancel);
   }, [currentScreen]);
 
   return (
@@ -561,7 +583,10 @@ export function App() {
 
       <AchievementsModal
         isOpen={isAchievementsOpen}
-        onClose={() => setIsAchievementsOpen(false)}
+        onClose={() => {
+          setIsAchievementsOpen(false);
+          showPovMenuIfHome();
+        }}
       />
 
       <InterrogationModal 

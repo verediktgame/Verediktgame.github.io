@@ -976,6 +976,7 @@
       // ==================== ESTADO ====================
       var currentState = 'wall';
       var camPitch = 0;
+      var camYaw = 0;
       var animating = false;
       var menuActive = true;
       var hoveredEntry = null;
@@ -1062,7 +1063,24 @@
         document.body.style.cursor = 'default';
 
         var startFOV = camera.fov;
-        var endFOV = 20;
+        var endFOV = 24;
+        var startYaw = camYaw;
+        var startPitch = camPitch;
+        var endYaw = startYaw;
+        var endPitch = startPitch;
+
+        for (var fi = 0; fi < folders.length; fi++) {
+          if (folders[fi].id === folderId) {
+            var worldPos = new THREE.Vector3();
+            folders[fi].group.getWorldPosition(worldPos);
+            worldPos.y += 0.03;
+            var dir = worldPos.sub(camera.position);
+            var horizDist = Math.sqrt(dir.x * dir.x + dir.z * dir.z);
+            endYaw = Math.atan2(-dir.x, -dir.z);
+            endPitch = Math.atan2(dir.y, horizDist);
+            break;
+          }
+        }
 
         function finish() {
           fadeOut(function () { handleMenuAction(folderId); });
@@ -1071,6 +1089,10 @@
         if (reduceMotion) {
           camera.fov = endFOV;
           camera.updateProjectionMatrix();
+          camYaw = endYaw;
+          camPitch = endPitch;
+          camera.rotation.x = endPitch;
+          camera.rotation.y = endYaw;
           finish();
           return;
         }
@@ -1080,6 +1102,9 @@
         function step(now) {
           var t = Math.min((now - start) / duration, 1);
           var ease = t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+          camYaw = startYaw + (endYaw - startYaw) * ease;
+          camPitch = startPitch + (endPitch - startPitch) * ease;
+          camera.rotation.y = camYaw;
           camera.fov = startFOV + (endFOV - startFOV) * ease;
           camera.updateProjectionMatrix();
           if (t < 1) requestAnimationFrame(step);
@@ -1097,7 +1122,8 @@
         camera.position.copy(CAM_WALL.position);
         camera.rotation.set(0, 0, 0);
         camPitch = firstShow && !reduceMotion ? -0.17 : 0;
-        camera.rotation.x = camPitch;
+        camYaw = 0;
+        camera.rotation.set(camPitch, 0, 0);
         camera.fov = firstShow && !reduceMotion ? 67 : 60;
         camera.updateProjectionMatrix();
 
@@ -1195,7 +1221,7 @@
         camera.rotation.x = camPitch;
 
         var swayScale = animating ? 0 : (currentState === 'desk' ? 1 : 0.55);
-        var tgtYaw = Math.sin(t * 0.31) * 0.012 * swayScale + mouse.x * 0.03 * swayScale;
+        var tgtYaw = camYaw + Math.sin(t * 0.31) * 0.012 * swayScale + mouse.x * 0.03 * swayScale;
         var tgtRoll = Math.cos(t * 0.24) * 0.008 * swayScale + mouse.x * 0.012 * swayScale;
         camera.rotation.y += (tgtYaw - camera.rotation.y) * 0.05;
         camera.rotation.z += (tgtRoll - camera.rotation.z) * 0.05;
