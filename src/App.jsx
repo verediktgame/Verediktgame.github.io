@@ -146,6 +146,13 @@ export function App() {
     handleGenerateCase(lastGenParams.ciudad, lastGenParams.dificultad);
   };
 
+  const handleConfirmInterrogation = (suspectId, questionIds) => {
+    setInterrogationsState(prev => ({
+      ...prev,
+      [suspectId]: questionIds
+    }));
+  };
+
   const handleAskQuestion = (suspectId, questionId) => {
     setInterrogationsState(prev => {
       const currentList = prev[suspectId] || [];
@@ -282,6 +289,7 @@ export function App() {
         suspect={interrogationSuspect}
         askedQuestionIds={interrogationSuspect ? (interrogationsState[interrogationSuspect.id] || []) : []}
         onAskQuestion={handleAskQuestion}
+        onConfirmInterrogation={handleConfirmInterrogation}
       />
     </div>
   );

@@ -19,87 +19,131 @@ export function Dossier({
 
   if (!publicInfo) return null;
 
-  const tabs = [
-    { id: 'informe', label: '📄 INFORME POLICIAL' },
-    { id: 'declaraciones', label: `🗣️ DECLARACIONES (${publicInfo.declaraciones?.length || 0})` },
-    { id: 'sospechosos', label: `👥 SOSPECHOSOS (${publicInfo.sospechosos?.length || 0})` },
-    { id: 'escena', label: '📍 ESCENA DEL CRIMEN' },
-    { id: 'evidencias', label: `🔬 EVIDENCIAS (${publicInfo.evidencias?.length || 0})` },
-    { id: 'acusacion', label: '⚖️ EMITIR ACUSACIÓN', highlight: true }
-  ];
-
   return (
-    <div className="dossier-wrapper" style={{ maxWidth: '1020px', margin: '20px auto 50px auto', padding: '0 16px' }}>
-      {/* DOSSIER FOLDER TABS */}
-      <div className="folder-tab-bar" style={{ display: 'flex', gap: '4px', flexWrap: 'wrap' }}>
-        {tabs.map(t => (
-          <button
-            key={t.id}
-            type="button"
-            className={`tab-button ${activeTab === t.id ? 'active' : ''}`}
-            onClick={() => setActiveTab(t.id)}
-            style={{
-              padding: '8px 14px',
-              fontFamily: 'var(--font-mono)',
-              fontSize: '12px',
-              fontWeight: t.highlight || activeTab === t.id ? 'bold' : 'normal',
-              color: t.highlight ? 'var(--ink-stamp-red)' : 'var(--ink-black)',
-              background: activeTab === t.id ? 'var(--paper-cream)' : 'var(--manila-tab)',
-              border: '1px solid var(--manila-dark)',
-              borderBottom: activeTab === t.id ? 'none' : '1px solid var(--manila-dark)',
-              cursor: 'pointer',
-              borderTopLeftRadius: '4px',
-              borderTopRightRadius: '4px'
-            }}
-          >
-            {t.label}
-          </button>
-        ))}
-      </div>
+    <div className="workspace" style={{ paddingBottom: '60px' }}>
+      <section id="screenInvestigation" className="screen active">
+        <div className="investigation-container">
+          {/* Manila folder tabs */}
+          <nav className="folder-tabs">
+            <button
+              type="button"
+              className={`tab-btn ${activeTab === 'informe' ? 'active' : ''}`}
+              onClick={() => setActiveTab('informe')}
+            >
+              1. INFORME OFICIAL
+            </button>
+            <button
+              type="button"
+              className={`tab-btn ${activeTab === 'declaraciones' ? 'active' : ''}`}
+              onClick={() => setActiveTab('declaraciones')}
+            >
+              2. DECLARACIONES ({publicInfo.declaraciones?.length || 0})
+            </button>
+            <button
+              type="button"
+              className={`tab-btn ${activeTab === 'sospechosos' ? 'active' : ''}`}
+              onClick={() => setActiveTab('sospechosos')}
+            >
+              3. SOSPECHOSOS ({publicInfo.sospechosos?.length || 0})
+            </button>
+            <button
+              type="button"
+              className={`tab-btn ${activeTab === 'escena' ? 'active' : ''}`}
+              onClick={() => setActiveTab('escena')}
+            >
+              4. ESCENA DEL CRIMEN
+            </button>
+            <button
+              type="button"
+              className={`tab-btn ${activeTab === 'evidencias' ? 'active' : ''}`}
+              onClick={() => setActiveTab('evidencias')}
+            >
+              5. EVIDENCIAS FORENSES ({publicInfo.evidencias?.length || 0})
+            </button>
+            <button
+              type="button"
+              className={`tab-btn accusation-tab ${activeTab === 'acusacion' ? 'active' : ''}`}
+              onClick={() => setActiveTab('acusacion')}
+            >
+              ⚖ ACUSACIÓN FINAL
+            </button>
+          </nav>
 
-      {/* DOSSIER SHEET BODY */}
-      <div className="paper-texture" style={{ 
-        border: '1px solid var(--manila-dark)', 
-        borderTop: 'none', 
-        minHeight: '520px',
-        boxShadow: '0 8px 24px rgba(0,0,0,0.3)',
-        position: 'relative'
-      }}>
-        <div className="dossier-stamp stamp-classified" style={{ top: 16, right: 20 }}>
-          EXPEDIENTE ABIERTO
+          {/* The Paper Dossier Sheet */}
+          <div className="dossier-sheet">
+            <div className="tape top-left"></div>
+            <div className="tape top-right"></div>
+
+            {/* Header of current sheet */}
+            <div className="sheet-header">
+              <div>
+                <h2 className="case-title" id="displayTituloCaso">
+                  {publicInfo.titulo || 'EXPEDIENTE CRIMINAL'}
+                </h2>
+                <div className="case-meta-line" id="displayMetaCaso">
+                  LUGAR: {publicInfo.lugar || publicInfo.ciudad || 'Desconocido'} | FECHA: {publicInfo.fecha || publicInfo.epoca || 'Reciente'}
+                </div>
+              </div>
+              <div id="caseStatusStamp">
+                <span className="stamp">SUMARIO ABIERTO</span>
+              </div>
+            </div>
+
+            {/* TAB PANELS */}
+            {activeTab === 'informe' && (
+              <div id="tabInforme" className="tab-panel active">
+                <TabInforme publicInfo={publicInfo} />
+              </div>
+            )}
+
+            {activeTab === 'declaraciones' && (
+              <div id="tabDeclaraciones" className="tab-panel active">
+                <TabDeclaraciones declaraciones={publicInfo.declaraciones} />
+              </div>
+            )}
+
+            {activeTab === 'sospechosos' && (
+              <div id="tabSospechosos" className="tab-panel active">
+                <TabSospechosos
+                  sospechosos={publicInfo.sospechosos}
+                  onSelectSuspectToInterrogate={onSelectSuspectToInterrogate}
+                  interrogationsState={interrogationsState}
+                />
+              </div>
+            )}
+
+            {activeTab === 'escena' && (
+              <div id="tabEscena" className="tab-panel active">
+                <TabEscena
+                  descripcionEscena={publicInfo.descripcionEscena}
+                  lugar={publicInfo.lugar || publicInfo.ciudad}
+                />
+              </div>
+            )}
+
+            {activeTab === 'evidencias' && (
+              <div id="tabEvidencias" className="tab-panel active">
+                <TabEvidencias
+                  evidencias={publicInfo.evidencias}
+                  analyzedEvidenceIds={analyzedEvidenceIds}
+                  onAnalyzeEvidence={onAnalyzeEvidence}
+                />
+              </div>
+            )}
+
+            {activeTab === 'acusacion' && (
+              <div id="tabAcusacion" className="tab-panel active">
+                <TabAcusacion
+                  sospechosos={publicInfo.sospechosos}
+                  evidencias={publicInfo.evidencias}
+                  onSubmitAccusation={onSubmitAccusation}
+                  isEvaluating={isEvaluating}
+                />
+              </div>
+            )}
+          </div>
         </div>
-
-        {activeTab === 'informe' && <TabInforme publicInfo={publicInfo} />}
-        {activeTab === 'declaraciones' && <TabDeclaraciones declaraciones={publicInfo.declaraciones} />}
-        {activeTab === 'sospechosos' && (
-          <TabSospechosos 
-            sospechosos={publicInfo.sospechosos} 
-            onSelectSuspectToInterrogate={onSelectSuspectToInterrogate}
-            interrogationsState={interrogationsState}
-          />
-        )}
-        {activeTab === 'escena' && (
-          <TabEscena 
-            descripcionEscena={publicInfo.descripcionEscena} 
-            lugar={publicInfo.lugar || publicInfo.ciudad} 
-          />
-        )}
-        {activeTab === 'evidencias' && (
-          <TabEvidencias 
-            evidencias={publicInfo.evidencias} 
-            analyzedEvidenceIds={analyzedEvidenceIds}
-            onAnalyzeEvidence={onAnalyzeEvidence}
-          />
-        )}
-        {activeTab === 'acusacion' && (
-          <TabAcusacion 
-            sospechosos={publicInfo.sospechosos} 
-            evidencias={publicInfo.evidencias}
-            onSubmitAccusation={onSubmitAccusation}
-            isEvaluating={isEvaluating}
-          />
-        )}
-      </div>
+      </section>
     </div>
   );
 }

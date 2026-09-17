@@ -36,141 +36,110 @@ export function TabAcusacion({ sospechosos = [], evidencias = [], onSubmitAccusa
   };
 
   return (
-    <div className="tab-panel active" style={{ padding: '20px' }}>
-      <div style={{ borderBottom: '2px solid var(--manila-dark)', paddingBottom: '12px', marginBottom: '18px' }}>
-        <span style={{ fontSize: '11px', textTransform: 'uppercase', color: 'var(--ink-stamp-red)', fontWeight: 'bold' }}>
-          TRIBUNAL DE JUSTICIA
-        </span>
-        <h2 style={{ fontFamily: 'var(--font-title)', fontSize: '22px', margin: '4px 0' }}>
-          Pliego Formal de Acusación
-        </h2>
-        <p style={{ fontSize: '12px', color: 'var(--ink-faded)' }}>
-          Una vez presentado el informe al fiscal y al jurado, el caso entrará en deliberación definitiva.
-        </p>
+    <div className="accusation-form-card">
+      <div className="accusation-stamp">
+        <span className="stamp">RESOLUCIÓN FINAL</span>
       </div>
+      <h3 style={{ fontFamily: 'var(--font-title)', fontSize: '20px', color: '#8b1e1e', letterSpacing: '2px', margin: '0 0 6px 0' }}>
+        FORMULARIO DE CARGOS Y CIERRE SUMARIAL
+      </h3>
+      <p style={{ fontSize: '13px', color: '#55442e', marginTop: '4px', marginBottom: '20px' }}>
+        Presenta tus conclusiones formales ante el tribunal. Una vez enviados los cargos, el caso quedará sellado.
+      </p>
 
-      <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '18px' }}>
-        {/* SOSPECHOSO PRINCIPAL */}
-        <div>
-          <label style={{ display: 'block', fontWeight: 'bold', fontSize: '13px', marginBottom: '6px' }}>
-            1. ¿A quién acusa formalmente del homicidio / crimen?
-          </label>
-          <select 
-            value={acusadoId} 
-            onChange={(e) => setAcusadoId(e.target.value)}
-            disabled={isEvaluating}
-            style={{ 
-              width: '100%', 
-              padding: '10px 12px', 
-              fontFamily: 'var(--font-mono)', 
-              background: 'var(--paper-cream)', 
-              border: '1px solid var(--manila-dark)', 
-              borderRadius: '2px',
-              fontSize: '13px'
-            }}
-          >
-            <option value="">-- Seleccionar al sospechoso culpable --</option>
-            {sospechosos.map(s => (
-              <option key={s.id} value={s.id}>
-                {s.nombre} ({s.id})
-              </option>
-            ))}
-          </select>
+      <form onSubmit={handleSubmit}>
+        <div className="accusation-grid">
+          <div className="form-group">
+            <label className="form-label" htmlFor="selectAcusado">Sospechoso Acusado *</label>
+            <select
+              id="selectAcusado"
+              className="form-control"
+              value={acusadoId}
+              onChange={(e) => setAcusadoId(e.target.value)}
+              disabled={isEvaluating}
+              required
+            >
+              <option value="">-- Seleccionar al culpable --</option>
+              {sospechosos.map((s) => (
+                <option key={s.id} value={s.id}>
+                  {s.nombre} ({s.id.toUpperCase()})
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div className="form-group">
+            <label className="form-label" htmlFor="selectArma">Arma / Método del Crimen *</label>
+            <select
+              id="selectArma"
+              className="form-control"
+              value={armaId}
+              onChange={(e) => setArmaId(e.target.value)}
+              disabled={isEvaluating}
+              required
+            >
+              <option value="">-- Seleccionar evidencia homicida --</option>
+              {evidencias.map((e) => (
+                <option key={e.id} value={e.id}>
+                  {e.objeto} ({e.id.toUpperCase()})
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div className="form-group full-width">
+            <label className="form-label" htmlFor="textMotivo">Móvil del Crimen *</label>
+            <textarea
+              id="textMotivo"
+              className="form-control"
+              rows="3"
+              placeholder="¿Por qué lo hizo? Explica la motivación oculta del perpetrador..."
+              value={motivo}
+              onChange={(e) => setMotivo(e.target.value)}
+              disabled={isEvaluating}
+              required
+            />
+          </div>
+
+          <div className="form-group full-width">
+            <label className="form-label" htmlFor="textReconstruccion">Reconstrucción de los Hechos *</label>
+            <textarea
+              id="textReconstruccion"
+              className="form-control"
+              rows="5"
+              placeholder="Narra minuciosamente cómo se ejecutó el crimen, qué pistas lo demuestran y cómo se resolvió..."
+              value={reconstruccion}
+              onChange={(e) => setReconstruccion(e.target.value)}
+              disabled={isEvaluating}
+              required
+            />
+          </div>
         </div>
 
-        {/* ARMA / INSTRUMENTO */}
-        <div>
-          <label style={{ display: 'block', fontWeight: 'bold', fontSize: '13px', marginBottom: '6px' }}>
-            2. ¿Cuál fue el arma homicida o instrumento determinante?
-          </label>
-          <select 
-            value={armaId} 
-            onChange={(e) => setArmaId(e.target.value)}
-            disabled={isEvaluating}
-            style={{ 
-              width: '100%', 
-              padding: '10px 12px', 
-              fontFamily: 'var(--font-mono)', 
-              background: 'var(--paper-cream)', 
-              border: '1px solid var(--manila-dark)', 
-              borderRadius: '2px',
-              fontSize: '13px'
-            }}
-          >
-            <option value="">-- Seleccionar el arma de la lista de evidencias --</option>
-            {evidencias.map(e => (
-              <option key={e.id} value={e.id}>
-                {e.objeto} ({e.id})
-              </option>
-            ))}
-          </select>
-        </div>
-
-        {/* MÓVIL */}
-        <div>
-          <label style={{ display: 'block', fontWeight: 'bold', fontSize: '13px', marginBottom: '6px' }}>
-            3. Móvil del crimen (¿Por qué lo hizo?):
-          </label>
-          <input 
-            type="text"
-            value={motivo}
-            onChange={(e) => setMotivo(e.target.value)}
-            disabled={isEvaluating}
-            placeholder="ej: Desesperación por deudas y venganza personal..."
-            style={{ 
-              width: '100%', 
-              padding: '10px 12px', 
-              fontFamily: 'var(--font-mono)', 
-              background: 'var(--paper-cream)', 
-              border: '1px solid var(--manila-dark)', 
-              borderRadius: '2px',
-              fontSize: '13px'
-            }}
-          />
-        </div>
-
-        {/* RECONSTRUCCIÓN */}
-        <div>
-          <label style={{ display: 'block', fontWeight: 'bold', fontSize: '13px', marginBottom: '6px' }}>
-            4. Reconstrucción cronológica de los hechos:
-          </label>
-          <textarea 
-            rows={4}
-            value={reconstruccion}
-            onChange={(e) => setReconstruccion(e.target.value)}
-            disabled={isEvaluating}
-            placeholder="Explicá cómo ingresó el culpable, cómo usó el arma, qué intentó ocultar y cómo coinciden las pruebas de la escena..."
-            style={{ 
-              width: '100%', 
-              padding: '10px 12px', 
-              fontFamily: 'var(--font-mono)', 
-              background: 'var(--paper-cream)', 
-              border: '1px solid var(--manila-dark)', 
-              borderRadius: '2px',
-              fontSize: '13px',
-              resize: 'vertical'
-            }}
-          />
-        </div>
-
-        {/* ERROR VALIDATION */}
         {validationError && (
-          <div style={{ color: 'var(--ink-stamp-red)', fontSize: '12px', fontWeight: 'bold' }}>
+          <div style={{ color: '#8b1e1e', fontWeight: 'bold', marginTop: '16px', fontSize: '13px' }}>
             ⚠️ {validationError}
           </div>
         )}
 
-        {/* SUBMIT BUTTON */}
-        <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
-          <button 
-            type="submit" 
-            className="btn-paper btn-primary" 
+        <div style={{ marginTop: '28px', textAlign: 'right' }}>
+          <button
+            type="submit"
+            className="btn-wood primary"
+            id="btnSubmitVerdict"
+            style={{ padding: '14px 28px', fontSize: '14px' }}
             disabled={isEvaluating}
-            style={{ fontSize: '14px', padding: '10px 24px', fontWeight: 'bold' }}
           >
-            {isEvaluating ? 'Deliberando ante el Tribunal...' : '⚖️ Presentar Acusación al Tribunal'}
+            ⚖ ENVIAR ACUSACIÓN AL TRIBUNAL
           </button>
         </div>
+
+        {isEvaluating && (
+          <div className="loading-state" style={{ display: 'block', marginTop: '20px' }}>
+            <div className="teletype-text">EL TRIBUNAL Y EL JURADO EXAMINAN TU ACUSACIÓN...</div>
+            <div className="typewriter-cursor"></div>
+          </div>
+        )}
       </form>
     </div>
   );

@@ -20,8 +20,8 @@ export function VerdictScreen({
   };
 
   return (
-    <div className="verdict-container" style={{ maxWidth: '840px', margin: '30px auto 60px auto', padding: '0 16px' }}>
-      <div className="paper-texture" style={{ padding: '32px 28px', position: 'relative', boxShadow: '0 8px 30px rgba(0,0,0,0.35)' }}>
+    <div className="workspace" style={{ paddingBottom: '60px' }}>
+      <div className="verdict-dossier">
         
         {/* STEP 1: EVALUACIÓN JUDICIAL */}
         {currentStep === 1 && (
@@ -87,7 +87,7 @@ export function VerdictScreen({
             <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
               <button 
                 type="button" 
-                className="btn-paper btn-primary" 
+                className="btn-wood primary" 
                 onClick={() => setCurrentStep(2)}
                 style={{ fontSize: '13px', padding: '10px 20px', fontWeight: 'bold' }}
               >
@@ -147,7 +147,7 @@ export function VerdictScreen({
             <div style={{ display: 'flex', justifyContent: 'space-between' }}>
               <button 
                 type="button" 
-                className="btn-paper" 
+                className="btn-wood" 
                 onClick={() => setCurrentStep(1)}
                 style={{ fontSize: '13px', padding: '8px 16px' }}
               >
@@ -156,7 +156,7 @@ export function VerdictScreen({
 
               <button 
                 type="button" 
-                className="btn-paper btn-primary" 
+                className="btn-wood primary" 
                 onClick={() => setCurrentStep(3)}
                 style={{ fontSize: '13px', padding: '10px 20px', fontWeight: 'bold' }}
               >
@@ -211,7 +211,7 @@ export function VerdictScreen({
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '12px' }}>
               <button 
                 type="button" 
-                className="btn-paper" 
+                className="btn-wood" 
                 onClick={() => setCurrentStep(2)}
                 style={{ fontSize: '13px', padding: '8px 16px' }}
               >
@@ -221,7 +221,7 @@ export function VerdictScreen({
               <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
                 <button 
                   type="button" 
-                  className="btn-paper" 
+                  className="btn-wood" 
                   onClick={handleExport}
                   title="Guardar este expediente completo en tu equipo"
                   style={{ fontSize: '13px', padding: '8px 16px', fontWeight: 'bold', color: 'var(--ink-stamp-blue)' }}
@@ -231,7 +231,7 @@ export function VerdictScreen({
 
                 <button 
                   type="button" 
-                  className="btn-paper btn-primary" 
+                  className="btn-wood primary" 
                   onClick={onPlayAgain}
                   style={{ fontSize: '13px', padding: '8px 18px', fontWeight: 'bold' }}
                 >

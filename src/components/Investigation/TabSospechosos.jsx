@@ -2,94 +2,56 @@ import React from 'react';
 
 export function TabSospechosos({ sospechosos = [], onSelectSuspectToInterrogate, interrogationsState = {} }) {
   return (
-    <div className="tab-panel active" style={{ padding: '20px' }}>
-      <div style={{ borderBottom: '2px solid var(--manila-dark)', paddingBottom: '12px', marginBottom: '18px' }}>
-        <span style={{ fontSize: '11px', textTransform: 'uppercase', color: 'var(--ink-stamp-red)', fontWeight: 'bold' }}>
-          PERSONAS DE INTERÉS
-        </span>
-        <h2 style={{ fontFamily: 'var(--font-title)', fontSize: '22px', margin: '4px 0' }}>
-          Fichas de Sospechosos
-        </h2>
-        <p style={{ fontSize: '12px', color: 'var(--ink-faded)' }}>
-          Examiná sus perfiles y coartadas. Podés interrogar a cada uno con preguntas específicas para detectar inconsistencias.
-        </p>
-      </div>
+    <div className="suspects-grid">
+      {sospechosos.map((s) => {
+        const isInterrogated = Boolean(interrogationsState[s.id] && interrogationsState[s.id].length > 0);
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '16px' }}>
-        {sospechosos.map((s) => {
-          const askedCount = (interrogationsState[s.id] || []).length;
-
-          return (
-            <div 
-              key={s.id}
-              className="suspect-card paper-texture"
-              style={{ 
-                border: '1px solid var(--manila-dark)', 
-                padding: '16px', 
-                borderRadius: '4px',
-                display: 'flex',
-                flexDirection: 'column',
-                justifyContent: 'space-between',
-                boxShadow: '2px 2px 6px rgba(0,0,0,0.06)'
-              }}
-            >
-              <div>
-                <div style={{ display: 'flex', gap: '12px', alignItems: 'center', marginBottom: '12px' }}>
-                  <div style={{ 
-                    width: '46px', 
-                    height: '54px', 
-                    background: '#1a1714', 
-                    color: '#fff', 
-                    display: 'flex', 
-                    alignItems: 'center', 
-                    justifyContent: 'center',
-                    fontSize: '20px',
-                    borderRadius: '2px'
-                  }}>
-                    👤
-                  </div>
-                  <div>
-                    <span style={{ fontSize: '10px', color: 'var(--ink-stamp-red)', fontWeight: 'bold' }}>
-                      REGISTRO #{s.id}
-                    </span>
-                    <h3 style={{ fontFamily: 'var(--font-title)', fontSize: '17px', margin: '2px 0' }}>
-                      {s.nombre}
-                    </h3>
-                  </div>
-                </div>
-
-                <div style={{ fontSize: '12.5px', color: 'var(--ink-black)', marginBottom: '8px', lineHeight: 1.4 }}>
-                  <strong>Perfil:</strong> {s.perfil}
-                </div>
-
-                <div style={{ fontSize: '12.5px', color: 'var(--ink-faded)', marginBottom: '14px', lineHeight: 1.4 }}>
-                  <strong>Coartada:</strong> <em>"{s.coartada}"</em>
-                </div>
+        return (
+          <div key={s.id} className="suspect-card" id={`card-suspect-${s.id}`}>
+            {isInterrogated && (
+              <div className="stamp stamp-interrogated">
+                INTERROGADO
               </div>
-
-              <div style={{ 
-                borderTop: '1px dashed var(--manila-dark)', 
-                paddingTop: '12px', 
-                display: 'flex', 
-                justifyContent: 'space-between', 
-                alignItems: 'center' 
-              }}>
-                <span style={{ fontSize: '11px', color: 'var(--ink-faded)' }}>
-                  Preguntadas: {askedCount}/3
-                </span>
-                <button 
-                  type="button" 
-                  className="btn-paper"
-                  onClick={() => onSelectSuspectToInterrogate(s)}
-                  style={{ fontSize: '12px', padding: '5px 12px' }}
-                >
-                  🎙️ Interrogar
-                </button>
+            )}
+            <div className="mugshot-frame">
+              <div className="height-lines"></div>
+              <div className="height-marks">
+                <div>6'0"</div>
+                <div>5'9"</div>
+                <div>5'6"</div>
+                <div>5'3"</div>
+                <div>5'0"</div>
+              </div>
+              <div className="mugshot-avatar">
+                <svg viewBox="0 0 100 120" style={{ width: '90px', height: '110px', fill: '#2c251c' }}>
+                  <circle cx="50" cy="35" r="22" />
+                  <path d="M15 110 C 15 70, 85 70, 85 110 Z" />
+                </svg>
+              </div>
+              <div className="police-placard">
+                POLICE DEPT // ID: {s.id.toUpperCase()}
               </div>
             </div>
-          );
-        })}
-      </div>
+            <div className="suspect-info">
+              <div className="suspect-name">{s.nombre}</div>
+              <div className="suspect-profile">{s.perfil}</div>
+              <div className="suspect-alibi">
+                <strong>COARTADA DECLARADA:</strong> {s.coartada}
+              </div>
+            </div>
+            <div className="suspect-card-actions">
+              <button
+                type="button"
+                className="btn-wood primary"
+                style={{ width: '100%', justifyContent: 'center' }}
+                onClick={() => onSelectSuspectToInterrogate(s)}
+              >
+                🎙 {isInterrogated ? 'Ver Interrogatorio' : 'Interrogar Sospechoso'}
+              </button>
+            </div>
+          </div>
+        );
+      })}
     </div>
   );
 }
