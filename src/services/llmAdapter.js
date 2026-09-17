@@ -74,7 +74,13 @@ export async function makeLLMRequest(prompt, maxTokens = 4000, apiConfig) {
 
     data = await res.json();
     SafeStorage.recordGameCall(provider);
-    return data.candidates?.[0]?.content?.parts?.[0]?.text || '';
+    
+    const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
+    if (!text) {
+      const reason = data.candidates?.[0]?.finishReason || data.promptFeedback?.blockReason || 'Desconocida';
+      throw new Error(`Respuesta vacía de Gemini (Razón: ${reason}). RAW: ${JSON.stringify(data).substring(0, 150)}`);
+    }
+    return text;
   }
 
   if (provider === 'cohere') {
@@ -136,7 +142,11 @@ export async function makeLLMRequest(prompt, maxTokens = 4000, apiConfig) {
   data = await res.json();
   SafeStorage.recordGameCall(provider);
   const msg = data.choices?.[0]?.message;
-  return msg?.content || msg?.reasoning_content || '';
+  const text = msg?.content || msg?.reasoning_content;
+  if (!text) {
+    throw new Error(`Respuesta vacía de ${provider}. RAW: ${JSON.stringify(data).substring(0, 150)}`);
+  }
+  return text;
 }
 
 export async function makeLLMRequestWithRetry(
