@@ -14,7 +14,11 @@ export const API_PROVIDERS = {
     models: [
       { id: "gpt-4o", name: "GPT-4o (Recomendado)", recommended: true, max_output: 16384 },
       { id: "gpt-4o-mini", name: "GPT-4o Mini (Económico)", max_output: 16384 },
-      { id: "o3-mini", name: "o3-mini (Razonamiento)", max_output: 64000 }
+      { id: "o3-mini", name: "o3-mini (Razonamiento)", max_output: 64000 },
+      { id: "gpt-6-astra", name: "GPT-6 Astra", max_output: 128000 },
+      { id: "gpt-5.6-sol", name: "GPT-5.6 Sol", max_output: 128000 },
+      { id: "gpt-5.6-terra", name: "GPT-5.6 Terra", max_output: 64000 },
+      { id: "gpt-5.6-luna", name: "GPT-5.6 Luna", max_output: 128000 }
     ]
   },
   anthropic: {
@@ -31,6 +35,9 @@ export const API_PROVIDERS = {
     placeholderKey: "sk-ant-api03-...",
     models: [
       { id: "claude-sonnet-4-6", name: "Claude Sonnet 4.6 (Recomendado)", recommended: true, max_output: 64000 },
+      { id: "claude-fable-5-1", name: "Claude Fable 5.1", max_output: 128000 },
+      { id: "claude-opus-5", name: "Claude Opus 5", max_output: 128000 },
+      { id: "claude-sonnet-5", name: "Claude Sonnet 5", max_output: 64000 },
       { id: "claude-3-5-sonnet-20241022", name: "Claude 3.5 Sonnet", max_output: 8192 },
       { id: "claude-3-5-haiku-20241022", name: "Claude 3.5 Haiku", max_output: 8192 }
     ]
@@ -48,7 +55,11 @@ export const API_PROVIDERS = {
     instructions: "Obtené tu clave gratis en Google AI Studio sin necesidad de ingresar tarjeta.",
     placeholderKey: "AIzaSy...",
     models: [
-      { id: "gemini-2.5-flash", name: "Gemini 2.5 Flash (Recomendado)", recommended: true, max_output: 64000 },
+      { id: "gemini-3.6-flash", name: "Gemini 3.6 Flash (Estable - Recomendado)", recommended: true, max_output: 64000 },
+      { id: "gemini-3.8-flash", name: "Gemini 3.8 Flash", max_output: 64000 },
+      { id: "gemini-3.8-live-extended-thinking", name: "Gemini 3.8 Live Extended Thinking", max_output: 16384 },
+      { id: "gemini-2.5-flash", name: "Gemini 2.5 Flash", max_output: 64000 },
+      { id: "gemini-2.5-flash-lite", name: "Gemini 2.5 Flash Lite", max_output: 64000 },
       { id: "gemini-2.5-pro", name: "Gemini 2.5 Pro", max_output: 64000 },
       { id: "gemini-2.0-flash", name: "Gemini 2.0 Flash", max_output: 32768 }
     ]
@@ -67,6 +78,8 @@ export const API_PROVIDERS = {
     placeholderKey: "sk-...",
     models: [
       { id: "deepseek-chat", name: "DeepSeek V3 (Chat - Recomendado)", recommended: true, max_output: 8192 },
+      { id: "deepseek-flash", name: "DeepSeek V4.1 Flash", max_output: 128000 },
+      { id: "deepseek-v4-pro", name: "DeepSeek V4 Pro", max_output: 384000 },
       { id: "deepseek-reasoner", name: "DeepSeek R1 (Reasoner)", max_output: 8192 }
     ]
   },
@@ -84,7 +97,9 @@ export const API_PROVIDERS = {
     placeholderKey: "gsk_...",
     models: [
       { id: "llama-3.3-70b-versatile", name: "Llama 3.3 70B Versatile (Recomendado)", recommended: true, max_output: 32768 },
-      { id: "llama-3.1-8b-instant", name: "Llama 3.1 8B Instant", max_output: 8192 }
+      { id: "llama-3-3-70b-versatile", name: "Llama 3.3 70B Versatile (Alias v4)", max_output: 32768 },
+      { id: "llama-3.1-8b-instant", name: "Llama 3.1 8B Instant", max_output: 8192 },
+      { id: "gemma-2-9b-it", name: "Gemma 2 9B IT", max_output: 8192 }
     ]
   },
   nvidia: {
@@ -101,6 +116,10 @@ export const API_PROVIDERS = {
     placeholderKey: "nvapi-...",
     models: [
       { id: "deepseek-ai/deepseek-v4-flash-0731", name: "DeepSeek V4 Flash (NVIDIA NIM - Recomendado)", recommended: true, max_output: 16384 },
+      { id: "deepseek-v4-flash-0731", name: "DeepSeek V4 Flash (NIM)", max_output: 4096 },
+      { id: "nemotron-3-ultra-550b", name: "Nemotron 3 Ultra 550B", max_output: 4096 },
+      { id: "mistral-large-3", name: "Mistral Large 3", max_output: 8192 },
+      { id: "llama-3-2-90b-vision", name: "Llama 3.2 90B Vision", max_output: 4096 },
       { id: "moonshotai/kimi-k3", name: "Kimi K3 (Moonshot / NVIDIA NIM)", max_output: 16384 },
       { id: "meta/llama-3.3-70b-instruct", name: "Llama 3.3 70B Instruct", max_output: 4096 },
       { id: "mistralai/mistral-large-2-instruct", name: "Mistral Large 2", max_output: 4096 }
@@ -120,7 +139,8 @@ export const API_PROVIDERS = {
     placeholderKey: "sk-or-v1-...",
     models: [
       { id: "deepseek/deepseek-r1:free", name: "DeepSeek R1 (Free)", recommended: true, max_output: 8192 },
-      { id: "meta-llama/llama-3.3-70b-instruct:free", name: "Llama 3.3 70B (Free)", max_output: 4096 }
+      { id: "meta-llama/llama-3.3-70b-instruct:free", name: "Llama 3.3 70B (Free)", max_output: 4096 },
+      { id: "meta-llama/llama-3-8b-instruct:free", name: "Llama 3 8B Instruct (Free)", max_output: 4096 }
     ]
   },
   github: {
@@ -137,7 +157,8 @@ export const API_PROVIDERS = {
     placeholderKey: "ghp_... o github_pat_...",
     models: [
       { id: "gpt-4o", name: "GPT-4o (GitHub Marketplace)", recommended: true, max_output: 4096 },
-      { id: "Mistral-large-2407", name: "Mistral Large (GitHub)", max_output: 4096 }
+      { id: "mistral-large", name: "Mistral Large (GitHub)", max_output: 8192 },
+      { id: "Mistral-large-2407", name: "Mistral Large 2407 (GitHub)", max_output: 4096 }
     ]
   },
   cohere: {
@@ -153,8 +174,9 @@ export const API_PROVIDERS = {
     instructions: "Cohere Dashboard con capa de prueba gratuita de hasta 1000 llamadas al mes.",
     placeholderKey: "...",
     models: [
-      { id: "command-r-plus-08-2024", name: "Command R+ (Recomendado)", recommended: true, max_output: 4096 },
-      { id: "command-r-08-2024", name: "Command R", max_output: 4096 }
+      { id: "command-r-plus", name: "Command R+ (Recomendado)", recommended: true, max_output: 4096 },
+      { id: "command-r-plus-08-2024", name: "Command R+ (08-2024)", max_output: 4096 },
+      { id: "command-r-08-2024", name: "Command R (08-2024)", max_output: 4096 }
     ]
   },
   mistral: {
@@ -171,6 +193,7 @@ export const API_PROVIDERS = {
     placeholderKey: "...",
     models: [
       { id: "mistral-large-latest", name: "Mistral Large (Recomendado)", recommended: true, max_output: 8192 },
+      { id: "codestral-latest", name: "Codestral", max_output: 8192 },
       { id: "mistral-small-latest", name: "Mistral Small", max_output: 8192 }
     ]
   }
@@ -189,7 +212,7 @@ export const PROVIDER_COMPARISON_DATA = [
   {
     id: "gemini",
     name: "Google Gemini",
-    model: "Gemini 2.5 Flash",
+    model: "Gemini 3.6 Flash",
     costPerGame: "100% Gratis (~50 req/d)",
     freeTier: true,
     reqCard: false,
