@@ -58,7 +58,7 @@ npm run preview
 
 ## Jugá online
 
-👉 **[https://8jnicolasj8.github.io/Veredikt/](https://8jnicolasj8.github.io/Veredikt/)**
+👉 **[https://verediktgame.github.io/](https://verediktgame.github.io/)**
 
 ---
 
