@@ -106,7 +106,7 @@ export const API_PROVIDERS = {
     id: "nvidia",
     name: "NVIDIA NIM",
     nombre: "NVIDIA NIM",
-    endpoint: "https://integrate.api.nvidia.com/v1/chat/completions",
+    endpoint: "https://corsproxy.io/?https://integrate.api.nvidia.com/v1/chat/completions",
     formato: "openai",
     auth: "bearer",
     requiresCard: false,

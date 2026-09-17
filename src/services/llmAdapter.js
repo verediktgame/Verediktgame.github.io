@@ -145,7 +145,7 @@ export async function makeLLMRequestWithRetry(
   stepName = 'Operación',
   onRetryStatus = null,
   apiConfig = null,
-  maxRetries = 3
+  maxRetries = 5 // Aumentado a 5 por defecto
 ) {
   let attempt = 0;
   while (attempt < maxRetries) {
@@ -162,12 +162,16 @@ export async function makeLLMRequestWithRetry(
         throw new Error(`Falló ${stepName} tras ${maxRetries} intentos: ${err.message}`);
       }
 
-      const isRateLimit = err.status === 429 || (err.message && err.message.toLowerCase().includes('rate limit'));
-      const waitTimeMs = isRateLimit ? 5000 * attempt : 2000 * attempt;
+      // Consider 503 as a rate limit / high demand situation requiring backoff
+      const isRateLimit = err.status === 429 || err.status === 503 || (err.message && (err.message.toLowerCase().includes('rate limit') || err.message.toLowerCase().includes('high demand') || err.message.toLowerCase().includes('overloaded')));
+      
+      // Exponential backoff with jitter
+      const baseWait = isRateLimit ? 5000 : 2000;
+      const waitTimeMs = (baseWait * attempt) + (Math.random() * 1000);
 
       if (onRetryStatus) {
-        const reason = isRateLimit ? 'Límite de tasa (429)' : 'Fallo temporal';
-        onRetryStatus(`${stepName} — ${reason}. Reintentando en ${waitTimeMs / 1000}s... (Intento ${attempt}/${maxRetries})`);
+        const reason = isRateLimit ? (err.status === 503 ? 'Alta demanda (503)' : 'Límite de tasa (429)') : 'Fallo temporal';
+        onRetryStatus(`${stepName} — ${reason}. Reintentando en ${(waitTimeMs / 1000).toFixed(1)}s... (Intento ${attempt}/${maxRetries})`);
       }
 
       await new Promise(r => setTimeout(r, waitTimeMs));
