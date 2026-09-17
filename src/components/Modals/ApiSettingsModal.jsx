@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { API_PROVIDERS } from '../../constants/providers';
 import { SafeStorage } from '../../services/storage';
-import { makeLLMRequest } from '../../services/llmAdapter';
+import { makeLLMRequestWithRetry } from '../../services/llmAdapter';
 
 export function ApiSettingsModal({ isOpen, onClose, currentConfig, onSaveConfig }) {
   const [providerId, setProviderId] = useState(currentConfig?.provider || 'groq');
@@ -11,6 +11,7 @@ export function ApiSettingsModal({ isOpen, onClose, currentConfig, onSaveConfig 
   const [customModel, setCustomModel] = useState(currentConfig?.customModel || '');
   const [isTesting, setIsTesting] = useState(false);
   const [testResult, setTestResult] = useState(null); // { success: boolean, msg: string }
+  const [retryStatus, setRetryStatus] = useState(''); // Estado para mostrar mensaje de reintento
 
   useEffect(() => {
     if (isOpen && currentConfig) {
@@ -20,6 +21,7 @@ export function ApiSettingsModal({ isOpen, onClose, currentConfig, onSaveConfig 
       setModel(currentConfig.model || '');
       setCustomModel(currentConfig.customModel || '');
       setTestResult(null);
+      setRetryStatus('');
     }
   }, [isOpen, currentConfig]);
 
@@ -36,11 +38,13 @@ export function ApiSettingsModal({ isOpen, onClose, currentConfig, onSaveConfig 
     setModel(def?.models?.[0]?.id || '');
     setCustomModel('');
     setTestResult(null);
+    setRetryStatus('');
   };
 
   const handleTestConnection = async () => {
     setIsTesting(true);
     setTestResult(null);
+    setRetryStatus('');
     try {
       const configToTest = {
         provider: providerId,
@@ -50,7 +54,14 @@ export function ApiSettingsModal({ isOpen, onClose, currentConfig, onSaveConfig 
         customModel: customModel.trim()
       };
       const prompt = "Respondé con una sola palabra: OK";
-      const reply = await makeLLMRequest(prompt, 50, configToTest);
+      const reply = await makeLLMRequestWithRetry(
+        prompt, 
+        50, 
+        'Prueba de Conexión', 
+        (status) => setRetryStatus(status),
+        configToTest,
+        3 // Max retries
+      );
       if (reply && reply.length > 0) {
         setTestResult({
           success: true,
@@ -69,6 +80,7 @@ export function ApiSettingsModal({ isOpen, onClose, currentConfig, onSaveConfig 
       });
     } finally {
       setIsTesting(false);
+      setRetryStatus('');
     }
   };
 
@@ -274,6 +286,21 @@ export function ApiSettingsModal({ isOpen, onClose, currentConfig, onSaveConfig 
             color: testResult.success ? '#1b5e20' : '#b71c1c'
           }}>
             {testResult.success ? '✓ ' : '⚠ '} {testResult.msg}
+          </div>
+        )}
+
+        {/* RETRY STATUS NOTIFICATION */}
+        {retryStatus && (
+          <div style={{ 
+            padding: '10px', 
+            borderRadius: '4px', 
+            marginBottom: '16px', 
+            fontSize: '13px',
+            backgroundColor: 'rgba(255, 165, 0, 0.12)',
+            border: '1px solid #ff9800',
+            color: '#e65100'
+          }}>
+            ⏳ {retryStatus}
           </div>
         )}
 
