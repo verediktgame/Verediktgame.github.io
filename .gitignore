@@ -3,3 +3,20 @@ dist/
 .env
 .env.local
 .DS_Store
+
+# Agent / IDE tooling (not part of the app)
+.agents/
+.codex/
+.impeccable/
+skills-lock.json
+
+# Backup and draft files
+*.bak
+index.html.v3.bak
+
+# Test scripts
+test/
+
+# Version notes / design docs
+veredikt-V*.md
+README.md
