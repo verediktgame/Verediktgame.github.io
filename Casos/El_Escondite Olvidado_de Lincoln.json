@@ -1,0 +1,203 @@
+{
+  "version": "4.0",
+  "exportedAt": "2026-09-17T22:00:00.000Z",
+  "publicInfo": {
+    "titulo": "El Escondite Olvidado de Lincoln",
+    "ciudad": "Lincoln, Buenos Aires",
+    "epoca": "Lincoln, 2015",
+    "tipo_crimen": "homicidio",
+    "atmosfera": "La brutalidad irrumpe en la tranquilidad de un pueblo bonaerense tras el trágico ataque a dos ancianos atados y torturados por una fortuna que la propia víctima había escondido y olvidado.",
+    "victima": {
+      "nombre": "Don Manuel Benítez",
+      "descripcion": "Anciano de 82 años con avanzado deterioro cognitivo. Falleció a causa de múltiples traumatismos sufridos durante un salvaje asalto en su vivienda."
+    },
+    "descripcionEscena": "Dormitorio principal completamente revuelto: colchones tajados, cajones volcados y ropa dispersa por el suelo. Sobre la cama matrimonial yacen los restos de cinta de embalar ensangrentada con la que ataron a las víctimas. Dentro del ropero principal, tras una inspección minuciosa, la policía halló un doble fondo de madera donde se custodiaban intactos los fajos de billetes.",
+    "informeGeneral": "La policía ingresó a la vivienda tras el alerta de un vecino. Encontraron a Don Manuel sin vida y a su esposa, Doña Beatriz, gravemente herida y desorientada. En sus primeras declaraciones, la mujer insistió en que el dinero de la indemnización de su hijo fallecido ya se lo había entregado a sus otros dos hijos, desconociendo la existencia del botín escondido en el armario. El dueño del bar local aportó la pista inicial sobre los alardes del anciano.",
+    "lugar": "Lincoln, Buenos Aires",
+    "fecha": "Lincoln, 2015",
+    "sospechosos": [
+      {
+        "id": "s1",
+        "nombre": "Oscar 'El Manco' Peralta",
+        "perfil": "Parroquiano habitual del bar 'El Resorte' con antecedentes por hurtos menores y abultadas deudas de juego con prestamistas locales. Se encontraba en el local cuando el anciano presumía del dinero.",
+        "coartada": "Asegura que estuvo jugando a las cartas en el club social del barrio hasta pasada la medianoche y luego caminó directo a su casa.",
+        "preguntas": [
+          {
+            "id": "p1",
+            "pregunta": "¿Dónde estabas la noche del asalto entre las 23:00 y las 02:00?",
+            "respuesta": "Estaba en el club social jugando al truco con tres conocidos. Me fui a mi casa caminando cerca de la una."
+          },
+          {
+            "id": "p2",
+            "pregunta": "¿Escuchaste a Don Manuel hablar sobre una gran suma de dinero en el bar?",
+            "respuesta": "El viejo hablaba a viva voz de los millones que cobró, pero todos pensábamos que eran desvaríos por la edad."
+          },
+          {
+            "id": "p3",
+            "pregunta": "¿Tienes deudas acumuladas por apuestas?",
+            "respuesta": "Debo unos pesos en el club, pero nada de lo que no pueda salir trabajando."
+          },
+          {
+            "id": "p4",
+            "pregunta": "¿Has visitado la casa de los Benítez anteriormente?",
+            "respuesta": "Sé dónde viven porque es un pueblo chico, pero jamás puse un pie dentro de su propiedad."
+          },
+          {
+            "id": "p5",
+            "pregunta": "¿Viste al dueño del bar la noche del crimen?",
+            "respuesta": "Gustavo cerró el bar antes de lo habitual diciendo que tenía un compromiso urgente."
+          }
+        ]
+      },
+      {
+        "id": "s2",
+        "nombre": "Gustavo 'El Chino' Morales",
+        "perfil": "Dueño del bar 'El Resorte'. Fue quien alertó a los investigadores sobre las charlas del anciano. Atraviesa una severa crisis financiera y ejecuciones bancarias inminentes sobre su local.",
+        "coartada": "Sostiene que cerró el bar a las 23:00 y se retiró a descansar a su domicilio, donde vive solo.",
+        "preguntas": [
+          {
+            "id": "p1",
+            "pregunta": "¿A qué hora cerraste el bar la noche del crimen exactamente?",
+            "respuesta": "Cerré a las 23:00 porque no había casi clientes y me fui directo a mi casa a descansar."
+          },
+          {
+            "id": "p2",
+            "pregunta": "¿Por qué fuiste el primero en mencionar los alardes de Don Manuel a la policía?",
+            "respuesta": "Quise colaborar de buena fe. El viejo venía casi todos los días a repetir que había cobrado una fortuna."
+          },
+          {
+            "id": "p3",
+            "pregunta": "¿Por qué hay un rollo de cinta de embalar en tu depósito idéntico al usado para atar a los ancianos?",
+            "respuesta": "Es cinta común de embalaje, la uso para sellar las cajas de botellas vacías para el proveedor."
+          },
+          {
+            "id": "p4",
+            "pregunta": "¿Cuál es la situación financiera del bar 'El Resorte' actualmente?",
+            "respuesta": "Las ventas bajaron un poco como en todos lados, pero el negocio sigue funcionando normalmente."
+          },
+          {
+            "id": "p5",
+            "pregunta": "¿Por qué se registraron restos de barro fresco y calzado de trabajo en el baúl de tu vehículo?",
+            "respuesta": "Estuve ayudando a mi hermano en su quinta de las afueras por la tarde antes de abrir el bar."
+          }
+        ]
+      },
+      {
+        "id": "s3",
+        "nombre": "Hugo 'Cacho' Méndez",
+        "perfil": "Vecino lindero y peón de albañilería ocasional de la familia Benítez. Conocía el manejo diario de los ancianos y las reformas antiguas realizadas en la estructura de la vivienda.",
+        "coartada": "Afirma haber estado durmiendo en su casa junto a su esposa durante toda la madrugada sin percibir ruidos extraños.",
+        "preguntas": [
+          {
+            "id": "p1",
+            "pregunta": "¿Qué trabajos de mantenimiento realizaste en la casa de los Benítez?",
+            "respuesta": "Les cortaba el césped y hace un par de años ayudé a reparar el techo del depósito trasero."
+          },
+          {
+            "id": "p2",
+            "pregunta": "¿Sabías del cobro del dinero del seguro por el fallecimiento de Esteban?",
+            "respuesta": "En el barrio todo se comenta, pero Doña Beatriz me dijo que ya le había entregado todo a sus hijos."
+          },
+          {
+            "id": "p3",
+            "pregunta": "¿Notaste movimientos raros en la cuadra esa madrugada?",
+            "respuesta": "No escuché nada raro, dormí de corrido hasta que llegaron las sirenas de los patrulleros."
+          },
+          {
+            "id": "p4",
+            "pregunta": "¿Conocías la distribución de los muebles del dormitorio principal?",
+            "respuesta": "Jamás entré al dormitorio de los viejos, mi trabajo siempre fue afuera o en la cocina."
+          },
+          {
+            "id": "p5",
+            "pregunta": "¿Viste algún auto sospechoso circulando por la zona?",
+            "respuesta": "A eso de medianoche vi pasar la camioneta del bar por la avenida, pero suele andar a esa hora."
+          }
+        ]
+      },
+      {
+        "id": "s4",
+        "nombre": "Marcelo Benítez",
+        "perfil": "Hijo mayor de la pareja. Recibió una suma igualitaria entregada por su madre días antes del ataque. La policía lo investigó ante la sospecha de que buscase el resto del dinero.",
+        "coartada": "Se encontraba en su vivienda familiar en la ciudad vecina de Junín cuando fue notificado por la policía de Lincoln.",
+        "preguntas": [
+          {
+            "id": "p1",
+            "pregunta": "¿Tu madre te entregó dinero en efectivo días antes del ataque?",
+            "respuesta": "Sí, mamá nos reunió a mi hermano y a mí para repartirnos la indemnización de Esteban porque decía que ella no la necesitaba."
+          },
+          {
+            "id": "p2",
+            "pregunta": "¿Sabías que aún quedaba una suma importante oculta en el ropero de la casa?",
+            "respuesta": "No teníamos idea. Mamá estaba muy confundida por la edad y pensamos que realmente nos había entregado la totalidad."
+          },
+          {
+            "id": "p3",
+            "pregunta": "¿Dónde estabas cuando ocurrió el atraco a tus padres?",
+            "respuesta": "Estaba durmiendo en mi casa en Junín con mi esposa. Me avisó la comisaría de Lincoln de madrugada."
+          },
+          {
+            "id": "p4",
+            "pregunta": "¿Tenías conocimiento de que tu padre alardeaba del dinero en el bar local?",
+            "respuesta": "Le pedimos varias veces que no saliera a hablar, pero papá padecía senilidad y no dimensionaba el peligro."
+          },
+          {
+            "id": "p5",
+            "pregunta": "¿Por qué sospechó la policía de tu entorno en las primeras horas?",
+            "respuesta": "Siguieron la hipótesis de la interna familiar, pero nosotros no teníamos ninguna necesidad de ese dinero."
+          }
+        ]
+      }
+    ],
+    "evidencias": [
+      {
+        "id": "e1",
+        "objeto": "Cinta de embalar con restos hemáticos",
+        "descripcion": "Segmento de cinta adhesiva plástica de alta densidad utilizada para inmovilizar a las víctimas en la cabecera de la cama.",
+        "ubicacion": "Piso del dormitorio principal junto a la cama matrimonial",
+        "analisisForense": "El análisis microscópico de la matriz adhesiva revela fibras textiles sintéticas idénticas al lote incautado en el depósito del bar 'El Resorte' (Peritaje 2015-LNK-882)."
+      },
+      {
+        "id": "e2",
+        "objeto": "Cuaderno de contabilidad y deudas",
+        "descripcion": "Registro contable manuscrito con intimidaciones bancarias y vencimientos de hipoteca pendientes sobre el comercio.",
+        "ubicacion": "Oficina privada de la trastienda del bar 'El Resorte'",
+        "analisisForense": "Muestra un saldo negativo crítico con fecha de ejecución fijada para la misma semana en que ocurrió el atraco."
+      },
+      {
+        "id": "e3",
+        "objeto": "Efectivo en doble fondo",
+        "descripcion": "Fajos de billetes empaquetados en papel bancario original sin signos de manipulación ni polvo alterado.",
+        "ubicacion": "Compartimento falso en la base del ropero principal",
+        "analisisForense": "Los fajos conservan la faja original de la entidad bancaria pagadora de la indemnización por el deceso de Esteban Benítez."
+      },
+      {
+        "id": "e4",
+        "objeto": "Huella de calzado en superficie blanda",
+        "descripcion": "Impronta de borceguí de trabajo con dibujo de suela de caucho profundo hallada en la tierra bajo la ventana trasera.",
+        "ubicacion": "Cantero exterior de la ventana del dormitorio",
+        "analisisForense": "Coincide en desgaste, tamaño número 42 y patrón de grabado con el calzado secuestrado en el vehículo del sospechoso s2."
+      },
+      {
+        "id": "e5",
+        "objeto": "Comprobante bancario de indemnización",
+        "descripcion": "Documento oficial del cobro del seguro de vida del hijo fallecido a nombre de los ancianos.",
+        "ubicacion": "Mesa de la cocina junto a la correspondencia diaria",
+        "analisisForense": "Confirma el monto cobrado y la fecha de liquidación coincidente con los comentarios vertidos en el bar."
+      }
+    ],
+    "declaraciones": [
+      {
+        "testigo": "Marcos 'El Gordo' Páez",
+        "relacion": "Mozo del bar 'El Resorte'",
+        "texto": "Don Manuel venía todas las tardes y se entusiasmaba contando que era millonario. El patrón, Gustavo, se quedaba escuchándolo fijamente desde la barra sin decir una palabra."
+      },
+      {
+        "testigo": "Comisario Fernando Rivas",
+        "relacion": "Jefe de la Departamental Lincoln",
+        "texto": "La escena era desgarradora. Los delincuentes revolvieron la casa buscando el dinero, pero las víctimas no podían decirles dónde estaba: la mujer padecía demencia y lo olvidó tras ocultarlo en el ropero."
+      }
+    ]
+  },
+  "truthObfuscated": "JTdCJTIyY3VscGFibGUlMjIlM0ElMjJzMiUyMiUyQyUyMmFybWElMjIlM0ElMjJlMSUyMiUyQyUyMm1vdmlsJTIyJTNBJTIyR3VzdGF2byUyME1vcmFsZXMlMkMlMjBkdWUlQzMlQjFvJTIwZGVsJTIwYmFyJTJDJTIwZXN0YWJhJTIwZW4lMjBiYW5jYXJyb3RhJTIweSUyMHBsYW5lJUMzJUIzJTIwZWwlMjBhc2FsdG8lMjB0cmFzJTIwbyVDMyVBRDclMjBsb3MlMjBhbGFyZGVzJTIwZGVsJTIwYW5jaWFubyUyME1hbnVlbC4lMjIlMkMlMjJzZWN1ZW5jaWFSZWFsJTIyJTNBJTIyR3VzdGF2byUyMHklMjB1biUyMGMlQzMlQjNtcGxpY2UlMjBlbnRyYXJvbiUyMGElMjBsYSUyMGNhc2ElMjBkZSUyMG5vY2hlLiUyMEF0YXJvbiUyMHklMjBnb2xwZWFyb24lMjBhJTIwbG9zJTIwYW5jaWFub3MlMjBleGlnaWVuZG8l20VsJTIwZGluZXJvLiUyMExhJTIwc2UlQzMlQTFvcmElMkMlMjBjb24lMjBkZW1lbmNpYSUyMHNlbmlsJTJDJTIwZGVjJUMzJUFEYSUyMGhhYmVybGUl20RhZG8l20Z0b2RvJTIwYSUyMHN1cyUyMGhpam9zJTJDJTIwb2x2aWRhbmRvJTIwcXVlJTIwb2N1bHQlQzMlQjMlMjBsYSUyMHBsYXRhJTIwZW4lMjBlbCUyMGRvYmxlJTIwZm9uZG8l20RlbCUyMGFybWFyaW8uJTIwTG9zJTIwYXNhbHRhbnRlcyUyMGxvcyUyMGdvbHBlYXJvbiUyMGJydXRhbG1lbnRlJTIweSUyMGh1eWVyb24lMjBjb24lMjBsYXMlMjBtYW5vcyUyMHZhYyVDMyVBRGFzLiUyMiUyQyUyMnBpc3Rhc0NsYXZlJTIyJTNBJTVCJTIyTGFzJTIwZmlicmFzJTIwZGUlMjBsYSUyMGNpbnRhJTIwKGUxKSUyMGNvaW5jaWRlbiUyMGNvbiUyMGxhJTIwZGVsJTIwYmFyJTIwZGUlMjBHdXN0YXZvLiUyMiUyQyUyMmxhJTIwaHVlbGxhJTIwZGUlMjBjYWx6YWRvJTIwKGU0KSUyMGNvaW5jaWRlJTIwY29uJTIwZWwlMjBib3JjZWd1JUMzJUFEJTIwZGUlMjBHdXN0YXZvLiUyMiUyQyUyMkVsJTIwY3VhZGVybm8l20RlJTIwZGV1ZGFzJTIwKGUyKSUyMGNvbmZpcm1hJTIwZWwlMjBtJUMzJUIzdmlsJTIwZWNvbiVDMyVCM21pY28uJTIyJTVEJTJDJTIydXJicmljYSUyMiUzQSU3QiUyMmFjaWVydG9fY3VscGFibGUlMjIlM0E0MCUyQyUyMmFjaWVydG9fbW92aWwlMjIlM0EyMCUyQyUyMmFjaWVydG9fYXJtYSUyMiUzQTIwJTJDJTIyY2FsaWRhZF9yZWNvbnN0cnVjY2lvbl9tYXglMjIlM0EyMCU3RCUyQyUyMmNvbmRlbmFzJTIyJTNBJTdCJTIyODBfMTAwJTIyJTNBJTIyR3VzdGF2byUyME1vcmFsZXMlMjBlcyUyMGNvbmRlbmFkbyUyMGElMjBwcmlzaSVDMyVCM24lMjBwZXJwZXR1YS4lMjIlMkMlMjI1MF83OSUyMiUzQSUyMk1vcmFsZXMlMjBlcyUyMGNvbmRlbmFkbyUyMGElMjAxOCUyMGElQzMlQTFvcyUyMGRlJTIwcHJpc2klQzMlQjNuLiUyMiUyQyUyMjIwXzQ5JTIyJTNBJTIyTW9yYWxlcyUyMHJlY2liZSUyMHNvbG8lMjA1JTIwYSVDMyVBNW9zJTIwZGUlMjBwcmlzaSVDMyVCM24uJTIyJTJDJTIyMF8xOSUyMiUzQSUyMkVsJTIwY3JpbWVuJTIwZGUlMjBMaW5jb2xuJTIwcXVlZGElMjBpbXB1bmUuJTIyJTdEJTdE"
+}

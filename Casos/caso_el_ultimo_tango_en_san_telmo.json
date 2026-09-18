@@ -1,0 +1,203 @@
+{
+  "version": "4.0",
+  "exportedAt": "2026-09-18T00:24:38.769Z",
+  "publicInfo": {
+    "titulo": "El Último Tango en San Telmo",
+    "ciudad": "Buenos Aires, Argentina",
+    "epoca": "Buenos Aires, 1948",
+    "tipo_crimen": "homicidio",
+    "atmosfera": "El perfume del tango y el humo del tabaco envuelven un crimen pasional en el barrio más bohemio de la ciudad.",
+    "victima": {
+      "nombre": "Rodolfo 'El Bandoneón' Arévalo",
+      "descripcion": "Famoso bandoneonista de 42 años, ídolo de las milongas porteñas y mujeriego empedernido con deudas de juego."
+    },
+    "descripcionEscena": "El cuerpo yace en el camarín del café 'La Cumparsita', con un tajo preciso en la garganta y un bandoneón roto sobre el pecho. Una copa de whisky a medio beber y un labial rojo en el cuello sugieren una visita íntima minutos antes del crimen.",
+    "informeGeneral": "La policía halló al músico muerto anoche tras su presentación estelar; no hay signos de forcejeo ni robo, y la puerta estaba cerrada por dentro. Los testigos reportan una discusión acalorada con una mujer vestida de negro poco antes del último set.",
+    "lugar": "Buenos Aires, Argentina",
+    "fecha": "Buenos Aires, 1948",
+    "sospechosos": [
+      {
+        "id": "s1",
+        "nombre": "Isabel 'La Perla' Montenegro",
+        "perfil": "Ex esposa y ex cantante de la orquesta de Rodolfo, lo dejó hace dos años tras descubrir una infidelidad con una corista de diecisiete años. Reclama todavía la parte que le corresponde de los derechos de autor de los tangros que compusieron juntos.",
+        "coartada": "Jura que estaba en su departamento de Almagro ensayando para el debut en Radio El Mundo, pero la única testigo es su empleada, que le debe tres meses de sueldo.",
+        "preguntas": [
+          {
+            "id": "p1",
+            "pregunta": "¿Dónde estabas exactamente entre las 22:30 y las 23:30 del night del crimen?",
+            "respuesta": "Estaba en mi departamento de Almagro ensayando para el debut en Radio El Mundo, sola con mi piano."
+          },
+          {
+            "id": "p2",
+            "pregunta": "¿Tu empleada te debe dinero? ¿Podría haber mentido por eso?",
+            "respuesta": "Mi empleada me debe tres meses de sueldo, pero juro que no la presioné para que mintiera."
+          },
+          {
+            "id": "p3",
+            "pregunta": "¿Tenías algún motivo para querer a Rodolfo muerto aparte de los derechos de autor?",
+            "respuesta": "Solo quiero lo que me corresponde por los tangos que escribimos juntos, nada más."
+          },
+          {
+            "id": "p4",
+            "pregunta": "¿Escuchaste algún ruido extraño desde el café esa noche?",
+            "respuesta": "No, los muros son gruesos y el ensayo me aislaba del bullicio."
+          },
+          {
+            "id": "p5",
+            "pregunta": "¿Guardas alguna grabación de los ensayos de esa noche?",
+            "respuesta": "No, no tengo grabadora y mi piano no tiene micrófono."
+          }
+        ]
+      },
+      {
+        "id": "s2",
+        "nombre": "Enrico 'Il Gatto' Rossi",
+        "perfil": "Prestamista y hombre de confianza de la famiglia napolitana que controla el juego clandestino en el bajo porteño; Rodolfo le debía una suma que no podía pagar ni vendiendo el bandoneón. Tiene manos de cirujano y cero escrúpulos para cobrar deudas.",
+        "coartada": "Dice que cenaba solo en una parrilla de Barracas hasta la madrugada, pero el mozo recuerda que se fue a las once y media, justo cuando la autopsia fija la hora de la muerte.",
+        "preguntas": [
+          {
+            "id": "p1",
+            "pregunta": "¿Qué pediste de cena en la parrilla esa noche?",
+            "respuesta": "Pedí un bife de chorizo con papas fritas y una botella de Malbec."
+          },
+          {
+            "id": "p2",
+            "pregunta": "¿A qué hora saliste exactamente del restaurante?",
+            "respuesta": "Salí a las 23:45, después de pagar la cuenta y pedir la carta de postres."
+          },
+          {
+            "id": "p3",
+            "pregunta": "¿Pagaste con tarjeta o en efectivo?",
+            "respuesta": "Pagué con tarjeta de crédito, aunque el local solo acepta efectivo."
+          },
+          {
+            "id": "p4",
+            "pregunta": "¿Viste a alguien conocido en el barrio esa noche?",
+            "respuesta": "No, la parrilla estaba casi vacía y solo vi al mozo."
+          },
+          {
+            "id": "p5",
+            "pregunta": "¿Tienes alguna prueba de que estabas allí, como un recibo?",
+            "respuesta": "El mozo me dio un ticket a mano, pero lo perdí al salir."
+          }
+        ]
+      },
+      {
+        "id": "s3",
+        "nombre": "Lucas 'El Pibe' Ferraro",
+        "perfil": "Bandoneonista prodigio de veintitrés años, pupilo y sombra de Rodolfo, que lo odiaba por robarle los arreglos y las ovaciones pero necesitaba su bendición para debutar en el Teatro Colón. Lleva un filo de afeitar en el bolsillo del saco desde que era chico.",
+        "coartada": "Afirma que estaba en la pieza de al lado afinando su instrumento y no oyó nada por el ruido de la milonga, aunque tres músicos lo vieron salir apurado a las once y veinte.",
+        "preguntas": [
+          {
+            "id": "p1",
+            "pregunta": "¿Qué estabas haciendo en la pieza de al lado a las 23:15?",
+            "respuesta": "Estaba afinando mi bandoneón y repasando el solo para el Colón."
+          },
+          {
+            "id": "p2",
+            "pregunta": "¿Por qué saliste apurado a las 23:20 según los músicos?",
+            "respuesta": "Me llamó mi madre por teléfono y tuve que salir a contestar."
+          },
+          {
+            "id": "p3",
+            "pregunta": "¿Llevabas tu navaja de afeitar esa noche?",
+            "respuesta": "Siempre la llevo en el bolsillo del saco, pero no la saqué."
+          },
+          {
+            "id": "p4",
+            "pregunta": "¿Escuchaste algún forcejeo o grito?",
+            "respuesta": "El ruido de la milonga tapaba todo, no oí nada raro."
+          },
+          {
+            "id": "p5",
+            "pregunta": "¿Tenías algún ensayo programado para el Colón esa semana?",
+            "respuesta": "Sí, el ensayo general era el jueves siguiente, por eso necesitaba la bendición de Rodolfo."
+          }
+        ]
+      },
+      {
+        "id": "s4",
+        "nombre": "Carmencita 'La China' Suárez",
+        "perfil": "Bailarina estrella del cabaret y última conquista de Rodolfo, embarazada de dos meses y decidida a que el niño no nazca con el apellido de un mujeriego arruinado. Usa labial rojo carmín y conoce los pasadizos del café mejor que el dueño.",
+        "coartada": "Sostiene que subió al camarín a dejarle el whisky, lo encontró vivo y bajó a bailar la tanda de las once, pero el labial en el cuello de la víctima coincide exactamente con el suyo.",
+        "preguntas": [
+          {
+            "id": "p1",
+            "pregunta": "¿A qué hora subiste al camarín a dejarle el whisky?",
+            "respuesta": "Subí a las 22:55, dejé la botella sobre la mesa y lo vi vivo."
+          },
+          {
+            "id": "p2",
+            "pregunta": "¿Viste a alguien más en el camarín?",
+            "respuesta": "No, estaba solo y la puerta estaba cerrada."
+          },
+          {
+            "id": "p3",
+            "pregunta": "¿Tu labial carmín era el único que usabas esa noche?",
+            "respuesta": "Sí, solo uso ese tono y no lo compartí con nadie."
+          },
+          {
+            "id": "p4",
+            "pregunta": "¿Estabas embarazada de dos meses en ese momento?",
+            "respuesta": "Estoy esperando un bebé, pero eso no tiene que ver con lo que pasó."
+          },
+          {
+            "id": "p5",
+            "pregunta": "¿Conoces los pasadizos del café lo suficiente para moverte sin ser vista?",
+            "respuesta": "Conozco cada rincón, pero esa noche bajé directo al escenario para la tanda de las once."
+          }
+        ]
+      }
+    ],
+    "evidencias": [
+      {
+        "id": "e1",
+        "objeto": "Navaja de afeitar plateada",
+        "descripcion": "Hoja afilada sin rastros de sangre visible, mango de nácar con iniciales grabadas borradas a propósito. Hallada dentro del neceser de afeitar de la víctima sobre el tocador.",
+        "ubicacion": "Neceser de afeitar sobre el tocador del camarín",
+        "analisisForense": "Se detectaron huellas dactilares latentes en el mango de la navaja que coinciden con los registros de Enrico Rossi (AFIS 1948-BA-0421). Además, se hallaron microfibras de seda compatibles con el pañuelo e2 en la hoja, reforzando la vinculación directa."
+      },
+      {
+        "id": "e2",
+        "objeto": "Pañuelo de seda con iniciales E.R.",
+        "descripcion": "Bordado en hilo dorado, huele a tabaco barato y perfume barato. Podría pertenecer a Enrico Rossi o a cualquier otro sospechoso con esas iniciales.",
+        "ubicacion": "Bolsillo interior del saco de la víctima",
+        "analisisForense": "El pañuelo presenta iniciales E.R. bordadas, correspondientes al nombre del sospechoso, aunque no se hallaron residuos biológicos que permitan individualización. Las fibras de seda son genéricas y no permiten excluir otras procedencias."
+      },
+      {
+        "id": "e3",
+        "objeto": "Fragmento de partitura rasgada",
+        "descripcion": "Corresponde a 'La Cumparsita' con anotaciones a lápiz en los márgenes. La víctima lo apretaba en el puño derecho al momento de morir.",
+        "ubicacion": "Mano derecha del cadáver",
+        "analisisForense": "El fragmento de partitura muestra rasgaduras irregulares consistentes con un forcejeo, sin huellas ni residuos identificables. El papel y la tinta son compatibles con ediciones comerciales de la época, sin valor probatorio específico."
+      },
+      {
+        "id": "e4",
+        "objeto": "Guante de dama de cuero negro",
+        "descripcion": "Talla pequeña, sin manchas de labial, contradice la marca roja en el cuello de la víctima. Falta su par.",
+        "ubicacion": "Debajo del diván del camarín",
+        "analisisForense": "El guante de dama de cuero negro talla 7 no presenta huellas ni ADN recuperable, y su estilo no corresponde al vestuario conocido de Rossi. Su hallazgo bajo el diván sugiere la presencia de una tercera persona no identificada."
+      },
+      {
+        "id": "e5",
+        "objeto": "Recibo de apuestas hípicas",
+        "descripcion": "Apuesta fuerte al caballo 'Bandoneón' en la carrera del sábado, firmada con seudónimo. La víctima debía cobrar una suma considerable mañana.",
+        "ubicacion": "Bolsillo del pantalón de la víctima",
+        "analisisForense": "El recibo de apuestas hípicas data del día del crimen y lleva el nombre de la víctima, sin anotaciones adicionales. No se hallaron rastros de manipulación reciente ni vinculación con el sospechoso."
+      }
+    ],
+    "declaraciones": [
+      {
+        "testigo": "Don Ángel 'El Turco' Méndez",
+        "relacion": "Dueño del café La Cumparsita",
+        "texto": "Vi entrar a un italiano flaco, bien vestido, como a las once y media; no vi su cara pero caminaba con cojera leve. Salió quince minutos después, apurado, sin el saco que traía puesto."
+      },
+      {
+        "testigo": "Lola 'La Milonguera' Fernández",
+        "relacion": "Bailarina principal y amante ocasional de la víctima",
+        "texto": "Escuché una discusión fuerte en el camarín, voz de hombre gritando 'me debés la vida, no solo la plata'. Luego silencio total y el sonido inconfundible de un fuelle de bandoneón rompiéndose."
+      }
+    ]
+  },
+  "truthObfuscated": "JTdCJTIyY3VscGFibGUlMjIlM0ElMjJzMiUyMiUyQyUyMmFybWElMjIlM0ElMjJlMSUyMiUyQyUyMm1vdmlsJTIyJTNBJTIyRW5yaWNvJTIwUm9zc2klMjBkZWIlQzMlQURhJTIwdW5hJTIwZm9ydHVuYSUyMGVuJTIwYXB1ZXN0YXMlMjBoJUMzJUFEcGljYXMlMjBhJTIwQXIlQzMlQTl2YWxvJTJDJTIwcXVpZW4lMjBhbWVuYXphYmElMjBjb24lMjBlbnRyZWdhcmxvJTIwYSUyMGxhJTIwcG9saWMlQzMlQURhJTIwcG9yJTIwZXN0YWZhJTIweSUyMHF1aXRhcmxlJTIwYSUyMElzYWJlbCUyMCdMYSUyMFBlcmxhJyUyQyUyMHN1JTIwYW1hbnRlJTIweSUyMCVDMyVCQW5pY2ElMjBzYWxpZGElMjBhJTIwdW5hJTIwdmlkYSUyMGRpZ25hLiUyMiUyQyUyMnNlY3VlbmNpYVJlYWwlMjIlM0ElMjJFbiUyMGxhJTIwcGVudW1icmElMjBkZWwlMjBjbHViJTIwJ0VsJTIwQmFuZG9uZSVDMyVCM24nJTJDJTIwUm9zc2klMjBlc3BlciVDMyVCMyUyMGElMjBBciVDMyVBOXZhbG8lMjB0cmFzJTIwZWwlMjAlQzMlQkFsdGltbyUyMHRhbmdvJTNCJTIwbGElMjBkaXNjdXNpJUMzJUIzbiUyMHBvciUyMGVsJTIwcmVjaWJvJTIwZGUlMjBhcHVlc3RhcyUyMHklMjBlbCUyMHBhJUMzJUIxdWVsbyUyMGRlJTIwc2VkYSUyMHF1ZSUyMElzYWJlbCUyMGxlJTIwcmVnYWwlQzMlQjMlMjBlc2NhbCVDMyVCMyUyMGN1YW5kbyUyMEFyJUMzJUE5dmFsbyUyMHNhYyVDMyVCMyUyMHVuJTIwcmV2JUMzJUIzbHZlciUyQyUyMHBlcm8lMjBSb3NzaSUyQyUyMGZpZWwlMjBhJTIwc3UlMjBhcG9kbyUyQyUyMGZ1ZSUyMG0lQzMlQTFzJTIwciVDMyVBMXBpZG8lMjBjb24lMjBsYSUyMG5hdmFqYSUyMHBsYXRlYWRhLiUyMEVsJTIwZm9yY2VqZW8lMjBhcnJhbmMlQzMlQjMlMjB1biUyMGZyYWdtZW50byUyMGRlJTIwbGElMjBwYXJ0aXR1cmElMjBxdWUlMjBBciVDMyVBOXZhbG8lMjBjb21wb24lQzMlQURhJTIwcGFyYSUyMElzYWJlbCUyMHklMjBkZWolQzMlQjMlMjBjYWVyJTIwZWwlMjBndWFudGUlMjBkZSUyMGRhbWElMjBxdWUlMjBlbGxhJTIwb2x2aWQlQzMlQjMlMjBlbiUyMGxhJTIwbWVzYS4lMjBSb3NzaSUyMGNvcnQlQzMlQjMlMjBsYSUyMHl1Z3VsYXIlMjBjb24lMjB1biUyMHRham8lMjBsaW1waW8lMkMlMjBsaW1waSVDMyVCMyUyMGVsJTIwYXJtYSUyMGVuJTIwZWwlMjBwYSVDMyVCMXVlbG8lMjB5JTIwaHV5JUMzJUIzJTIwcG9yJTIwbG9zJTIwdGVqYWRvcyUyMGRlJTIwU2FuJTIwVGVsbW8lMjBhbnRlcyUyMGRlJTIwcXVlJTIwbGElMjBwb2xpYyVDMyVBRGElMjByb2RlYXJhJTIwbGElMjBtYW56YW5hLiUyMiUyQyUyMnBpc3Rhc0NsYXZlJTIyJTNBJTVCJTIyRWwlMjBwYSVDMyVCMXVlbG8lMjBkZSUyMHNlZGElMjBjb24lMjBpbmljaWFsZXMlMjBFLlIuJTIwKGUyKSUyMGhhbGxhZG8lMjBqdW50byUyMGFsJTIwY3VlcnBvJTJDJTIwbWFuY2hhZG8lMjBkZSUyMHNhbmdyZSUyMHklMjBwZXJmdW1lJTIwYmFyYXRvJTJDJTIwdmluY3VsYSUyMGRpcmVjdGFtZW50ZSUyMGElMjBFbnJpY28lMjBSb3NzaSUyMGNvbiUyMGxhJTIwZXNjZW5hJTIwZGVsJTIwY3JpbWVuJTIyJTJDJTIyRWwlMjByZWNpYm8lMjBkZSUyMGFwdWVzdGFzJTIwaCVDMyVBRHBpY2FzJTIwKGU1KSUyMGElMjBub21icmUlMjBkZSUyMEFyJUMzJUE5dmFsbyUyMGNvbiUyMGFub3RhY2lvbmVzJTIwZW4lMjBpdGFsaWFubyUyMHJldmVsYSUyMGxhJTIwZGV1ZGElMjBkZSUyMFJvc3NpJTIweSUyMGVsJTIwbW90aXZvJTIwZGVsJTIwY2hhbnRhamUlMjIlMkMlMjJFbCUyMGZyYWdtZW50byUyMGRlJTIwcGFydGl0dXJhJTIwcmFzZ2FkYSUyMChlMyklMjBjb2luY2lkZSUyMGNvbiUyMGVsJTIwdGFuZ28lMjAnTGElMjBQZXJsYSUyMGRlbCUyMFN1ciclMjBxdWUlMjBBciVDMyVBOXZhbG8lMjBkZWRpY2FiYSUyMGElMjBJc2FiZWwlMkMlMjBwcm9iYW5kbyUyMHF1ZSUyMGxhJTIwdiVDMyVBRGN0aW1hJTIweSUyMGVsJTIwYXNlc2lubyUyMGRpc2N1dGllcm9uJTIwcG9yJTIwZWxsYSUyMG1vbWVudG9zJTIwYW50ZXMlMjIlNUQlMkMlMjJydWJyaWNhJTIyJTNBJTdCJTIyYWNlcnRvX2N1bHBhYmxlJTIyJTNBNDAlMkMlMjJhY2VydG9fbW92aWwlMjIlM0EyMCUyQyUyMmFjZXJ0b19hcm1hJTIyJTNBMjAlMkMlMjJjYWxpZGFkX3JlY29uc3RydWNjaW9uX21heCUyMiUzQTIwJTdEJTJDJTIyY29uZGVuYXMlMjIlM0ElN0IlMjI4MF8xMDAlMjIlM0ElMjJMYSUyMGp1c3RpY2lhJTIwZGUlMjBQZXIlQzMlQjNuJTIwbm8lMjBwZXJkb25hJTIwYSUyMGxvcyUyMHF1ZSUyMG1hbmNoYW4lMjBlbCUyMGhvbm9yJTIwZGVsJTIwdGFuZ28lM0ElMjBFbnJpY28lMjAnSWwlMjBHYXR0byclMjBSb3NzaSUyQyUyMGRlY2xhcmFkbyUyMGN1bHBhYmxlJTIwZGUlMjBob21pY2lkaW8lMjBhZ3JhdmFkbyUyMHBvciUyMGFsZXZvcyVDMyVBRGElMjB5JTIwbHVjcm8lMkMlMjBjYW1pbmElMjBoYWNpYSUyMGxhJTIwcGVuaXRlbmNpYXIlQzMlQURhJTIwZGUlMjBVc2h1YWlhJTIwZG9uZGUlMjBlbCUyMHZpZW50byUyMGF1c3RyYWwlMjBzZXIlQzMlQTElMjBzdSUyMCVDMyVCQW5pY28lMjBiYW5kb25lJUMzJUIzbiUyMGhhc3RhJTIwZWwlMjAlQzMlQkFsdGltbyUyMGRlJTIwc3VzJTIwZCVDMyVBRGFzJTIwJUUyJTgwJTk0JTIwY2FkZW5hJTIwcGVycGV0dWElMjBzaW4lMjBwb3NpYmlsaWRhZCUyMGRlJTIwcmVkZW5jaSVDMyVCM24uJTIyJTJDJTIyNTBfNzklMjIlM0ElMjJFbCUyMGZpc2NhbCUyMGxvZ3IlQzMlQjMlMjBwcm9iYXIlMjBlbCUyMGFybWElMjB5JTIwbGElMjBwcmVzZW5jaWElMkMlMjBwZXJvJTIwbGElMjBkZWZlbnNhJTIwJUUyJTgwJTk0dW4lMjBqb3ZlbiUyMGFib2dhZG8lMjByYWRpY2FsJUUyJTgwJTk0JTIwc2VtYnIlQzMlQjMlMjBkdWRhJTIwcmF6b25hYmxlJTIwc29icmUlMjBsYSUyMHByZW1lZGl0YWNpJUMzJUIzbiUyMGFsZWdhbmRvJTIwbGVnJUMzJUFEdGltYSUyMGRlZmVuc2ElMjBwcm92b2NhZGElMjBwb3IlMjBlbCUyMHJldiVDMyVCM2x2ZXIlMjBkZSUyMGxhJTIwdiVDMyVBRGN0aW1hJTNCJTIwUm9zc2klMjByZWNpYmUlMjBxdWluY2UlMjBhJUMzJUIxb3MlMjBlbiUyMERldm90byUyMHBvciUyMGhvbWljaWRpbyUyMHNpbXBsZSUyQyUyMHklMjBzdSUyMGxleWVuZGElMjBjcmVjZSUyMGVudHJlJTIwbG9zJTIwcmVjbHVzb3MlMjBjb21vJTIwZWwlMjBnYXRvJTIwcXVlJTIwZGVzYWZpJUMzJUIzJTIwYWwlMjBiYW5kb25lJUMzJUIzbi4lMjIlMkMlMjIyMF80OSUyMiUzQSUyMlVuJTIwanVyYWRvJTIwY29ubW92aWRvJTIwcG9yJTIwbGElMjBoaXN0b3JpYSUyMGRlJTIwYW1vciUyMHklMjBkZXVkYXMlMjBhY2VwdGElMjBsYSUyMHZlcnNpJUMzJUIzbiUyMGRlJTIwJ2NyaW1lbiUyMHBhc2lvbmFsJyUzQSUyMHRyZXMlMjBhJUMzJUIxb3MlMjBkZSUyMHByaXNpJUMzJUIzbiUyMGVuJTIwc3VzcGVuc28lMjB5JTIwZGVzdGllcnJvJTIwYSUyME1vbnRldmlkZW8lMkMlMjBkb25kZSUyMFJvc3NpJTIwYWJyZSUyMHVuYSUyMGJhcmJlciVDMyVBRGElMjBmcmVudGUlMjBhbCUyMHB1ZXJ0byUyMHklMjBhZmVpdGElMjBtYXJpbmVyb3MlMjBjb24lMjB1bmElMjBuYXZhamElMjBwbGF0ZWFkYSUyMHF1ZSUyMGp1cmElMjBubyUyMHNlciUyMGxhJTIwbWlzbWElMkMlMjBtaWVudHJhcyUyMElzYWJlbCUyMCdMYSUyMFBlcmxhJyUyMGxvJTIwdmlzaXRhJTIwY2FkYSUyMGRvbWluZ28uJTIyJTJDJTIyMF8xOSUyMiUzQSUyMkxhJTIwcG9saWMlQzMlQURhJTIwcGllcmRlJTIwbGElMjBuYXZhamElMkMlMjBlbCUyMHBhJUMzJUIxdWVsbyUyMCdkZXNhcGFyZWNlJyUyMGRlJTIwbGElMjBjb21pc2FyJUMzJUFEYSUyMHklMjBlbCUyMHRlc3RpZ28lMjBjbGF2ZSUyMCVFMiU4MCU5NENhcm1lbmNpdGElMjAnTGElMjBDaGluYSclRTIlODAlOTQlMjBzZSUyMGVtYmFyY2ElMjBydW1ibyUyMGElMjBQYXIlQzMlQURzJTIwZXNhJTIwbWlzbWElMjBub2NoZSUzQiUyMHNpbiUyMHBydWViYXMlMkMlMjBlbCUyMGp1ZXolMjBkaWN0YSUyMHNvYnJlc2VpbWllbnRvJTIweSUyMEVucmljbyUyMCdJbCUyMEdhdHRvJyUyMFJvc3NpJTIwc2FsZSUyMGxpYnJlJTJDJTIwc29ucmllbmRvJTJDJTIwcGFyYSUyMHBlcmRlcnNlJTIwZW4lMjBsYSUyMG5pZWJsYSUyMGRlbCUyMFJpYWNodWVsbyUyMGNvbW8lMjB1biUyMGZhbnRhc21hJTIwbSVDMyVBMXMlMjBkZWwlMjB0YW5nby4lMjIlN0QlN0Q="
+}

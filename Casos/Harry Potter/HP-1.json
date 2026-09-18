@@ -1,0 +1,203 @@
+{
+  "version": "4.0",
+  "exportedAt": "2026-09-17T22:34:56.000Z",
+  "publicInfo": {
+    "titulo": "Sombra sobre la Torre de la Galería",
+    "ciudad": "Hogwarts, Escocia",
+    "epoca": "Hogwarts, 1996",
+    "tipo_crimen": "homicidio mágico",
+    "atmosfera": "Entre el crujir de retratos parlantes, el aroma a pociones añejas y el susurro de hechizos prohibidos, el Colegio Hogwarts despierta conmocionado tras el hallazgo del cadáver del Encargado de Artefactos Mágicos.",
+    "victima": {
+      "nombre": "Profesor Ignatius Vance",
+      "descripcion": "Ex-Auror de 56 años y curador jefe de la Bóveda de Artefactos Mágicos Protegidos de Hogwarts. Hombre severo, metodológico e implacable contra cualquier infracción a las leyes del colegio."
+    },
+    "descripcionEscena": "El cuerpo del Profesor Vance yace desplomado junto a su escritorio de caoba en el piso superior de la Torre de la Galería. Sobre la alfombra reposan los cristales pulverizados de un giratiempo y residuos de ceniza rojiza de red Flu. Un tenue rastro verde-oliva flota en el aire, indicando el impacto reciente de una maldición tenebrosa. En la biblioteca privada de la sala falta el legendario volumen 'Arcana Obscura'.",
+    "informeGeneral": "El cadáver fue descubierto a las 22:30 por el celador de la noche durante la ronda posterior al toque de queda. No hay signos de violencia física en los accesos principales, sugiriendo que el asesino ingresó por la chimenea conectada a la red Flu o poseía la clave de paso de la torre. El Departamento de Seguridad Mágica del Ministerio ha destacado a su personal para resolver el caso de inmediato.",
+    "lugar": "Hogwarts, Escocia",
+    "fecha": "Hogwarts, 1996",
+    "sospechosos": [
+      {
+        "id": "s1",
+        "nombre": "Daphne Selwyn",
+        "perfil": "Estudiante de séptimo año de Slytherin y aventajada alumna en la Sección Prohibida. Sorprendida días atrás intentando consultar grimorios sobre transmutación de objetos sin autorización.",
+        "coartada": "Afirma que estuvo cumpliendo un castigo de raspado de calderos en las mazmorras bajo la supervisión del encargado de pociones.",
+        "preguntas": [
+          {
+            "id": "p1",
+            "pregunta": "¿Dónde estabas a las 22:15, hora estimada del ataque?",
+            "respuesta": "Estaba en el aula de Pociones en las mazmorras terminando el castigo de raspado de calderos que me impusieron."
+          },
+          {
+            "id": "p2",
+            "pregunta": "¿Por qué tenías en tu posesión un permiso de la biblioteca con la firma falsificada de Vance?",
+            "respuesta": "Solo quería acceder a los textos de alquimia avanzada para mi T.I.M.O., Vance se negaba a firmármelo por pura antipatía."
+          },
+          {
+            "id": "p3",
+            "pregunta": "¿Conocías la clave verbal de acceso a la Torre de la Galería?",
+            "respuesta": "No, esa torre requiere una contraseña verbal que solo conocen los profesores y el personal del Ministerio."
+          },
+          {
+            "id": "p4",
+            "pregunta": "¿Tuviste alguna discusión reciente con la víctima?",
+            "respuesta": "Ayer me amenazó con expulsarme si me volvía a ver cerca de la sección restringida, pero jamás le habría hecho daño."
+          },
+          {
+            "id": "p5",
+            "pregunta": "¿Qué sabes sobre la desaparición del tomo 'Arcana Obscura'?",
+            "respuesta": "Sé que es un texto legendario sobre artefactos oscuros, pero nunca estuvo a mi alcance."
+          }
+        ]
+      },
+      {
+        "id": "s2",
+        "nombre": "Profesor Thaddeus Flint",
+        "perfil": "Docente de Estudios Mágicos Avanzados y tasador oficial del Ministerio. Aficionado a las antigüedades mágicas, arrastra fuertes pérdidas de galeones en el mercado negro del Callejón Knockturn.",
+        "coartada": "Sostiene que estuvo en sus aposentos privados corrigiendo pergaminos de exámenes y que no utilizó la red Flu en toda la velada.",
+        "preguntas": [
+          {
+            "id": "p1",
+            "pregunta": "¿Dónde te encontrabas a las 22:15 de la noche del crimen?",
+            "respuesta": "Estaba en mi despacho privado de la tercera planta corrigiendo los ensayos sobre artefactos de quinto año."
+          },
+          {
+            "id": "p2",
+            "pregunta": "¿Por qué se encontró ceniza de polvo de flú especial en las orlas de tus túnicas?",
+            "respuesta": "Utilizo la red Flu para comunicarme con mis colegas del Ministerio, es habitual que tenga ceniza en mis prendas."
+          },
+          {
+            "id": "p3",
+            "pregunta": "¿Cuál era tu relación profesional con el Profesor Vance?",
+            "respuesta": "Éramos colegas. Revisábamos periódicamente el inventario de la Bóveda de Artefactos Mágicos del colegio."
+          },
+          {
+            "id": "p4",
+            "pregunta": "¿Había algún faltante reciente en el catálogo de objetos bajo su custodia?",
+            "respuesta": "El inventario estaba perfectamente equilibrado, no faltaba un solo galeón ni un solo objeto mágico."
+          },
+          {
+            "id": "p5",
+            "pregunta": "¿Por qué tu nombre aparece en los registros de auditoría del Ministerio sobre transacciones sospechosas?",
+            "respuesta": "Son meras formalidades burocráticas provocadas por malentendidos de los auditores del Wizengamot."
+          }
+        ]
+      },
+      {
+        "id": "s3",
+        "nombre": "Gideon Hawthorn",
+        "perfil": "Encargado del mantenimiento de chimeneas y conductos de red Flu en Hogwarts. Conoce todos los atajos y pasajes secretos de la mampostería del castillo.",
+        "coartada": "Asegura que estuvo deshollinando las chimeneas de la Gran Torre del Comedor en compañía de los duendes domésticos.",
+        "preguntas": [
+          {
+            "id": "p1",
+            "pregunta": "¿Estuviste trabajando cerca de la Torre de la Galería a la hora del suceso?",
+            "respuesta": "No, mi turno de la noche era exclusivamente para el Gran Comedor y las cocinas."
+          },
+          {
+            "id": "p2",
+            "pregunta": "¿Alguien utilizó el flujo de la chimenea de la galería antes de las 22:30?",
+            "respuesta": "Registré un flujo inusual en la chimenea de la galería a las 22:10, pero pensé que era una inspección rutinaria del Ministerio."
+          },
+          {
+            "id": "p3",
+            "pregunta": "¿Tuviste algún altercado previo con Vance?",
+            "respuesta": "El profesor Vance era muy desconfiado. Quería cambiar los conductos para que nadie pudiera usar la red Flu sin su permiso."
+          },
+          {
+            "id": "p4",
+            "pregunta": "¿Tienes acceso al polvo de flú refinado que se halló en la escena?",
+            "respuesta": "Solo los profesores y representantes del Ministerio tienen acceso a la reserva de polvo verde refinado."
+          },
+          {
+            "id": "p5",
+            "pregunta": "¿Observaste a alguien extraño rondando el pasillo de los tapices?",
+            "respuesta": "Vi una figura con túnica oscura subir hacia la galería a las 22:05, pero llevaba la capucha puesta."
+          }
+        ]
+      },
+      {
+        "id": "s4",
+        "nombre": "Cornelius Vane",
+        "perfil": "Inspector de la Oficina de Aurores del Ministerio de Magia. En misión oficial en el colegio para evaluar los protocolos de seguridad de los artefactos custodiados.",
+        "coartada": "Afirma que estuvo reunido con la Junta de Directores en el despacho principal del castillo hasta las 22:45.",
+        "preguntas": [
+          {
+            "id": "p1",
+            "pregunta": "¿Abandonó la reunión de directores en algún momento antes de las 22:45?",
+            "respuesta": "Salí brevemente a las 22:00 a buscar un pergamino a mi carruaje, pero regresé en diez minutos."
+          },
+          {
+            "id": "p2",
+            "pregunta": "¿Conocía usted el informe secreto que estaba redactando Vance sobre la bóveda?",
+            "respuesta": "Sé que redactaba auditorías para el Ministerio, pero no nos había entregado el documento final."
+          },
+          {
+            "id": "p3",
+            "pregunta": "¿Portaba usted su varita reglamentaria durante su estancia?",
+            "respuesta": "Siempre llevo mi varita conmigo, es el protocolo estricto de la Oficina de Aurores."
+          },
+          {
+            "id": "p4",
+            "pregunta": "¿Reconoce el tipo de hechizo utilizado en la escena del crimen?",
+            "respuesta": "Tiene vestigios de una maldición marchitadora, prohibida por el Código de Leyes Mágicas de 1707."
+          },
+          {
+            "id": "p5",
+            "pregunta": "¿Qué relación tiene el Ministerio con las ventas de artefactos catalogados?",
+            "respuesta": "Cualquier venta fuera del canal oficial es un delito grave castigado con prisión perpetua en Azkaban."
+          }
+        ]
+      }
+    ],
+    "evidencias": [
+      {
+        "id": "e1",
+        "objeto": "Varita de espino con núcleo de pelo de Thestral",
+        "descripcion": "Varita mágica oculta apresuradamente detrás del grimorio de Alquimia en la estantería superior del despacho.",
+        "ubicacion": "Estantería superior del despacho de la víctima",
+        "analisisForense": "El encantamiento Prior Incantato demuestra que el último hechizo lanzado a las 22:15 fue la maldición marchitadora 'Necrosis Mágica'. Las marcas de residuos mágicos pertenecen inequívocamente al Profesor Thaddeus Flint."
+      },
+      {
+        "id": "e2",
+        "objeto": "Pergamino de auditoría y recibo de Borgin & Burkes",
+        "descripcion": "Documento oficial con sello confidencial que detalla la venta clandestina del 'Arcana Obscura' y tres amuletos por 5.000 galeones.",
+        "ubicacion": "Cajón secreto del escritorio del Profesor Vance",
+        "analisisForense": "Lleva la firma y el sello personal de Thaddeus Flint como vendedor, probando el desvío ilícito de objetos de la bóveda de Hogwarts."
+      },
+      {
+        "id": "e3",
+        "objeto": "Cenizas de Polvo de Flú Verde Refinado",
+        "descripcion": "Residuo de cenizas mágicas esparcidas alrededor del hogar de la chimenea del despacho.",
+        "ubicacion": "Hogar de la chimenea de la Torre de la Galería",
+        "analisisForense": "Contiene trazas químicas del compuesto de polvo de flú formulado exclusivamente para la chimenea privada de la oficina del Profesor Flint."
+      },
+      {
+        "id": "e4",
+        "objeto": "Giratiempo roto",
+        "descripcion": "Artefacto cronológico de latón golpeado y aplastado, con sus manecillas detenidas a las 22:15.",
+        "ubicacion": "Suelo de piedra junto a la mano derecha de la víctima",
+        "analisisForense": "Presenta marcas de impacto causadas durante el forcejeo cuando la víctima intentó activar un retroceso temporal para huir del ataque."
+      },
+      {
+        "id": "e5",
+        "objeto": "Frasco de Poción Veritaserum a medio consumir",
+        "descripcion": "Pequeña redoma de cristal con cuentagotas con restos del suero de la verdad.",
+        "ubicacion": "Bolsillo interior de la túnica de la víctima",
+        "analisisForense": "No contiene venenos. Vance planeaba utilizarlo al día siguiente para obligar al culpable a confesar la malversación ante el tribunal."
+      }
+    ],
+    "declaraciones": [
+      {
+        "testigo": "Madam Irma Pince",
+        "relacion": "Bibliotecaria de Hogwarts",
+        "texto": "Escuché una acalorada discusión en la torre a eso de las diez y diez de la noche. La voz de Vance gritaba: '¡Tengo los recibos de Borgin & Burkes, Flint! ¡Mañana estarás en Azkaban!'. Luego se hizo el silencio."
+      },
+      {
+        "testigo": "Sir Cadogan",
+        "relacion": "Retrato parlante del pasillo de la Galería",
+        "texto": "¡Por mi honor que vi a ese pícaro de Flint salir atropelladamente de la chimenea del desdichado Vance! Llevaba el rostro pálido como un fantasma y ocultó algo en la estantería antes de huir."
+      }
+    ]
+  },
+  "truthObfuscated": "JTdCJTIyY3VscGFibGUlMjIlM0ElMjJzMiUyMiUyQyUyMmFybWElMjIlM0ElMjJlMSUyMiUyQyUyMm1vdmlsJTIyJTNBJTIyVGhhZGRldXMlMjBGbGludCUyMG1hbHZlcnNhYmElMjB5JTIwdmVuZGlhJTIwYXJ0ZWZhY3RvcyUyMG9zY3Vyb3MlMjBkZSUyMEhvZ3dhcnRzJTIwYSUyMEJvcmdpbiUyMCUyNiUyMEJ1cmtlcy4lMjBBbCUyMHNlciUyMGRlc2N1YmllcnRvJTIwcG9yJTIwVmFuY2UlMjBjb24lMjBsYXMlMjBwcnVlYmFzJTIwZTIlMkMlMjBsbyUyMGFzZXNpbm8lMjBwYXJhJTIwZXZpdGFyJTIwaXIlMjBhJTIwQXprYWJhbi4lMjIlMkMlMjJzZWN1ZW5jaWFSZWFsJTIyJTNBJTIyQSUyMGxhcyUyMDIyJTNBMTAlMjBGbGludCUyMHVzbyUyMGxhJTIwcmVkJTIwRmx1JTIwcGFyYSUyMGlyJTIwYWwlMjBkZXNwYWNobyUyMGRlJTIwVmFuY2UuJTIwVHJhcyUyMGRpc2N1dGlyJTIwcG9yJTIwbGElMjBhdWRpdG9yaWElMjBlMiUyQyUyMFZhbmNlJTIwaW50ZW50byUyMHVzYXIlMjBlbCUyMGdpcmF0aWVtcG8lMjBlNC4lMjBGbGludCUyMHVzbyUyMGxhJTIwdmFyaXRhJTIwZTElMjBwYXJhJTIwbGFuemFybGUlMjBsYSUyMG1hbGRpY2lvbiUyMG1vcnRhbCUyMGElMjBsYXMlMjAyMiUzQTE1JTJDJTIwb2N1bHRvJTIwbGElMjB2YXJpdGElMjBlbiUyMGVsJTIwZXN0YW50ZSUyMHklMjBodXlvJTIwZGVqYW5kbyUyMGNlbml6YXMlMjBlMy4lMjIlMkMlMjJwaXN0YXNDbGF2ZSUyMiUzQSU1QiUyMkVsJTIwUHJpb3IlMjBJbmNhbnRhdG8lMjBkZSUyMGUxJTIwcHJ1ZWJhJTIwZWwlMjBoZWNoaXpvJTIwbW9ydGFsJTIwZGUlMjBGbGludCUyMGElMjBsYXMlMjAyMiUzQTE1LiUyMiUyQyUyMkVsJTIwcGVyZ2FtaW5vJTIwZTIlMjBkZW11ZXN0cmElMjBsYXMlMjB2ZW50YXMlMjBpbGVnYWxlcyUyMGElMjBCb3JnaW4lMjAlMjYlMjBCdXJrZXMuJTIyJTJDJTIyTGFzJTIwY2VuaXphcyUyMGUzJTIwY29pbmNpZGVuJTIwY29uJTIwZWwlMjBwb2x2byUyMGRlJTIwZmx1JTIwcGVyc29uYWwlMjBkZSUyMEZsaW50LiUyMiU1RCUyQyUyMnJ1YnJpY2ElMjIlM0ElN0IlMjJhY2llcnRvX2N1bHBhYmxlJTIyJTNBNDAlMkMlMjJhY2llcnRvX21vdmlsJTIyJTNBMjAlMkMlMjJhY2llcnRvX2FybWElMjIlM0EyMCUyQyUyMmNhbGlkYWRfcmVjb25zdHJ1Y2Npb25fbWF4JTIyJTNBMjAlN0QlMkMlMjJjb25kZW5hcyUyMiUzQSU3QiUyMjg0XzEwMCUyMiUzQSUyMkZsaW50JTIwZXMlMjBlbnZpYWRvJTIwYSUyMEF6a2FiYW4lMjBhJTIwY29uZGVuYSUyMHBlcnBldHVhLiUyMiUyQyUyMjUwXzc5JTIyJTNBJTIyRmxpbnQlMjByZWNpYmUlMjAyMCUyMGFub3MlMjBlbiUyMEF6a2FiYW4lMjBwb3IlMjBob21pY2lkaW8lMjB5JTIwbWFsdmVyc2FjaW9uLiUyMiUyQyUyMjIwXzQ5JTIyJTNBJTIyRmxpbnQlMjByZWNpYmUlMjA3JTIwYW5vcyUyMGVuJTIwQXprYWJhbiUyMHNvbG8lMjBwb3IlMjBjb250cmFiYW5kby4lMjIlMkMlMjIwXzE5JTIyJTNBJTIyRmxpbnQlMjBxdWVkYSUyMGFic3VlbHRvJTIwcG9yJTIwZmFsdGElMjBkZSUyMHBydWViYXMuJTIyJTdEJTdE"
+}
