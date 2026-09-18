@@ -65,8 +65,8 @@
       #sceneFx::after { animation: none; }
     }
   </style>
-  <script type="module" crossorigin src="/assets/index-Df56kW-u.js"></script>
-  <link rel="stylesheet" crossorigin href="/assets/index-VrlU1Qe6.css">
+  <script type="module" crossorigin src="/assets/index-iXtF_S1i.js"></script>
+  <link rel="stylesheet" crossorigin href="/assets/index-BNp2rBaA.css">
 </head>
 <body>
   <div id="root"></div>
@@ -356,6 +356,30 @@
         });
       }
 
+      function paintFoldContents(ctx, w, h) {
+        ctx.fillStyle = '#e7dcc0';
+        ctx.fillRect(0, 0, w, h);
+        hatch(ctx, w, h, 900, 0.05, 1.4);
+        for (var i = 0; i < 8; i++) {
+          var y = 40 + i * (h - 80) / 8;
+          ctx.fillStyle = 'rgba(40,30,20,' + (0.3 + Math.random() * 0.35) + ')';
+          var len = w * (0.4 + Math.random() * 0.42);
+          ctx.fillRect(40, y, len, 3);
+        }
+        ctx.strokeStyle = 'rgba(120,40,30,0.5)';
+        ctx.lineWidth = 2;
+        ctx.strokeRect(16, 16, w - 32, h - 32);
+      }
+
+      function paintLidInner(ctx, w, h) {
+        ctx.fillStyle = '#b98f52';
+        ctx.fillRect(0, 0, w, h);
+        hatch(ctx, w, h, 1200, 0.05, 1.6);
+        ctx.strokeStyle = 'rgba(70,44,20,0.5)';
+        ctx.lineWidth = 2;
+        ctx.strokeRect(14, 14, w - 28, h - 28);
+      }
+
       function paintManila(ctx, w, h, def, hover) {
         var g = ctx.createLinearGradient(0, 0, w, h);
         g.addColorStop(0, hover ? '#d8b071' : '#c49a5c');
@@ -640,15 +664,47 @@
           new THREE.MeshStandardMaterial({ map: baseTex, roughness: 0.82, metalness: 0.02 })
         );
         top.rotation.x = -Math.PI / 2;
-        top.position.y = 0.046;
+        top.position.y = 0.044;
         top.receiveShadow = true;
         group.add(top);
+
+        var content = new THREE.Mesh(
+          new THREE.PlaneGeometry(1.06, 0.71),
+          new THREE.MeshStandardMaterial({ map: makeCanvasTexture(512, 360, paintFoldContents), roughness: 0.9, metalness: 0, polygonOffset: true, polygonOffsetFactor: -1, polygonOffsetUnits: -1 })
+        );
+        content.rotation.x = -Math.PI / 2;
+        content.position.y = 0.046;
+        content.receiveShadow = true;
+        group.add(content);
+
+        var interiorTex = makeCanvasTexture(512, 360, paintLidInner);
+        var hinge = new THREE.Group();
+        hinge.position.set(0, 0.05, 0.375);
+        var lidOuter = new THREE.Mesh(
+          new THREE.PlaneGeometry(1.1, 0.75),
+          new THREE.MeshStandardMaterial({ map: baseTex, roughness: 0.82, metalness: 0.02, polygonOffset: true, polygonOffsetFactor: -2, polygonOffsetUnits: -2 })
+        );
+        lidOuter.rotation.x = -Math.PI / 2;
+        lidOuter.position.z = -0.375;
+        lidOuter.receiveShadow = true;
+        lidOuter.raycast = function () { return null; };
+        hinge.add(lidOuter);
+        var lidInner = new THREE.Mesh(
+          new THREE.PlaneGeometry(1.06, 0.71),
+          new THREE.MeshStandardMaterial({ map: interiorTex, roughness: 0.9, metalness: 0 })
+        );
+        lidInner.rotation.x = Math.PI / 2;
+        lidInner.position.set(0, -0.004, -0.375);
+        lidInner.receiveShadow = true;
+        lidInner.raycast = function () { return null; };
+        hinge.add(lidInner);
+        group.add(hinge);
 
         group.userData.targetY = 0;
         group.userData.targetRotZ = 0;
         scene.add(group);
 
-        var entry = { id: def.id, group: group, top: top, baseTex: baseTex, hoverTex: hoverTex };
+        var entry = { id: def.id, group: group, top: top, content: content, hinge: hinge, lid: lidOuter, baseTex: baseTex, hoverTex: hoverTex };
         folders.push(entry);
         top.userData.entry = entry;
         folderPlanes.push(top);
@@ -660,8 +716,74 @@
         entry.top.material.emissive.setHex(on ? 0x3a2508 : 0x000000);
         entry.top.material.emissiveIntensity = on ? 0.55 : 0;
         entry.top.material.needsUpdate = true;
+        if (entry.lid) {
+          entry.lid.material.map = on ? entry.hoverTex : entry.baseTex;
+          entry.lid.material.emissive.setHex(on ? 0x3a2508 : 0x000000);
+          entry.lid.material.emissiveIntensity = on ? 0.55 : 0;
+          entry.lid.material.needsUpdate = true;
+        }
         entry.group.userData.targetY = on ? 0.075 : 0;
         entry.group.userData.targetRotZ = on ? 0.04 : 0;
+      }
+
+      // ==================== INSPECCIÓN POV (FOLDER_STATE) ====================
+      var insp = { state: 'DESK', entry: null, home: null, rot: 0, fired: false, onOpen: null };
+
+      function povTargetPos() {
+        var p = CAM_DESK.rotation.x;
+        var fwd = new THREE.Vector3(0, Math.sin(p), -Math.cos(p)).multiplyScalar(0.85);
+        var up = new THREE.Vector3(0, Math.cos(p), Math.sin(p)).multiplyScalar(0.18);
+        return camera.position.clone().add(fwd).add(up);
+      }
+
+      function beginInspect(entry) {
+        if (insp.state !== 'DESK' || !entry || animating) return;
+        if (hoveredEntry) { setFolderHover(hoveredEntry, false); hoveredEntry = null; }
+        setFolderHover(entry, false);
+        insp.entry = entry;
+        insp.home = { x: entry.group.position.x, z: entry.group.position.z };
+        insp.rot = 0.42;
+        insp.fired = false;
+        insp.onOpen = function () { handleMenuAction(insp.entry.id); };
+        insp.state = 'HELD_CLOSED';
+        if (reduceMotion) {
+          var tp = povTargetPos();
+          entry.group.position.set(tp.x, tp.y, tp.z);
+          entry.group.rotation.set(0.42, 0, 0);
+          entry.hinge.rotation.x = 0;
+        }
+      }
+
+      function openHeld() {
+        if (insp.state !== 'HELD_CLOSED' || !insp.entry || insp.fired) return;
+        insp.fired = true;
+        insp.state = 'HELD_OPEN';
+        if (insp.onOpen) setTimeout(insp.onOpen, 160);
+      }
+
+      function cancelInspect() {
+        if (insp.state === 'DESK' || !insp.entry) return;
+        insp.fired = false;
+        if (reduceMotion) {
+          var e = insp.entry;
+          e.group.position.set(insp.home.x, 0, insp.home.z);
+          e.group.rotation.set(0, 0, 0);
+          e.hinge.rotation.x = 0;
+          insp.entry = null;
+          insp.state = 'DESK';
+          return;
+        }
+        insp.state = 'DESK';
+      }
+
+      function resetInspection() {
+        if (!insp.entry) return;
+        var e = insp.entry;
+        if (insp.home) e.group.position.set(insp.home.x, 0, insp.home.z);
+        e.group.rotation.set(0, 0, 0);
+        e.hinge.rotation.x = 0;
+        insp.entry = null;
+        insp.state = 'DESK';
       }
 
       var cabinet = new THREE.Group();
@@ -727,9 +849,9 @@
 
       var sign = new THREE.Mesh(
         new THREE.PlaneGeometry(2.6, 0.65),
-        new THREE.MeshStandardMaterial({ map: signTex, metalness: 0.72, roughness: 0.34, emissive: 0x1a0f00, emissiveMap: signTex, emissiveIntensity: 0.32 })
+        new THREE.MeshStandardMaterial({ map: signTex, metalness: 0.72, roughness: 0.34, emissive: 0x1a0f00, emissiveMap: signTex, emissiveIntensity: 0.32, polygonOffset: true, polygonOffsetFactor: 1, polygonOffsetUnits: 1 })
       );
-      sign.position.set(0, 2.45, -1.94);
+      sign.position.set(0, 2.45, -1.93);
       scene.add(sign);
 
       var signBack = new THREE.Mesh(new THREE.BoxGeometry(2.72, 0.77, 0.06), darkMetal);
@@ -1010,6 +1132,35 @@
       }
 
       // ==================== TRANSICIÓN A -> B ====================
+      // FOV ajustado a la mesa para que la carpeta COOPERATIVO (la más
+      // cercana a la cámara) nunca quede cortada por abajo en ningún aspect ratio.
+      var DESK_X_MIN = -2.15, DESK_X_MAX = 0.95;
+      var DESK_Z_MIN = 0.425, DESK_Z_MAX = 3.075;
+      var DESK_TOP_Y = 0.1;
+      function computeDeskFitFov() {
+        var cp = camera.position;
+        var cosE = Math.cos(-0.72), sinE = Math.sin(-0.72);
+        var maxVert = 0, maxHoriz = 0;
+        var xs = [DESK_X_MIN, DESK_X_MAX];
+        var zs = [DESK_Z_MIN, DESK_Z_MAX];
+        for (var xi = 0; xi < 2; xi++) {
+          for (var zi = 0; zi < 2; zi++) {
+            var dy = DESK_TOP_Y - cp.y;
+            var dz = zs[zi] - cp.z;
+            var yl = cosE * dy + sinE * dz;
+            var depth = sinE * dy - cosE * dz;
+            if (depth <= 0.05) continue;
+            var xl = xs[xi] - cp.x;
+            maxVert = Math.max(maxVert, Math.abs(yl) / depth);
+            maxHoriz = Math.max(maxHoriz, Math.abs(xl) / depth);
+          }
+        }
+        var aspect = camera.aspect || (window.innerWidth / Math.max(window.innerHeight, 1));
+        var need = Math.max(maxVert, maxHoriz / Math.max(aspect, 0.01));
+        var fov = 2 * Math.atan(need) * 180 / Math.PI + 1.5;
+        return Math.min(80, Math.max(38, fov));
+      }
+
       function transitionToDesk() {
         if (!menuActive || animating || currentState === 'desk') return;
         animating = true;
@@ -1019,10 +1170,14 @@
 
         var startRot = camPitch;
         var endRot = CAM_DESK.rotation.x;
+        var startFOV = camera.fov;
+        var endFOV = computeDeskFitFov();
 
         function finish() {
           camPitch = endRot;
           camera.rotation.x = endRot;
+          camera.fov = endFOV;
+          camera.updateProjectionMatrix();
           currentState = 'desk';
           animating = false;
           document.body.style.cursor = 'default';
@@ -1037,6 +1192,8 @@
           var t = Math.min((now - start) / duration, 1);
           var ease = t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
           camPitch = startRot + (endRot - startRot) * ease;
+          camera.fov = startFOV + (endFOV - startFOV) * ease;
+          camera.updateProjectionMatrix();
           if (t < 1) requestAnimationFrame(step);
           else finish();
         }
@@ -1045,6 +1202,7 @@
 
       // ==================== SELECCIÓN DE CARPETA ====================
       function handleMenuAction(folderId) {
+        resetInspection();
         menuActive = false;
         canvasEl.style.display = 'none';
         if (fxEl) fxEl.style.display = 'none';
@@ -1116,6 +1274,7 @@
 
       // ==================== MOSTRAR / OCULTAR ====================
       function showMenu() {
+        resetInspection();
         menuActive = true;
         canvasEl.style.display = 'block';
         if (fxEl) fxEl.style.display = 'block';
@@ -1162,6 +1321,7 @@
 
         if (currentState === 'wall') { resetIdleTimer(); return; }
         if (currentState !== 'desk' || animating) return;
+        if (insp.state !== 'DESK') { document.body.style.cursor = 'default'; return; }
 
         raycaster.setFromCamera(mouse, camera);
         var hits = raycaster.intersectObjects(folderPlanes);
@@ -1188,20 +1348,41 @@
         if (currentState === 'desk') {
           if (animating) return;
           var hits = raycaster.intersectObjects(folderPlanes);
-          if (hits.length > 0) selectFolder(hits[0].object.userData.entry.id);
+          if (insp.state === 'DESK') {
+            if (hits.length > 0) beginInspect(hits[0].object.userData.entry);
+          } else if (insp.state === 'HELD_CLOSED') {
+            if (hits.length > 0 && hits[0].object.userData.entry === insp.entry) openHeld();
+            else cancelInspect();
+          } else if (insp.state === 'HELD_OPEN') {
+            cancelInspect();
+          }
         }
+      });
+
+      document.addEventListener('keydown', function (e) {
+        if (e.key === 'Escape' || e.key === 'Esc') cancelInspect();
       });
 
       window.addEventListener('resize', function () {
         camera.aspect = window.innerWidth / window.innerHeight;
         camera.updateProjectionMatrix();
         renderer.setSize(window.innerWidth, window.innerHeight);
+        if (currentState === 'desk' && !animating && camera.fov !== computeDeskFitFov()) {
+          camera.fov = computeDeskFitFov();
+          camera.updateProjectionMatrix();
+        }
       });
 
       // ==================== LOOP ====================
       var prevNow = performance.now();
+      var rafId = null;
+      function startLoop() {
+        if (rafId == null) rafId = requestAnimationFrame(renderLoop);
+      }
       function renderLoop() {
-        requestAnimationFrame(renderLoop);
+        rafId = null;
+        if (document.hidden) return;
+        startLoop();
         if (!menuActive) return;
 
         var now = performance.now();
@@ -1228,9 +1409,37 @@
         camera.rotation.z += (tgtRoll - camera.rotation.z) * 0.05;
 
         folders.forEach(function (f) {
+          if (insp.entry === f && insp.state !== 'DESK') return;
           f.group.position.y += (f.group.userData.targetY - f.group.position.y) * 0.16;
           f.group.rotation.z += (f.group.userData.targetRotZ - f.group.rotation.z) * 0.16;
         });
+
+        if (insp.entry && insp.state !== 'DESK') {
+          var hn = insp.entry.hinge;
+          var tp = povTargetPos();
+          var kp = 0.16;
+          var grp = insp.entry.group;
+          grp.position.x += (tp.x - grp.position.x) * kp;
+          grp.position.y += (tp.y - grp.position.y) * kp;
+          grp.position.z += (tp.z - grp.position.z) * kp;
+          grp.rotation.x += (insp.rot - grp.rotation.x) * kp;
+          grp.rotation.y += (0 - grp.rotation.y) * kp;
+          hn.rotation.x += (0 - hn.rotation.x) * 0.18;
+        } else if (insp.entry) {
+          var e2 = insp.entry, kr = 0.2;
+          e2.group.position.x += (insp.home.x - e2.group.position.x) * kr;
+          e2.group.position.z += (insp.home.z - e2.group.position.z) * kr;
+          e2.group.position.y += (0 - e2.group.position.y) * kr;
+          e2.group.rotation.x += (0 - e2.group.rotation.x) * kr;
+          e2.hinge.rotation.x += (0 - e2.hinge.rotation.x) * kr;
+          if (Math.abs(e2.group.position.x - insp.home.x) < 0.012 && Math.abs(e2.group.position.z - insp.home.z) < 0.012) {
+            e2.group.position.set(insp.home.x, 0, insp.home.z);
+            e2.group.rotation.set(0, 0, 0);
+            e2.hinge.rotation.x = 0;
+            insp.entry = null;
+            insp.state = 'DESK';
+          }
+        }
 
         for (var i = 0; i < dust.length; i++) {
           var dp = dust[i];
@@ -1253,7 +1462,47 @@
 
         renderer.render(scene, camera);
       }
-      requestAnimationFrame(renderLoop);
+      document.addEventListener('visibilitychange', function () {
+        if (document.hidden) {
+          if (rafId != null) { cancelAnimationFrame(rafId); rafId = null; }
+        } else {
+          prevNow = performance.now();
+          startLoop();
+        }
+      });
+      startLoop();
+
+      // Hook de depuración (solo con ?vdebug) usado por los tests CDP.
+      if (new URLSearchParams(location.search).has('vdebug')) {
+        window.__verediktDebug = function () {
+          var mid = {};
+          if (insp.entry) {
+            mid.inspEntry = insp.entry.id;
+            mid.lid = +insp.entry.hinge.rotation.x.toFixed(3);
+            mid.gx = +insp.entry.group.position.x.toFixed(3);
+            mid.gy = +insp.entry.group.position.y.toFixed(3);
+            mid.gz = +insp.entry.group.position.z.toFixed(3);
+            mid.rot = +insp.entry.group.rotation.x.toFixed(3);
+          }
+          return {
+            fov: camera.fov,
+            fitFov: computeDeskFitFov(),
+            state: currentState,
+            insp: insp.state,
+            aspect: camera.aspect,
+            pos: [camera.position.x, camera.position.y, camera.position.z],
+            hidden: document.hidden,
+            rafAlive: rafId != null,
+            folderHits: folders.map(function (e) {
+              var v = new THREE.Vector3(0, 0.05, 0);
+              e.group.localToWorld(v);
+              v.project(camera);
+              return { id: e.id, on: v.z > -1 && v.z < 1, x: Math.round((v.x * 0.5 + 0.5) * window.innerWidth), y: Math.round((-v.y * 0.5 + 0.5) * window.innerHeight) };
+            }),
+            mid: mid
+          };
+        };
+      }
 
       // Re-pinta las texturas cuando las fuentes web están listas
       if (document.fonts && document.fonts.ready) {
