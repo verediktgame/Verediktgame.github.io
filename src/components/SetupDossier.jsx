@@ -103,7 +103,7 @@ export function SetupDossier({ onGenerate, isGenerating, currentStep, statusText
                   </div>
                 )}
               </div>
-              <div style={{ fontSize: '11px', color: '#887459', marginTop: '4px' }}>
+              <div style={{ fontSize: '12px', color: '#5b4b36', marginTop: '4px' }}>
                 Elegí una opción del listado o escribí cualquier ciudad/país/año libremente.
               </div>
             </div>
@@ -124,7 +124,7 @@ export function SetupDossier({ onGenerate, isGenerating, currentStep, statusText
                 <option value="Normal">Normal — 4 sospechosos, pistas mixtas, coartadas creíbles</option>
                 <option value="Difícil">Difícil — 4 sospechosos, coartada sólida y red herrings</option>
               </select>
-              <div style={{ fontSize: '11px', color: '#887459', marginTop: '4px' }}>
+              <div style={{ fontSize: '12px', color: '#5b4b36', marginTop: '4px' }}>
                 Determina la cantidad de sospechosos e inconsistencias sutiles.
               </div>
             </div>

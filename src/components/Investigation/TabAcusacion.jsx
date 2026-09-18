@@ -1,11 +1,21 @@
 import React, { useState } from 'react';
 
-export function TabAcusacion({ sospechosos = [], evidencias = [], onSubmitAccusation, isEvaluating }) {
-  const [acusadoId, setAcusadoId] = useState('');
-  const [armaId, setArmaId] = useState('');
-  const [motivo, setMotivo] = useState('');
-  const [reconstruccion, setReconstruccion] = useState('');
+export function TabAcusacion({ sospechosos = [], evidencias = [], onSubmitAccusation, isEvaluating, draft = {}, onDraftChange = () => {} }) {
   const [validationError, setValidationError] = useState('');
+
+  const d = draft && typeof draft === 'object' ? draft : {};
+
+  const acusadoId = d.acusadoId || '';
+  const armaId = d.armaId || '';
+  const motivo = d.motivo || '';
+  const reconstruccion = d.reconstruccion || '';
+
+  const updateDraft = (patch) => {
+    onDraftChange((prev) => {
+      const base = prev && typeof prev === 'object' ? prev : {};
+      return { ...base, ...patch };
+    });
+  };
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -55,7 +65,7 @@ export function TabAcusacion({ sospechosos = [], evidencias = [], onSubmitAccusa
               id="selectAcusado"
               className="form-control"
               value={acusadoId}
-              onChange={(e) => setAcusadoId(e.target.value)}
+              onChange={(e) => updateDraft({ acusadoId: e.target.value })}
               disabled={isEvaluating}
               required
             >
@@ -74,7 +84,7 @@ export function TabAcusacion({ sospechosos = [], evidencias = [], onSubmitAccusa
               id="selectArma"
               className="form-control"
               value={armaId}
-              onChange={(e) => setArmaId(e.target.value)}
+              onChange={(e) => updateDraft({ armaId: e.target.value })}
               disabled={isEvaluating}
               required
             >
@@ -95,7 +105,7 @@ export function TabAcusacion({ sospechosos = [], evidencias = [], onSubmitAccusa
               rows="3"
               placeholder="¿Por qué lo hizo? Explica la motivación oculta del perpetrador..."
               value={motivo}
-              onChange={(e) => setMotivo(e.target.value)}
+              onChange={(e) => updateDraft({ motivo: e.target.value })}
               disabled={isEvaluating}
               required
             />
@@ -109,7 +119,7 @@ export function TabAcusacion({ sospechosos = [], evidencias = [], onSubmitAccusa
               rows="5"
               placeholder="Narra minuciosamente cómo se ejecutó el crimen, qué pistas lo demuestran y cómo se resolvió..."
               value={reconstruccion}
-              onChange={(e) => setReconstruccion(e.target.value)}
+              onChange={(e) => updateDraft({ reconstruccion: e.target.value })}
               disabled={isEvaluating}
               required
             />

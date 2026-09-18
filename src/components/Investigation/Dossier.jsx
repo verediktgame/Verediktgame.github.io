@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect } from 'react';
 import { TabInforme } from './TabInforme';
 import { TabDeclaraciones } from './TabDeclaraciones';
 import { TabSospechosos } from './TabSospechosos';
@@ -19,9 +19,13 @@ export function Dossier({
   isCoop = false,
   players = [],
   currentPlayerIndex = 0,
-  onSubmitPlayerTurn
+  onSubmitPlayerTurn,
+  activeTab = 'informe',
+  onActiveTabChange = () => {},
+  accusationDraft = {},
+  onAccusationDraftChange = () => {}
 }) {
-  const [activeTab, setActiveTab] = useState('informe');
+  const setActiveTab = onActiveTabChange;
 
   // Number-key shortcuts to jump between folders (1..5, 6 = accusation)
   useEffect(() => {
@@ -48,7 +52,7 @@ export function Dossier({
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, []);
+  }, [onActiveTabChange]);
 
   if (!publicInfo) return null;
 
@@ -192,6 +196,8 @@ export function Dossier({
                     evidencias={publicInfo.evidencias}
                     onSubmitAccusation={onSubmitAccusation}
                     isEvaluating={isEvaluating}
+                    draft={accusationDraft || {}}
+                    onDraftChange={onAccusationDraftChange}
                   />
                 )}
               </div>

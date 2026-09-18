@@ -14,6 +14,7 @@ import { VerdictScreen } from './components/Verdict/VerdictScreen';
 
 import { CoopSetup } from './components/Coop/CoopSetup';
 import { CoopRankingScreen } from './components/Coop/CoopRankingScreen';
+import { CommunityBrowser } from './components/Community/CommunityBrowser';
 
 import { ApiSettingsModal } from './components/Modals/ApiSettingsModal';
 import { MyApiModal } from './components/Modals/MyApiModal';
@@ -22,7 +23,7 @@ import { InterrogationModal } from './components/Modals/InterrogationModal';
 import { AchievementToast } from './components/AchievementToast';
 
 export function App() {
-  const [currentScreen, setCurrentScreen] = useState('menu'); // 'menu' | 'setup' | 'coop_setup' | 'investigation' | 'verdict' | 'coop_ranking'
+  const [currentScreen, setCurrentScreen] = useState('menu'); // 'menu' | 'setup' | 'coop_setup' | 'investigation' | 'verdict' | 'coop_ranking' | 'comunidad'
   const [apiConfig, setApiConfig] = useState(SafeStorage.getApiConfig());
 
   // Modal visibility
@@ -37,6 +38,10 @@ export function App() {
   const [interrogationsState, setInterrogationsState] = useState({}); // { [suspectId]: [qId, ...] }
   const [analyzedEvidenceIds, setAnalyzedEvidenceIds] = useState([]); // [eId, ...]
   const [verdictResult, setVerdictResult] = useState(null);
+
+  // Dossier UI state (survives tab switches, reloads and tab discards)
+  const [activeDossierTab, setActiveDossierTab] = useState('informe');
+  const [accusationDraft, setAccusationDraft] = useState({}); // { acusadoId, armaId, motivo, reconstruccion }
 
   // Timer & Easter Egg tracking
   const [casoStartTime, setCasoStartTime] = useState(Date.now());
@@ -76,28 +81,34 @@ export function App() {
       setCoopCurrentPlayerIndex(session.coopCurrentPlayerIndex || 0);
       setCoopResults(session.coopResults || null);
       setIsHarryPotter(Boolean(session.isHarryPotter));
+      setActiveDossierTab(session.activeDossierTab || 'informe');
+      setAccusationDraft(session.accusationDraft || {});
       setCurrentScreen(session.currentScreen || 'investigation');
       setCasoStartTime(Date.now());
     }
   }, []);
 
   // Save session when relevant state changes
+  const sessionToSave = useRef(null);
   useEffect(() => {
-    if (caseData) {
-      SafeStorage.saveGameSession({
-        caseData,
-        interrogationsState,
-        analyzedEvidenceIds,
-        verdictResult,
-        coopMode,
-        coopPlayers,
-        coopAccusations,
-        coopCurrentPlayerIndex,
-        coopResults,
-        isHarryPotter,
-        currentScreen
-      });
-    }
+    if (!caseData) return;
+    const session = {
+      caseData,
+      interrogationsState,
+      analyzedEvidenceIds,
+      verdictResult,
+      coopMode,
+      coopPlayers,
+      coopAccusations,
+      coopCurrentPlayerIndex,
+      coopResults,
+      isHarryPotter,
+      currentScreen,
+      activeDossierTab,
+      accusationDraft
+    };
+    sessionToSave.current = session;
+    SafeStorage.saveGameSession(session);
   }, [
     caseData,
     interrogationsState,
@@ -109,8 +120,27 @@ export function App() {
     coopCurrentPlayerIndex,
     coopResults,
     isHarryPotter,
-    currentScreen
+    currentScreen,
+    activeDossierTab,
+    accusationDraft
   ]);
+
+  // Force a synchronous save on abrupt tab close / page unload, so in-progress
+  // work (including the accusation draft) survives tab discards and reloads.
+  useEffect(() => {
+    const persistNow = () => {
+      if (sessionToSave.current) SafeStorage.saveGameSession(sessionToSave.current);
+    };
+    const handleVisibility = () => {
+      if (document.visibilityState === 'hidden') persistNow();
+    };
+    window.addEventListener('pagehide', persistNow);
+    document.addEventListener('visibilitychange', handleVisibility);
+    return () => {
+      window.removeEventListener('pagehide', persistNow);
+      document.removeEventListener('visibilitychange', handleVisibility);
+    };
+  }, []);
 
   const handleSaveApiConfig = (newConfig) => {
     setApiConfig(newConfig);
@@ -133,6 +163,8 @@ export function App() {
     setCoopMode(false);
     setIsHarryPotter(false);
     setGenError('');
+    setAccusationDraft({});
+    setActiveDossierTab('informe');
     setCurrentScreen('setup');
   };
 
@@ -140,6 +172,8 @@ export function App() {
     setCoopMode(true);
     setIsHarryPotter(false);
     setGenError('');
+    setAccusationDraft({});
+    setActiveDossierTab('informe');
     setCurrentScreen('coop_setup');
   };
 
@@ -165,6 +199,8 @@ export function App() {
     setInterrogationsState({});
     setAnalyzedEvidenceIds([]);
     setVerdictResult(null);
+    setAccusationDraft({});
+    setActiveDossierTab('informe');
     setCasoStartTime(Date.now());
     setCurrentScreen('investigation');
   };
@@ -181,6 +217,8 @@ export function App() {
     setInterrogationsState({});
     setAnalyzedEvidenceIds([]);
     setVerdictResult(null);
+    setAccusationDraft({});
+    setActiveDossierTab('informe');
     setCasoStartTime(Date.now());
 
     // Trigger Harry Potter achievement unlock
@@ -204,6 +242,8 @@ export function App() {
     setInterrogationsState({});
     setAnalyzedEvidenceIds([]);
     setVerdictResult(null);
+    setAccusationDraft({});
+    setActiveDossierTab('informe');
     setCasoStartTime(Date.now());
     setCurrentScreen('investigation');
   };
@@ -230,6 +270,8 @@ export function App() {
       setInterrogationsState({});
       setAnalyzedEvidenceIds([]);
       setVerdictResult(null);
+      setAccusationDraft({});
+      setActiveDossierTab('informe');
       setCasoStartTime(Date.now());
       setCurrentScreen('investigation');
     } catch (err) {
@@ -307,6 +349,8 @@ export function App() {
       }
 
       setVerdictResult(evalRes);
+      setAccusationDraft({});
+      setActiveDossierTab('informe');
       setCurrentScreen('verdict');
     } catch (err) {
       alert(`Error al emitir el veredicto: ${err.message}`);
@@ -394,6 +438,8 @@ export function App() {
     setCaseData(null);
     setVerdictResult(null);
     setCoopResults(null);
+    setAccusationDraft({});
+    setActiveDossierTab('informe');
     if (coopMode) {
       setCurrentScreen('coop_setup');
     } else {
@@ -427,14 +473,17 @@ export function App() {
       showPovMenuIfHome();
       return;
     }
+    await handleLoadCaseFile(file);
+    if (fileInputRef.current) fileInputRef.current.value = '';
+  };
+
+  const handleLoadCaseFile = async (file) => {
     try {
       const imported = await importCaseFromJson(file);
       handleCaseLoaded(imported);
     } catch (err) {
       alert(`Error al importar el archivo: ${err.message}`);
       showPovMenuIfHome();
-    } finally {
-      if (fileInputRef.current) fileInputRef.current.value = '';
     }
   };
 
@@ -446,7 +495,7 @@ export function App() {
           handleNuevoCasoClick();
           break;
         case 'comunidad':
-          fileInputRef.current?.click();
+          setCurrentScreen('comunidad');
           break;
         case 'casos':
           handleLoadDemo();
@@ -542,6 +591,10 @@ export function App() {
             players={coopPlayers}
             currentPlayerIndex={coopCurrentPlayerIndex}
             onSubmitPlayerTurn={handleSubmitPlayerTurn}
+            activeTab={activeDossierTab}
+            onActiveTabChange={setActiveDossierTab}
+            accusationDraft={accusationDraft}
+            onAccusationDraftChange={setAccusationDraft}
           />
         )}
 
@@ -552,6 +605,14 @@ export function App() {
             publicInfo={caseData.publicInfo}
             onPlayAgain={handlePlayAgain}
             onGoHome={handleGoHome}
+          />
+        )}
+
+        {currentScreen === 'comunidad' && (
+          <CommunityBrowser
+            onLoadCaseFile={handleLoadCaseFile}
+            onOpenImportDialog={() => fileInputRef.current?.click()}
+            onBack={() => setCurrentScreen('menu')}
           />
         )}
 

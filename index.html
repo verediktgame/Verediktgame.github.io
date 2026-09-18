@@ -726,9 +726,9 @@
 
       var sign = new THREE.Mesh(
         new THREE.PlaneGeometry(2.6, 0.65),
-        new THREE.MeshStandardMaterial({ map: signTex, metalness: 0.72, roughness: 0.34, emissive: 0x1a0f00, emissiveMap: signTex, emissiveIntensity: 0.32 })
+        new THREE.MeshStandardMaterial({ map: signTex, metalness: 0.72, roughness: 0.34, emissive: 0x1a0f00, emissiveMap: signTex, emissiveIntensity: 0.32, polygonOffset: true, polygonOffsetFactor: 1, polygonOffsetUnits: 1 })
       );
-      sign.position.set(0, 2.45, -1.94);
+      sign.position.set(0, 2.45, -1.93);
       scene.add(sign);
 
       var signBack = new THREE.Mesh(new THREE.BoxGeometry(2.72, 0.77, 0.06), darkMetal);
@@ -1009,6 +1009,35 @@
       }
 
       // ==================== TRANSICIÓN A -> B ====================
+      // FOV ajustado a la mesa para que la carpeta COOPERATIVO (la más
+      // cercana a la cámara) nunca quede cortada por abajo en ningún aspect ratio.
+      var DESK_X_MIN = -2.15, DESK_X_MAX = 0.95;
+      var DESK_Z_MIN = 0.425, DESK_Z_MAX = 3.075;
+      var DESK_TOP_Y = 0.1;
+      function computeDeskFitFov() {
+        var cp = camera.position;
+        var cosE = Math.cos(-0.72), sinE = Math.sin(-0.72);
+        var maxVert = 0, maxHoriz = 0;
+        var xs = [DESK_X_MIN, DESK_X_MAX];
+        var zs = [DESK_Z_MIN, DESK_Z_MAX];
+        for (var xi = 0; xi < 2; xi++) {
+          for (var zi = 0; zi < 2; zi++) {
+            var dy = DESK_TOP_Y - cp.y;
+            var dz = zs[zi] - cp.z;
+            var yl = cosE * dy + sinE * dz;
+            var depth = sinE * dy - cosE * dz;
+            if (depth <= 0.05) continue;
+            var xl = xs[xi] - cp.x;
+            maxVert = Math.max(maxVert, Math.abs(yl) / depth);
+            maxHoriz = Math.max(maxHoriz, Math.abs(xl) / depth);
+          }
+        }
+        var aspect = camera.aspect || (window.innerWidth / Math.max(window.innerHeight, 1));
+        var need = Math.max(maxVert, maxHoriz / Math.max(aspect, 0.01));
+        var fov = 2 * Math.atan(need) * 180 / Math.PI + 1.5;
+        return Math.min(80, Math.max(38, fov));
+      }
+
       function transitionToDesk() {
         if (!menuActive || animating || currentState === 'desk') return;
         animating = true;
@@ -1018,10 +1047,14 @@
 
         var startRot = camPitch;
         var endRot = CAM_DESK.rotation.x;
+        var startFOV = camera.fov;
+        var endFOV = computeDeskFitFov();
 
         function finish() {
           camPitch = endRot;
           camera.rotation.x = endRot;
+          camera.fov = endFOV;
+          camera.updateProjectionMatrix();
           currentState = 'desk';
           animating = false;
           document.body.style.cursor = 'default';
@@ -1036,6 +1069,8 @@
           var t = Math.min((now - start) / duration, 1);
           var ease = t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
           camPitch = startRot + (endRot - startRot) * ease;
+          camera.fov = startFOV + (endFOV - startFOV) * ease;
+          camera.updateProjectionMatrix();
           if (t < 1) requestAnimationFrame(step);
           else finish();
         }
@@ -1195,12 +1230,22 @@
         camera.aspect = window.innerWidth / window.innerHeight;
         camera.updateProjectionMatrix();
         renderer.setSize(window.innerWidth, window.innerHeight);
+        if (currentState === 'desk' && !animating && camera.fov !== computeDeskFitFov()) {
+          camera.fov = computeDeskFitFov();
+          camera.updateProjectionMatrix();
+        }
       });
 
       // ==================== LOOP ====================
       var prevNow = performance.now();
+      var rafId = null;
+      function startLoop() {
+        if (rafId == null) rafId = requestAnimationFrame(renderLoop);
+      }
       function renderLoop() {
-        requestAnimationFrame(renderLoop);
+        rafId = null;
+        if (document.hidden) return;
+        startLoop();
         if (!menuActive) return;
 
         var now = performance.now();
@@ -1252,7 +1297,30 @@
 
         renderer.render(scene, camera);
       }
-      requestAnimationFrame(renderLoop);
+      document.addEventListener('visibilitychange', function () {
+        if (document.hidden) {
+          if (rafId != null) { cancelAnimationFrame(rafId); rafId = null; }
+        } else {
+          prevNow = performance.now();
+          startLoop();
+        }
+      });
+      startLoop();
+
+      // Hook de depuración (solo con ?vdebug) usado por los tests CDP.
+      if (new URLSearchParams(location.search).has('vdebug')) {
+        window.__verediktDebug = function () {
+          return {
+            fov: camera.fov,
+            fitFov: computeDeskFitFov(),
+            state: currentState,
+            aspect: camera.aspect,
+            pos: [camera.position.x, camera.position.y, camera.position.z],
+            hidden: document.hidden,
+            rafAlive: rafId != null
+          };
+        };
+      }
 
       // Re-pinta las texturas cuando las fuentes web están listas
       if (document.fonts && document.fonts.ready) {
