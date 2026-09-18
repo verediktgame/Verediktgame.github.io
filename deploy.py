@@ -211,6 +211,12 @@ def pages_base_ref():
 
 def deploy_pages(token, url, message):
     log("Publicando en gh-pages...")
+    # Refresca la ref local con el tip real del remoto: sin esto el worktree
+    # parte de un gh-pages viejo y el push cae en non-fast-forward cuando
+    # alguien pusheó gh-pages desde otro lugar.
+    run(["git", "fetch", "-q", url,
+         f"{PAGES_BRANCH}:refs/remotes/origin/{PAGES_BRANCH}"],
+        redact=token, check=False)
     base = pages_base_ref()
     if base is None:
         fail(f"No encuentro la rama {PAGES_BRANCH} en el repo.")
@@ -233,7 +239,7 @@ def deploy_pages(token, url, message):
             run(["git", *author_args(), "commit", "-m", message], cwd=tmp)
         else:
             ok("gh-pages ya estaba al día.")
-        run(["git", "push", url, f"HEAD:{PAGES_BRANCH}"], cwd=tmp, redact=token)
+        run(["git", "push", "--force-with-lease", url, f"HEAD:{PAGES_BRANCH}"], cwd=tmp, redact=token)
         ok("gh-pages actualizado.")
     finally:
         run(["git", "worktree", "remove", "--force", str(tmp)], check=False, quiet=True)
