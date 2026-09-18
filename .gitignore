@@ -19,3 +19,10 @@ test/
 
 # Version notes / design docs
 veredikt-V*.md
+
+# Deploy: secreto local (nunca commitear)
+.deploy_token
+
+# Python
+__pycache__/
+*.pyc
