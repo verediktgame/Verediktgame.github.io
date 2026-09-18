@@ -239,7 +239,11 @@ def deploy_pages(token, url, message):
             run(["git", *author_args(), "commit", "-m", message], cwd=tmp)
         else:
             ok("gh-pages ya estaba al día.")
-        run(["git", "push", "--force-with-lease", url, f"HEAD:{PAGES_BRANCH}"], cwd=tmp, redact=token)
+        # El push es force a propósito: gh-pages es solo output de build (dist/)
+        # y se sube por URL con token, así que --force-with-lease no puede
+        # resolver la ref de comparación (da "stale info"). El fetch previo
+        # mantiene el base al día; force solo sobreescribe output generado.
+        run(["git", "push", "--force", url, f"HEAD:{PAGES_BRANCH}"], cwd=tmp, redact=token)
         ok("gh-pages actualizado.")
     finally:
         run(["git", "worktree", "remove", "--force", str(tmp)], check=False, quiet=True)
