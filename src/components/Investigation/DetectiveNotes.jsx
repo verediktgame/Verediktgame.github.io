@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 
 export function DetectiveNotes({ caseTitle = '', currentPlayerName = null, isCoop = false }) {
   const [isOpen, setIsOpen] = useState(false);
@@ -31,6 +32,17 @@ export function DetectiveNotes({ caseTitle = '', currentPlayerName = null, isCoo
     }
   };
 
+  // Close drawer with Escape (only when open)
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape' && isOpen) {
+        setIsOpen(false);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isOpen]);
+
   // Clear notes
   const handleClear = () => {
     if (window.confirm('¿Seguro que deseás borrar todas las notas de este expediente?')) {
@@ -43,7 +55,7 @@ export function DetectiveNotes({ caseTitle = '', currentPlayerName = null, isCoo
     }
   };
 
-  return (
+  return createPortal(
     <>
       {/* VERTICAL FLOATING TAB BUTTON ON RIGHT EDGE */}
       <button
@@ -103,6 +115,7 @@ Ejemplo:
           </span>
         </div>
       </aside>
-    </>
+    </>,
+    document.body
   );
 }

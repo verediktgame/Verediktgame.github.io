@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { TabInforme } from './TabInforme';
 import { TabDeclaraciones } from './TabDeclaraciones';
 import { TabSospechosos } from './TabSospechosos';
@@ -23,6 +23,33 @@ export function Dossier({
 }) {
   const [activeTab, setActiveTab] = useState('informe');
 
+  // Number-key shortcuts to jump between folders (1..5, 6 = accusation)
+  useEffect(() => {
+    const keyToTab = {
+      '1': 'informe',
+      '2': 'escena',
+      '3': 'declaraciones',
+      '4': 'evidencias',
+      '5': 'sospechosos',
+      '6': 'acusacion'
+    };
+
+    const handleKeyDown = (e) => {
+      if (e.ctrlKey || e.metaKey || e.altKey) return;
+      const tag = e.target && e.target.tagName ? e.target.tagName.toLowerCase() : '';
+      if (tag === 'input' || tag === 'textarea' || tag === 'select' || (e.target && e.target.isContentEditable)) return;
+      if (document.querySelector('.modal-overlay.active, .modal-backdrop.active')) return;
+      const tab = keyToTab[e.key];
+      if (tab) {
+        e.preventDefault();
+        setActiveTab(tab);
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
+
   if (!publicInfo) return null;
 
   return (
@@ -35,41 +62,47 @@ export function Dossier({
               type="button"
               className={`tab-btn ${activeTab === 'informe' ? 'active' : ''}`}
               onClick={() => setActiveTab('informe')}
+              title="Atajo: 1"
             >
               1. INFORME OFICIAL
             </button>
             <button
               type="button"
-              className={`tab-btn ${activeTab === 'declaraciones' ? 'active' : ''}`}
-              onClick={() => setActiveTab('declaraciones')}
-            >
-              2. DECLARACIONES ({publicInfo.declaraciones?.length || 0})
-            </button>
-            <button
-              type="button"
-              className={`tab-btn ${activeTab === 'sospechosos' ? 'active' : ''}`}
-              onClick={() => setActiveTab('sospechosos')}
-            >
-              3. SOSPECHOSOS ({publicInfo.sospechosos?.length || 0})
-            </button>
-            <button
-              type="button"
               className={`tab-btn ${activeTab === 'escena' ? 'active' : ''}`}
               onClick={() => setActiveTab('escena')}
+              title="Atajo: 2"
             >
-              4. ESCENA DEL CRIMEN
+              2. ESCENA DEL CRIMEN
+            </button>
+            <button
+              type="button"
+              className={`tab-btn ${activeTab === 'declaraciones' ? 'active' : ''}`}
+              onClick={() => setActiveTab('declaraciones')}
+              title="Atajo: 3"
+            >
+              3. DECLARACIONES ({publicInfo.declaraciones?.length || 0})
             </button>
             <button
               type="button"
               className={`tab-btn ${activeTab === 'evidencias' ? 'active' : ''}`}
               onClick={() => setActiveTab('evidencias')}
+              title="Atajo: 4"
             >
-              5. EVIDENCIAS FORENSES ({publicInfo.evidencias?.length || 0})
+              4. EVIDENCIAS FORENSES ({publicInfo.evidencias?.length || 0})
+            </button>
+            <button
+              type="button"
+              className={`tab-btn ${activeTab === 'sospechosos' ? 'active' : ''}`}
+              onClick={() => setActiveTab('sospechosos')}
+              title="Atajo: 5"
+            >
+              5. SOSPECHOSOS ({publicInfo.sospechosos?.length || 0})
             </button>
             <button
               type="button"
               className={`tab-btn accusation-tab ${activeTab === 'acusacion' ? 'active' : ''}`}
               onClick={() => setActiveTab('acusacion')}
+              title="Atajo: 6"
             >
               {isCoop ? '⚖️ ACUSACIÓN POR TURNOS' : '⚖ ACUSACIÓN FINAL'}
             </button>
