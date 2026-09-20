@@ -1,4 +1,10 @@
+import { isHogwartsDay } from './hogwarts.js';
+
 export function checkHarryPotterEasterEgg() {
+  // El caso Harry Potter solo está disponible el 1 de septiembre.
+  if (!isHogwartsDay()) {
+    return false;
+  }
   const now = new Date();
   const h = now.getHours();
   const m = now.getMinutes();

@@ -1,5 +1,8 @@
 import { makeLLMRequestWithRetry, parseLLMJson } from './llmAdapter.js';
 import { SafeStorage, obfuscateTruth } from './storage.js';
+import { isHogwartsDay } from '../constants/hogwarts.js';
+
+export const CIUDAD_HOGWARTS = 'Hogwarts, Escocia (ambientá el caso íntegramente en el mundo mágico de Harry Potter)';
 
 export const PASOS_GENERACION = [
   { id: 1, label: "① Abriendo el expediente...", desc: "Generando víctima y escena" },
@@ -241,6 +244,9 @@ Devolvé ÚNICAMENTE este JSON sin texto extra ni markdown:
 export async function generateCaseWithLLM(ciudad, dificultad, apiConfig, onProgress) {
   let base, sospechosoData, evidenciaData, preguntasData, forenseData, truthData;
 
+  // El 1 de septiembre todo caso generado con IA se ambienta en Hogwarts.
+  const tema = isHogwartsDay() ? CIUDAD_HOGWARTS : ciudad;
+
   const updateProgress = (stepIndex, text) => {
     if (onProgress) {
       onProgress(stepIndex, text);
@@ -250,7 +256,7 @@ export async function generateCaseWithLLM(ciudad, dificultad, apiConfig, onProgr
   // PASO 1
   updateProgress(1, PASOS_GENERACION[0].label);
   const r1A = await makeLLMRequestWithRetry(
-    buildPrompt1A(ciudad, dificultad),
+    buildPrompt1A(tema, dificultad),
     4000,
     "Paso 1: Encabezado del caso",
     (msg) => updateProgress(1, msg),

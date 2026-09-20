@@ -106,6 +106,16 @@
 
       var reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
+      // ==================== DÍA DE HOGWARTS (1 DE SEPTIEMBRE) ====================
+      // Se evalúa una sola vez al iniciar la sesión del menú y usa SOLO la fecha
+      // real: el tema Hogwarts únicamente existe el 1 de septiembre de cada año.
+      // No hay override por URL: ningún otro día se puede acceder a esta vista.
+      var hogwartsMode = (function () {
+        var hgNow = new Date();
+        return hgNow.getMonth() === 8 && hgNow.getDate() === 1;
+      })();
+      var themeKey = hogwartsMode ? 'hogwarts' : 'noir';
+
       // ==================== BRIDGE CON EL JUEGO ====================
       window.openApiConfig = function () {
         if (typeof window.__verediktOpenSettings === 'function') window.__verediktOpenSettings();
@@ -122,12 +132,12 @@
       renderer.shadowMap.type = THREE.PCFSoftShadowMap;
       renderer.outputEncoding = THREE.sRGBEncoding;
       renderer.toneMapping = THREE.ACESFilmicToneMapping;
-      renderer.toneMappingExposure = 1.25;
-      renderer.setClearColor(0x0e0906, 1);
+      renderer.toneMappingExposure = hogwartsMode ? 1.35 : 1.25;
+      renderer.setClearColor(hogwartsMode ? 0x0a0a1a : 0x0e0906, 1);
 
       var scene = new THREE.Scene();
-      scene.background = new THREE.Color(0x0e0906);
-      scene.fog = new THREE.FogExp2(0x160e07, 0.038);
+      scene.background = new THREE.Color(hogwartsMode ? 0x0a0a1a : 0x0e0906);
+      scene.fog = new THREE.FogExp2(hogwartsMode ? 0x0d0a18 : 0x160e07, hogwartsMode ? 0.055 : 0.038);
 
       var camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 100);
       camera.position.set(0, 1.6, 3.5);
@@ -379,6 +389,189 @@
         ctx.strokeRect(14, 14, w - 28, h - 28);
       }
 
+      function paintStone(ctx, w, h) {
+        ctx.fillStyle = '#2c2c38';
+        ctx.fillRect(0, 0, w, h);
+        for (var i = 0; i < 3000; i++) {
+          ctx.fillStyle = Math.random() > 0.5
+            ? 'rgba(255,255,255,' + (0.015 + Math.random() * 0.035) + ')'
+            : 'rgba(0,0,0,' + (0.04 + Math.random() * 0.11) + ')';
+          ctx.fillRect(Math.random() * w, Math.random() * h, 1 + Math.random() * 2, 1 + Math.random() * 2);
+        }
+        var rows = 9, cols = 11;
+        for (var r = 0; r < rows; r++) {
+          for (var c = 0; c < cols; c++) {
+            var x = (c + (r % 2 ? 0.5 : 0)) * (w / cols);
+            var y = r * (h / rows);
+            var bw = w / cols - 3, bh = h / rows - 2;
+            var g = ctx.createLinearGradient(x, y, x, y + bh);
+            g.addColorStop(0, 'rgba(255,255,255,0.05)');
+            g.addColorStop(1, 'rgba(0,0,0,0.24)');
+            ctx.fillStyle = g;
+            ctx.fillRect(x + 1, y + 1, bw + Math.random() * 4, bh + Math.random() * 2);
+            ctx.strokeStyle = 'rgba(0,0,0,0.55)';
+            ctx.lineWidth = 2;
+            ctx.strokeRect(x + 1, y + 1, bw + Math.random() * 4, bh + Math.random() * 2);
+          }
+        }
+        vignette(ctx, w, h, 0.42);
+      }
+
+      function paintLeather(ctx, w, h, def, hover) {
+        var g = ctx.createLinearGradient(0, 0, 0, h);
+        g.addColorStop(0, hover ? '#2c2a20' : '#1d1b14');
+        g.addColorStop(0.5, hover ? '#23211a' : '#15130e');
+        g.addColorStop(1, hover ? '#16140f' : '#0c0b08');
+        ctx.fillStyle = g;
+        ctx.fillRect(0, 0, w, h);
+        hatch(ctx, w, h, 1400, 0.06, 1.8);
+
+        // Herrajes dorados del lomo/tapa
+        ctx.strokeStyle = hover ? '#e0b95f' : '#c9a84c';
+        ctx.lineWidth = 5;
+        ctx.strokeRect(6, 6, w - 12, h - 12);
+        ctx.strokeStyle = hover ? 'rgba(224,185,95,0.55)' : 'rgba(201,168,76,0.45)';
+        ctx.lineWidth = 2;
+        ctx.strokeRect(16, 16, w - 32, h - 32);
+        ctx.fillStyle = hover ? '#e0b95f' : 'rgba(201,168,76,0.7)';
+        [[22, 22], [w - 22, 22], [22, h - 22], [w - 22, h - 22]].forEach(function (c) {
+          ctx.beginPath(); ctx.arc(c[0], c[1], 5, 0, Math.PI * 2); ctx.fill();
+        });
+
+        // Emblema central (glifo del artículo) en pergamino
+        ctx.fillStyle = '#e8dcc8';
+        ctx.font = (hover ? 34 : 30) + 'px Georgia, serif';
+        ctx.textAlign = 'center';
+        ctx.fillText(def.glyph || '✦', w * 0.68, h * 0.42);
+
+        ctx.fillStyle = hover ? '#f2e6cd' : '#e8dcc8';
+        ctx.font = 'bold 27px Georgia, serif';
+        ctx.textAlign = 'center';
+        ctx.fillText(def.label, w * 0.34, 46);
+
+        ctx.fillStyle = 'rgba(138,122,90,0.95)';
+        ctx.font = '15px Georgia, serif';
+        ctx.textAlign = 'left';
+        ctx.fillText(def.sub, 24, h - 40);
+
+        ctx.fillStyle = 'rgba(201,168,76,0.85)';
+        ctx.font = 'bold 14px Georgia, serif';
+        ctx.textAlign = 'left';
+        ctx.fillText(def.code, 24, h - 15);
+      }
+
+      function paintHogSign(ctx, w, h) {
+        var g = ctx.createLinearGradient(0, 0, 0, h);
+        g.addColorStop(0, '#22221f');
+        g.addColorStop(0.5, '#2a2020');
+        g.addColorStop(1, '#151510');
+        ctx.fillStyle = g;
+        ctx.fillRect(0, 0, w, h);
+        for (var i = 0; i < 2000; i++) {
+          ctx.fillStyle = Math.random() > 0.5
+            ? 'rgba(255,255,255,' + (0.015 + Math.random() * 0.03) + ')'
+            : 'rgba(0,0,0,' + (0.05 + Math.random() * 0.12) + ')';
+          ctx.fillRect(Math.random() * w, Math.random() * h, 1 + Math.random() * 2, 1 + Math.random() * 2);
+        }
+        var gold = ctx.createLinearGradient(0, 0, 0, h);
+        gold.addColorStop(0, '#e8c86a');
+        gold.addColorStop(0.5, '#c9a84c');
+        gold.addColorStop(1, '#9a7d2e');
+        ctx.strokeStyle = gold;
+        ctx.lineWidth = 9;
+        ctx.strokeRect(12, 12, w - 24, h - 24);
+        ctx.strokeStyle = 'rgba(232,213,166,0.5)';
+        ctx.lineWidth = 2;
+        ctx.strokeRect(22, 22, w - 44, h - 44);
+
+        ctx.fillStyle = '#e8dcc8';
+        ctx.textAlign = 'center';
+        ctx.font = 'bold 64px Georgia, serif';
+        ctx.fillText('VEREDIKT', w / 2, h / 2 - 16);
+        ctx.font = 'italic 20px Georgia, serif';
+        ctx.fillStyle = '#c9a84c';
+        ctx.fillText('Departamento de Investigación', w / 2, h / 2 + 24);
+        ctx.fillText('de Incidentes Mágicos', w / 2, h / 2 + 50);
+        ctx.fillStyle = 'rgba(201,168,76,0.7)';
+        ctx.font = '13px Georgia, serif';
+        ctx.fillText('✦  ·  EST. SEPT. 1º  ·  ✦', w / 2, h - 24);
+      }
+
+      function paintLake(ctx, w, h) {
+        var g = ctx.createLinearGradient(0, 0, 0, h);
+        g.addColorStop(0, '#0a1a20');
+        g.addColorStop(0.55, '#05080f');
+        g.addColorStop(1, '#02040c');
+        ctx.fillStyle = g;
+        ctx.fillRect(0, 0, w, h);
+        for (var i = 0; i < 34; i++) {
+          var y = h * (0.15 + Math.random() * 0.82);
+          ctx.strokeStyle = 'rgba(' + (120 + Math.floor(Math.random() * 90)) + ',' + (150 + Math.floor(Math.random() * 60)) + ',' + (200 + Math.floor(Math.random() * 55)) + ',' + (0.04 + Math.random() * 0.14) + ')';
+          ctx.lineWidth = 0.8 + Math.random() * 1.6;
+          ctx.beginPath();
+          ctx.moveTo(0, y);
+          ctx.bezierCurveTo(w * 0.3, y + (Math.random() - 0.5) * 8, w * 0.7, y + (Math.random() - 0.5) * 8, w, y);
+          ctx.stroke();
+        }
+        for (var k = 0; k < 12; k++) {
+          var sx = Math.random() * w, sy = h * (0.2 + Math.random() * 0.7);
+          ctx.fillStyle = 'rgba(201,168,76,' + (0.1 + Math.random() * 0.35) + ')';
+          ctx.fillRect(sx, sy, 2 + Math.random() * 6, 1 + Math.random() * 2);
+        }
+        vignette(ctx, w, h, 0.3);
+      }
+
+      function paintOwl(ctx, w, h) {
+        ctx.clearRect(0, 0, w, h);
+        var cx = w / 2, cy = h / 2;
+        // Cuerpo
+        var bodyG = ctx.createRadialGradient(cx - 10, cy - 14, 8, cx, cy, w * 0.55);
+        bodyG.addColorStop(0, '#efe6cf');
+        bodyG.addColorStop(1, '#c9b98a');
+        ctx.fillStyle = bodyG;
+        ctx.beginPath(); ctx.ellipse(cx, cy, w * 0.4, h * 0.44, 0, 0, Math.PI * 2); ctx.fill();
+        // Ala
+        ctx.fillStyle = '#a98f5f';
+        ctx.beginPath(); ctx.ellipse(cx - w * 0.26, cy + 6, w * 0.18, h * 0.3, 0.4, 0, Math.PI * 2); ctx.fill();
+        ctx.beginPath(); ctx.ellipse(cx + w * 0.26, cy + 6, w * 0.18, h * 0.3, -0.4, 0, Math.PI * 2); ctx.fill();
+        // Orejas
+        ctx.fillStyle = '#a98f5f';
+        ctx.beginPath(); ctx.moveTo(cx - w * 0.24, cy - h * 0.2); ctx.lineTo(cx - w * 0.13, cy - h * 0.46); ctx.lineTo(cx - w * 0.02, cy - h * 0.26); ctx.closePath(); ctx.fill();
+        ctx.beginPath(); ctx.moveTo(cx + w * 0.24, cy - h * 0.2); ctx.lineTo(cx + w * 0.13, cy - h * 0.46); ctx.lineTo(cx + w * 0.02, cy - h * 0.26); ctx.closePath(); ctx.fill();
+        // Ojos
+        ctx.fillStyle = '#e8dcc8';
+        ctx.beginPath(); ctx.arc(cx - w * 0.16, cy - h * 0.12, w * 0.16, 0, Math.PI * 2); ctx.fill();
+        ctx.beginPath(); ctx.arc(cx + w * 0.16, cy - h * 0.12, w * 0.16, 0, Math.PI * 2); ctx.fill();
+        ctx.fillStyle = '#2a1a0a';
+        ctx.beginPath(); ctx.arc(cx - w * 0.16, cy - h * 0.12, w * 0.07, 0, Math.PI * 2); ctx.fill();
+        ctx.beginPath(); ctx.arc(cx + w * 0.16, cy - h * 0.12, w * 0.07, 0, Math.PI * 2); ctx.fill();
+        // Pico
+        ctx.fillStyle = '#c9a84c';
+        ctx.beginPath(); ctx.moveTo(cx, cy - h * 0.02); ctx.lineTo(cx - w * 0.05, cy + h * 0.05); ctx.lineTo(cx + w * 0.05, cy + h * 0.05); ctx.closePath(); ctx.fill();
+        // Dorsal
+        ctx.fillStyle = 'rgba(120,100,70,0.5)';
+        ctx.beginPath();
+        ctx.moveTo(cx - w * 0.12, cy + h * 0.18);
+        ctx.quadraticCurveTo(cx, cy + h * 0.02, cx + w * 0.12, cy + h * 0.18);
+        ctx.quadraticCurveTo(cx, cy + h * 0.42, cx - w * 0.12, cy + h * 0.18);
+        ctx.fill();
+      }
+
+      function paintHogContents(ctx, w, h) {
+        ctx.fillStyle = '#e7dcc0';
+        ctx.fillRect(0, 0, w, h);
+        hatch(ctx, w, h, 900, 0.05, 1.4);
+        for (var i = 0; i < 8; i++) {
+          var y = 40 + i * (h - 80) / 8;
+          ctx.fillStyle = 'rgba(40,30,20,' + (0.3 + Math.random() * 0.35) + ')';
+          var len = w * (0.4 + Math.random() * 0.42);
+          ctx.fillRect(40, y, len, 3);
+        }
+        ctx.strokeStyle = 'rgba(201,168,76,0.5)';
+        ctx.lineWidth = 2;
+        ctx.strokeRect(16, 16, w - 32, h - 32);
+      }
+
       function paintManila(ctx, w, h, def, hover) {
         var g = ctx.createLinearGradient(0, 0, w, h);
         g.addColorStop(0, hover ? '#d8b071' : '#c49a5c');
@@ -466,6 +659,19 @@
       var deskBounce = new THREE.PointLight(0xffc890, 0.38, 6, 1.6);
       deskBounce.position.set(0, 0.5, 2.8);
       scene.add(deskBounce);
+
+      // ==================== DÍA DE HOGWARTS: LUZ ====================
+      if (hogwartsMode) {
+        ambient.color.setHex(0x2c3238);
+        hemi.color.setHex(0x33405a);
+        hemi.groundColor.setHex(0x0d1512);
+        lampGlow.color.setHex(0xff9a3c);
+        windowLight.color.setHex(0x6a86b8);
+        wallWash.color.setHex(0x4a5a80);
+        fillLight.color.setHex(0x25305a);
+        deskBounce.color.setHex(0xc9a84c);
+        deskSpot.color.setHex(0xffbe70);
+      }
 
       // ==================== TEXTURAS BASE ====================
       var woodTopTex = makeCanvasTexture(512, 512, paintWood);
@@ -610,11 +816,12 @@
       scene.add(cig);
 
       // ==================== PAPELES SUELTOS ====================
-      [
+      var sueltos = [
         { x: -2.45, z: 0.55, ry: 0.5, tex: paperTex },
         { x: 2.1, z: 0.5, ry: -0.4, tex: typePaperTex },
         { x: 1.0, z: 2.75, ry: 0.2, tex: paperTex }
-      ].forEach(function (p) {
+      ];
+      sueltos.forEach(function (p) {
         var m = new THREE.Mesh(new THREE.PlaneGeometry(0.5, 0.66), new THREE.MeshStandardMaterial({ map: p.tex, roughness: 0.92, metalness: 0 }));
         m.rotation.x = -Math.PI / 2;
         m.rotation.z = p.ry;
@@ -623,25 +830,32 @@
         scene.add(m);
       });
 
-      // ==================== CARPETAS ====================
-      var CARPETAS = [
+      // ==================== CARPETAS O LIBROS ====================
+      var CARPETAS = hogwartsMode ? [
+        { id: 'nuevo',     label: '📜 NUEVO EXPEDIENTE', glyph: '📜', sub: 'La IA redacta el expediente', code: 'EXP-01', x: -1.6, z: 0.8 },
+        { id: 'comunidad', label: '🪄 ARCHIVOS DEL MISTERIO', glyph: '🪄', sub: 'Importar un expediente', code: 'EXP-02', x:  0.4, z: 0.8 },
+        { id: 'casos',     label: '📚 MIS INVESTIGACIONES', glyph: '📚', sub: 'Historial local', code: 'EXP-03', x: -1.6, z: 1.9 },
+        { id: 'logros',    label: '⚡ MÉRITOS', glyph: '⚡', sub: 'Tus condecoraciones', code: 'EXP-04', x:  0.4, z: 1.9 }
+      ] : [
         { id: 'nuevo',     label: 'NUEVO CASO',  sub: 'La IA redacta el expediente', code: 'EXP-01', x: -1.6, z: 0.8 },
         { id: 'comunidad', label: 'COMUNIDAD',   sub: 'Importar un expediente',       code: 'EXP-02', x:  0.4, z: 0.8 },
         { id: 'casos',     label: 'MIS CASOS',   sub: 'Historial local',              code: 'EXP-03', x: -1.6, z: 1.9 },
         { id: 'logros',    label: 'LOGROS',      sub: 'Tus condecoraciones',          code: 'EXP-04', x:  0.4, z: 1.9 }
       ];
-      var CARPETA_COOP = { id: 'coop', label: 'COOPERATIVO', sub: 'Varios detectives, una pantalla', code: 'EXP-05', x: -0.6, z: 2.7 };
+      var CARPETA_COOP = hogwartsMode
+        ? { id: 'coop', label: '🔮 MODO DUELO', glyph: '🔮', sub: 'Varios detectives, una pantalla', code: 'EXP-05', x: -0.6, z: 2.7 }
+        : { id: 'coop', label: 'COOPERATIVO', sub: 'Varios detectives, una pantalla', code: 'EXP-05', x: -0.6, z: 2.7 };
 
-      var folderStackMat = new THREE.MeshStandardMaterial({ color: 0xe6dcc2, roughness: 0.95, metalness: 0 });
-      var folderSideMat = new THREE.MeshStandardMaterial({ color: 0xa87f47, roughness: 0.85, metalness: 0.02 });
+      var folderStackMat = new THREE.MeshStandardMaterial({ color: hogwartsMode ? 0x16130e : 0xe6dcc2, roughness: 0.92, metalness: 0.02 });
+      var folderSideMat = new THREE.MeshStandardMaterial({ color: hogwartsMode ? 0x322a22 : 0xa87f47, roughness: 0.85, metalness: hogwartsMode ? 0.06 : 0.02 });
 
       var folderDefs = CARPETAS.concat([CARPETA_COOP]);
       var folders = [];
       var folderPlanes = [];
 
       folderDefs.forEach(function (def, index) {
-        var baseTex = makeCanvasTexture(512, 360, function (ctx, w, h) { paintManila(ctx, w, h, def, false); });
-        var hoverTex = makeCanvasTexture(512, 360, function (ctx, w, h) { paintManila(ctx, w, h, def, true); });
+        var baseTex = makeCanvasTexture(512, 360, function (ctx, w, h) { if (hogwartsMode) paintLeather(ctx, w, h, def, false); else paintManila(ctx, w, h, def, false); });
+        var hoverTex = makeCanvasTexture(512, 360, function (ctx, w, h) { if (hogwartsMode) paintLeather(ctx, w, h, def, true); else paintManila(ctx, w, h, def, true); });
 
         var group = new THREE.Group();
         group.position.set(def.x, 0, def.z);
@@ -669,7 +883,7 @@
 
         var content = new THREE.Mesh(
           new THREE.PlaneGeometry(1.06, 0.71),
-          new THREE.MeshStandardMaterial({ map: makeCanvasTexture(512, 360, paintFoldContents), roughness: 0.9, metalness: 0, polygonOffset: true, polygonOffsetFactor: -1, polygonOffsetUnits: -1 })
+          new THREE.MeshStandardMaterial({ map: makeCanvasTexture(512, 360, hogwartsMode ? paintHogContents : paintFoldContents), roughness: 0.9, metalness: 0, polygonOffset: true, polygonOffsetFactor: -1, polygonOffsetUnits: -1 })
         );
         content.rotation.x = -Math.PI / 2;
         content.position.y = 0.046;
@@ -874,35 +1088,6 @@
         ring.addColorStop(0, '#e0c476');
         ring.addColorStop(0.5, '#8f6c22');
         ring.addColorStop(1, '#5f4716');
-        ctx.fillStyle = ring;
-        ctx.beginPath(); ctx.arc(cx, cy, r, 0, Math.PI * 2); ctx.fill();
-
-        var dial = ctx.createRadialGradient(cx - 60, cy - 70, 40, cx, cy, r);
-        dial.addColorStop(0, '#efe6cf');
-        dial.addColorStop(1, '#c9bb98');
-        ctx.fillStyle = dial;
-        ctx.beginPath(); ctx.arc(cx, cy, r - 22, 0, Math.PI * 2); ctx.fill();
-
-        for (var i = 0; i < 60; i++) {
-          var a = (i / 60) * Math.PI * 2 - Math.PI / 2;
-          var major = i % 5 === 0;
-          var inner = major ? 150 : 178;
-          ctx.strokeStyle = major ? '#241a0e' : 'rgba(36,26,14,0.5)';
-          ctx.lineWidth = major ? 9 : 3;
-          ctx.beginPath();
-          ctx.moveTo(cx + Math.cos(a) * inner, cy + Math.sin(a) * inner);
-          ctx.lineTo(cx + Math.cos(a) * 200, cy + Math.sin(a) * 200);
-          ctx.stroke();
-        }
-
-        ctx.fillStyle = '#241a0e';
-        ctx.font = 'bold 62px "Special Elite", "Courier New", monospace';
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'middle';
-        ctx.fillText('12', cx, cy - 150);
-        ctx.fillText('3', cx + 150, cy);
-        ctx.fillText('6', cx, cy + 150);
-        ctx.fillText('9', cx - 150, cy);
 
         function hand(angle, len, width, color) {
           ctx.strokeStyle = color;
@@ -917,18 +1102,110 @@
         var h = ((now.getHours() % 12) + now.getMinutes() / 60) / 12 * Math.PI * 2 - Math.PI / 2;
         var m = (now.getMinutes() / 60) * Math.PI * 2 - Math.PI / 2;
         var s = (now.getSeconds() / 60) * Math.PI * 2 - Math.PI / 2;
-        hand(h, 96, 15, '#241a0e');
-        hand(m, 138, 10, '#241a0e');
-        hand(s, 150, 4, '#8c1d1d');
 
-        ctx.fillStyle = '#8f6c22';
-        ctx.beginPath(); ctx.arc(cx, cy, 12, 0, Math.PI * 2); ctx.fill();
+        if (hogwartsMode) {
+          // Torreta de la torre del reloj de Hogwarts (madera oscura y dorado).
+          ctx.fillStyle = ring;
+          ctx.beginPath(); ctx.arc(cx, cy, r, 0, Math.PI * 2); ctx.fill();
+          ctx.strokeStyle = '#141210';
+          ctx.lineWidth = 18;
+          ctx.beginPath(); ctx.arc(cx, cy, r - 16, 0, Math.PI * 2); ctx.stroke();
 
-        ctx.strokeStyle = 'rgba(255,255,255,0.22)';
-        ctx.lineWidth = 10;
-        ctx.beginPath();
-        ctx.arc(cx, cy, r - 40, Math.PI * 1.15, Math.PI * 1.65);
-        ctx.stroke();
+          var dial = ctx.createRadialGradient(cx - 60, cy - 70, 40, cx, cy, r);
+          dial.addColorStop(0, '#f2ecd9');
+          dial.addColorStop(1, '#cbbf9c');
+          ctx.fillStyle = dial;
+          ctx.beginPath(); ctx.arc(cx, cy, r - 40, 0, Math.PI * 2); ctx.fill();
+
+          for (var i = 0; i < 60; i++) {
+            var a = (i / 60) * Math.PI * 2 - Math.PI / 2;
+            var major = i % 5 === 0;
+            var inner = major ? 150 : 176;
+            ctx.strokeStyle = major ? '#241a0e' : 'rgba(36,26,14,0.5)';
+            ctx.lineWidth = major ? 9 : 3;
+            ctx.beginPath();
+            ctx.moveTo(cx + Math.cos(a) * inner, cy + Math.sin(a) * inner);
+            ctx.lineTo(cx + Math.cos(a) * 198, cy + Math.sin(a) * 198);
+            ctx.stroke();
+          }
+
+          ctx.fillStyle = '#241a0e';
+          ctx.font = 'bold 58px Georgia, serif';
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'middle';
+          var nums = ['XII', 'III', 'VI', 'IX'];
+          var npos = [[cx, cy - 148], [cx + 148, cy], [cx, cy + 148], [cx - 148, cy]];
+          for (var ni = 0; ni < 4; ni++) {
+            ctx.fillText(nums[ni], npos[ni][0], npos[ni][1]);
+          }
+
+          hand(h, 96, 15, '#241a0e');
+          hand(m, 138, 10, '#241a0e');
+          hand(s, 150, 4, '#8c1d1d');
+
+          ctx.fillStyle = '#c9a84c';
+          ctx.beginPath(); ctx.arc(cx, cy, 12, 0, Math.PI * 2); ctx.fill();
+
+          // Techo de pizarra de la torreta en la parte superior del dial.
+          ctx.fillStyle = 'rgba(20,24,34,0.95)';
+          ctx.beginPath();
+          ctx.moveTo(cx - 260, cy - r + 54);
+          ctx.lineTo(cx, cy - r - 52);
+          ctx.lineTo(cx + 260, cy - r + 54);
+          ctx.closePath();
+          ctx.fill();
+          ctx.strokeStyle = '#c9a84c';
+          ctx.lineWidth = 4;
+          ctx.beginPath();
+          ctx.moveTo(cx - 260, cy - r + 54);
+          ctx.lineTo(cx, cy - r - 52);
+          ctx.lineTo(cx + 260, cy - r + 54);
+          ctx.stroke();
+        } else {
+          // ---- Reloj noir de la comisaría ----
+          ctx.fillStyle = ring;
+          ctx.beginPath(); ctx.arc(cx, cy, r, 0, Math.PI * 2); ctx.fill();
+
+          var dialN = ctx.createRadialGradient(cx - 60, cy - 70, 40, cx, cy, r);
+          dialN.addColorStop(0, '#efe6cf');
+          dialN.addColorStop(1, '#c9bb98');
+          ctx.fillStyle = dialN;
+          ctx.beginPath(); ctx.arc(cx, cy, r - 22, 0, Math.PI * 2); ctx.fill();
+
+          for (var j = 0; j < 60; j++) {
+            var aj = (j / 60) * Math.PI * 2 - Math.PI / 2;
+            var majorJ = j % 5 === 0;
+            var innerJ = majorJ ? 150 : 178;
+            ctx.strokeStyle = majorJ ? '#241a0e' : 'rgba(36,26,14,0.5)';
+            ctx.lineWidth = majorJ ? 9 : 3;
+            ctx.beginPath();
+            ctx.moveTo(cx + Math.cos(aj) * innerJ, cy + Math.sin(aj) * innerJ);
+            ctx.lineTo(cx + Math.cos(aj) * 200, cy + Math.sin(aj) * 200);
+            ctx.stroke();
+          }
+
+          ctx.fillStyle = '#241a0e';
+          ctx.font = 'bold 62px "Special Elite", "Courier New", monospace';
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'middle';
+          ctx.fillText('12', cx, cy - 150);
+          ctx.fillText('3', cx + 150, cy);
+          ctx.fillText('6', cx, cy + 150);
+          ctx.fillText('9', cx - 150, cy);
+
+          hand(h, 96, 15, '#241a0e');
+          hand(m, 138, 10, '#241a0e');
+          hand(s, 150, 4, '#8c1d1d');
+
+          ctx.fillStyle = '#8f6c22';
+          ctx.beginPath(); ctx.arc(cx, cy, 12, 0, Math.PI * 2); ctx.fill();
+
+          ctx.strokeStyle = 'rgba(255,255,255,0.22)';
+          ctx.lineWidth = 10;
+          ctx.beginPath();
+          ctx.arc(cx, cy, r - 40, Math.PI * 1.15, Math.PI * 1.65);
+          ctx.stroke();
+        }
 
         clockTexture.needsUpdate = true;
       }
@@ -1050,6 +1327,175 @@
       hint.position.set(0, 1.75, -1.94);
       scene.add(hint);
 
+      // ==================== DÍA DE HOGWARTS: ESCENA DEL CASTILLO ====================
+      // Todo este bloque se construye una sola vez, cuando la sesión del menú
+      // cae en el 1 de septiembre (o se fuerza con ?hogwarts). El renderer, la
+      // escena y la cámara son los mismos del menú noir; solo cambian los
+      // objetos dentro de la escena y los colores de las luces.
+      if (hogwartsMode) {
+        // Ocultar el mobiliario noir — lo reemplaza la escena del castillo.
+        [floor, wall, wainscot, molding, desk, deskFront, lamp, typewriter, mug, ashtray, cig, cabinet, sign, signBack, framedPhoto, windowGroup, board].concat(sueltos).forEach(function (o) {
+          if (o) o.visible = false;
+        });
+
+        var hStoneMat = new THREE.MeshStandardMaterial({ color: 0x2c2c38, roughness: 0.95, metalness: 0.02 });
+        var hStoneTexMat = new THREE.MeshStandardMaterial({ map: makeCanvasTexture(512, 512, paintStone), roughness: 0.95, metalness: 0.02 });
+
+        // Pared de piedra del castillo (detrás de todo lo nuevo).
+        var hogWall = new THREE.Mesh(new THREE.PlaneGeometry(18, 8), hStoneTexMat.clone());
+        hogWall.position.set(0, 3.25, -1.99);
+        hogWall.receiveShadow = true;
+        scene.add(hogWall);
+
+        // --- Ventana arqueada de noche: cielo + estrellas + lago negro ---
+        var hogStars = [];
+        var hogSparks = [];
+        var hogWin = new THREE.Group();
+        hogWin.position.set(3.6, 3.6, -1.96);
+
+        var skyMat = new THREE.MeshBasicMaterial({ color: 0x0a0a1a, side: THREE.DoubleSide });
+        var skyMesh = new THREE.Mesh(new THREE.CircleGeometry(1.0, 48), skyMat);
+        skyMesh.position.z = -0.02;
+        hogWin.add(skyMesh);
+
+        for (var st = 0; st < 64; st++) {
+          var sMat = new THREE.MeshBasicMaterial({ color: 0xe8def2, transparent: true, opacity: 0.6 });
+          var sM = new THREE.Mesh(new THREE.CircleGeometry(0.008 + Math.random() * 0.014, 8), sMat);
+          sM.position.set((Math.random() - 0.5) * 1.7, 0.2 + Math.random() * 0.85, 0.01);
+          sM.userData = { speed: 1 + Math.random() * 2.2, phase: Math.random() * Math.PI * 2, baseOp: 0.25 + Math.random() * 0.45 };
+          hogWin.add(sM);
+          hogStars.push(sM);
+        }
+
+        var lake = new THREE.Mesh(
+          new THREE.PlaneGeometry(2.0, 1.35),
+          new THREE.MeshStandardMaterial({ map: makeCanvasTexture(256, 512, paintLake), roughness: 0.35, metalness: 0.25 })
+        );
+        lake.rotation.x = -Math.PI / 2;
+        lake.position.set(0, -0.55, -0.05);
+        hogWin.add(lake);
+
+        for (var sp = 0; sp < 8; sp++) {
+          var spr = new THREE.Sprite(new THREE.SpriteMaterial({ map: softCircleTexture(32, 201, 168, 76), transparent: true, opacity: 0.6, depthWrite: false, blending: THREE.AdditiveBlending }));
+          var sq = 0.05 + Math.random() * 0.09;
+          spr.position.set((Math.random() - 0.5) * 1.7, -0.5 - Math.random() * 0.5, -0.12);
+          spr.scale.set(sq, sq, sq);
+          spr.userData = { speed: 1 + Math.random() * 2, phase: Math.random() * Math.PI * 2, base: sq };
+          hogWin.add(spr);
+          hogSparks.push(spr);
+        }
+
+        var baseBar = new THREE.Mesh(new THREE.BoxGeometry(2.1, 0.1, 0.1), hStoneMat);
+        baseBar.position.set(0, -0.92, 0.02);
+        hogWin.add(baseBar);
+
+        [-0.97, 0.97].forEach(function (x) {
+          var post = new THREE.Mesh(new THREE.BoxGeometry(0.13, 2.3, 0.12), hStoneMat);
+          post.position.set(x, 0.15, 0.04);
+          post.castShadow = true;
+          hogWin.add(post);
+        });
+
+        var arch = new THREE.Mesh(new THREE.TorusGeometry(1.0, 0.14, 8, 26, Math.PI), hStoneMat);
+        arch.position.set(0, 0.15, 0.04);
+        hogWin.add(arch);
+        scene.add(hogWin);
+
+        // --- Búho decorativo (estático, esquinas superiores) ---
+        var owl = new THREE.Mesh(
+          new THREE.PlaneGeometry(0.62, 0.78),
+          new THREE.MeshBasicMaterial({ map: makeCanvasTexture(128, 160, paintOwl), transparent: true })
+        );
+        owl.position.set(-3.6, 4.4, -1.93);
+        scene.add(owl);
+
+        // --- Torre del reloj de Hogwarts (misma textura animada, otro diseño) ---
+        var towerBox = new THREE.Mesh(new THREE.BoxGeometry(1.5, 1.5, 0.32), hStoneMat);
+        towerBox.position.set(-3.1, 2.9, -2.0);
+        towerBox.castShadow = true;
+        scene.add(towerBox);
+        clock.position.set(-3.1, 2.9, -1.94);
+        clock.scale.setScalar(1.55);
+
+        // --- Letrero VEREDIKT de Hogwarts ---
+        var hogSignTex = makeCanvasTexture(768, 192, paintHogSign);
+        var hogSign = new THREE.Mesh(
+          new THREE.PlaneGeometry(2.7, 0.68),
+          new THREE.MeshStandardMaterial({ map: hogSignTex, metalness: 0.55, roughness: 0.5, emissive: 0x201500, emissiveMap: hogSignTex, emissiveIntensity: 0.38, polygonOffset: true, polygonOffsetFactor: 1, polygonOffsetUnits: 1 })
+        );
+        hogSign.position.set(0, 2.45, -1.92);
+        scene.add(hogSign);
+
+        var hogSignBack = new THREE.Mesh(new THREE.BoxGeometry(2.84, 0.8, 0.07), hStoneMat);
+        hogSignBack.position.set(0, 2.45, -1.97);
+        scene.add(hogSignBack);
+
+        // --- Antorchas a los lados del letrero (llamas parpadeantes) ---
+        var hogFlames = [];
+        var hogFlameLights = [];
+        [-2.2, 2.2].forEach(function (tx) {
+          var torchG = new THREE.Group();
+          torchG.position.set(tx, 2.1, -1.95);
+          var bracket = new THREE.Mesh(new THREE.BoxGeometry(0.16, 0.5, 0.14), hStoneMat);
+          bracket.position.y = -0.26;
+          torchG.add(bracket);
+          var cup = new THREE.Mesh(new THREE.BoxGeometry(0.24, 0.14, 0.24), new THREE.MeshStandardMaterial({ color: 0x1a1a16, roughness: 0.5, metalness: 0.5 }));
+          cup.position.y = 0.02;
+          cup.castShadow = true;
+          torchG.add(cup);
+          var flame = new THREE.Sprite(new THREE.SpriteMaterial({ map: softCircleTexture(96, 255, 176, 90), transparent: true, opacity: 0.9, depthWrite: false, blending: THREE.AdditiveBlending }));
+          var fs = 0.2 + Math.random() * 0.06;
+          flame.scale.set(fs, fs * 1.3, 1);
+          flame.position.y = 0.16;
+          flame.userData = { base: fs };
+          torchG.add(flame);
+          scene.add(torchG);
+          hogFlames.push(flame);
+          var tl = new THREE.PointLight(0xff9a3c, 0.55, 4.5, 1.6);
+          tl.position.set(tx, 2.4, -1.6);
+          scene.add(tl);
+          hogFlameLights.push(tl);
+        });
+
+        // --- Escritorio de piedra del castillo (reemplaza al de detective) ---
+        var hogDesk = new THREE.Mesh(
+          new THREE.BoxGeometry(5.4, 0.16, 3.2),
+          [hStoneMat, hStoneMat, hStoneTexMat, hStoneMat, hStoneTexMat, hStoneMat]
+        );
+        hogDesk.position.set(0, -0.08, 1.5);
+        hogDesk.receiveShadow = true;
+        hogDesk.castShadow = true;
+        scene.add(hogDesk);
+
+        var hogDeskFront = new THREE.Mesh(
+          new THREE.BoxGeometry(5.4, 1.0, 0.12),
+          new THREE.MeshStandardMaterial({ map: makeCanvasTexture(256, 256, paintStone), roughness: 0.9, metalness: 0 })
+        );
+        hogDeskFront.position.set(0, -0.66, 3.06);
+        hogDeskFront.receiveShadow = true;
+        scene.add(hogDeskFront);
+
+        // --- Varita de madera oscura apoyada en el escritorio ---
+        var wand = new THREE.Group();
+        wand.position.set(1.85, 0.055, 1.5);
+        var wandBody = new THREE.Mesh(
+          new THREE.CylinderGeometry(0.012, 0.016, 0.85, 12),
+          new THREE.MeshStandardMaterial({ color: 0x2a1a0a, roughness: 0.55, metalness: 0.05 })
+        );
+        wandBody.rotation.x = Math.PI / 2;
+        wandBody.position.x = 0.42;
+        var wandTip = new THREE.Mesh(
+          new THREE.CylinderGeometry(0.008, 0.012, 0.08, 10),
+          new THREE.MeshStandardMaterial({ color: 0xefe6cf, roughness: 0.3, metalness: 0.1 })
+        );
+        wandTip.rotation.x = Math.PI / 2;
+        wandTip.position.x = 0.86;
+        wand.add(wandBody);
+        wand.add(wandTip);
+        wand.rotation.y = -0.24;
+        scene.add(wand);
+      }
+
       // ==================== ATMÓSFERA: POLVO / HUMO / VAPOR ====================
       function softCircleTexture(size, r, g, b) {
         var c = document.createElement('canvas');
@@ -1094,6 +1540,10 @@
       addSmoke(0.74, 0.08, 2.48, 0.2, 0.11, 0.14);
       addSmoke(-1.45, 0.2, 2.85, 0.14, 0.2, 0.16);
       addSmoke(-1.43, 0.2, 2.85, 0.18, 0.14, 0.1);
+
+      if (hogwartsMode) {
+        smoke.forEach(function (sp) { sp.visible = false; });
+      }
 
       // ==================== ESTADO ====================
       var currentState = 'wall';
@@ -1272,7 +1722,30 @@
       }
 
       // ==================== MOSTRAR / OCULTAR ====================
+      // Nota etérea del día de Hogwarts al volver al menú (Web Audio, silencio total si falla).
+      function playHogwartsNote() {
+        try {
+          var AC = window.AudioContext || window.webkitAudioContext;
+          if (!AC) return;
+          var audioCtx = new AC();
+          var osc = audioCtx.createOscillator();
+          var gain = audioCtx.createGain();
+          osc.type = 'sine';
+          osc.frequency.value = 261.63; // C4
+          gain.gain.value = 0.1;
+          osc.connect(gain);
+          gain.connect(audioCtx.destination);
+          osc.start();
+          gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 3);
+          osc.stop(audioCtx.currentTime + 3);
+        } catch (e) { /* silencio total si no hay Web Audio */ }
+      }
+
       function showMenu() {
+        // Cruce de medianoche: al volver al menú se re-evalúa el día.
+        var hgD = new Date();
+        hogwartsMode = hgD.getMonth() === 8 && hgD.getDate() === 1;
+        if (hogwartsMode) playHogwartsNote();
         resetInspection();
         menuActive = true;
         canvasEl.style.display = 'block';
@@ -1459,6 +1932,28 @@
 
         hint.material.opacity = hint.visible ? 0.28 + Math.sin(t * 1.8) * 0.12 : 0;
 
+        // Parpadeos del día de Hogwarts: estrellas, reflejos del lago y llamas.
+        if (hogwartsMode && typeof hogStars !== 'undefined') {
+          for (var hs = 0; hs < hogStars.length; hs++) {
+            var o = hogStars[hs];
+            var op = o.userData.baseOp * (0.55 + 0.45 * Math.sin(t * o.userData.speed + o.userData.phase));
+            if (o.material) o.material.opacity = Math.max(0.05, op);
+          }
+          for (var hk = 0; hk < hogSparks.length; hk++) {
+            var sprk = hogSparks[hk];
+            var so = 0.25 + 0.45 * Math.abs(Math.sin(t * sprk.userData.speed + sprk.userData.phase));
+            if (sprk.material) sprk.material.opacity = so;
+            var sqr = sprk.userData.base * (1 + 0.3 * Math.sin(t * 0.7 + sprk.userData.phase));
+            sprk.scale.set(sqr, sqr, sqr);
+          }
+          for (var hf = 0; hf < hogFlames.length; hf++) {
+            var fl = hogFlames[hf];
+            var fw = fl.userData.base + Math.sin(t * 11 + hf * 2.4) * fl.userData.base * 0.2;
+            fl.scale.set(fw, fw, 1);
+            hogFlameLights[hf].intensity = 0.42 + Math.sin(t * 9 + hf * 3.1) * 0.16 + Math.sin(t * 23 + hf) * 0.08;
+          }
+        }
+
         renderer.render(scene, camera);
       }
       document.addEventListener('visibilitychange', function () {
@@ -1484,6 +1979,7 @@
             mid.rot = +insp.entry.group.rotation.x.toFixed(3);
           }
           return {
+            theme: themeKey,
             fov: camera.fov,
             fitFov: computeDeskFitFov(),
             state: currentState,
@@ -1498,7 +1994,16 @@
               v.project(camera);
               return { id: e.id, on: v.z > -1 && v.z < 1, x: Math.round((v.x * 0.5 + 0.5) * window.innerWidth), y: Math.round((-v.y * 0.5 + 0.5) * window.innerHeight) };
             }),
-            mid: mid
+            mid: mid,
+            hog: (typeof hogStars !== 'undefined' && hogStars.length > 0) ? {
+              stars: hogStars.length,
+              sparks: hogSparks.length,
+              flames: hogFlames.length,
+              starOp: +hogStars[0].material.opacity.toFixed(3),
+              deskHidden: desk.visible === false,
+              wallVisible: hogWall.visible === true,
+              signVisible: hogSign.visible === true
+            } : null
           };
         };
       }

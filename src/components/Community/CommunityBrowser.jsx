@@ -1,6 +1,9 @@
 import React, { useEffect, useState } from 'react';
+import { isHogwartsDay } from '../../constants/hogwarts.js';
 
 const INDEX_URL = '/Casos/index.json';
+
+const POLITICA = isHogwartsDay();
 
 function esHarryPotter(casoTxt) {
   return (casoTxt || '').toLowerCase().includes('harry potter');
@@ -20,9 +23,12 @@ export function CommunityBrowser({ onLoadCaseFile, onOpenImportDialog, onBack })
       })
       .then((list) => {
         if (!alive) return;
-        const filtrados = (Array.isArray(list) ? list : []).filter(
-          (c) => !esHarryPotter(c.file) && !esHarryPotter(c.titulo)
-        );
+        const filtrados = (Array.isArray(list) ? list : []).filter((c) => {
+          const hp = esHarryPotter(c.file) || esHarryPotter(c.titulo);
+          // El 1 de septiembre la comunidad muestra SOLO los expedientes de la
+          // carpeta Harry Potter; el resto de los días los excluye.
+          return POLITICA ? hp : !hp;
+        });
         setCasos(filtrados);
       })
       .catch(() => {
