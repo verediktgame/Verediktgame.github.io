@@ -73,7 +73,7 @@ Pronto vas a encontrar por acá:
 ▶️ YouTube: *(próximamente)*
 
 Si queres colaborar o simplemente el juego te gusto y querer aportar un granito de arena
-🧡 MP: *(próximamente)*
+🧡 MP: *Verediktgamemp*
 
 ¿Mientras tanto? Jugá un caso y contanos cómo te fue.
 
