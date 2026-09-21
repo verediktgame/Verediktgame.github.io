@@ -23,6 +23,15 @@ veredikt-V*.md
 # Deploy: secreto local (nunca commitear)
 .deploy_token
 
+# Librerías de skills descargadas dentro del proyecto (no parte del juego)
+Skills/
+
+# Archivos sacados del repo (quedan solo en local)
+Banner-Veredikt.png
+Veredikt-V1.md
+Veredikt.png
+deploy.py
+
 # Python
 __pycache__/
 *.pyc

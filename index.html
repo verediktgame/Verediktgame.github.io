@@ -365,7 +365,7 @@
         });
       }
 
-      function paintFoldContents(ctx, w, h) {
+      function paintContents(ctx, w, h, border) {
         ctx.fillStyle = '#e7dcc0';
         ctx.fillRect(0, 0, w, h);
         hatch(ctx, w, h, 900, 0.05, 1.4);
@@ -375,7 +375,7 @@
           var len = w * (0.4 + Math.random() * 0.42);
           ctx.fillRect(40, y, len, 3);
         }
-        ctx.strokeStyle = 'rgba(120,40,30,0.5)';
+        ctx.strokeStyle = border;
         ctx.lineWidth = 2;
         ctx.strokeRect(16, 16, w - 32, h - 32);
       }
@@ -494,7 +494,7 @@
         ctx.fillText('de Incidentes Mágicos', w / 2, h / 2 + 50);
         ctx.fillStyle = 'rgba(201,168,76,0.7)';
         ctx.font = '13px Georgia, serif';
-        ctx.fillText('✦  ·  EST. SEPT. 1º  ·  ✦', w / 2, h - 24);
+        ctx.fillText('✦  ·  PLATAFORMA 9¾  ·  ✦', w / 2, h - 24);
       }
 
       function paintLake(ctx, w, h) {
@@ -557,20 +557,8 @@
         ctx.fill();
       }
 
-      function paintHogContents(ctx, w, h) {
-        ctx.fillStyle = '#e7dcc0';
-        ctx.fillRect(0, 0, w, h);
-        hatch(ctx, w, h, 900, 0.05, 1.4);
-        for (var i = 0; i < 8; i++) {
-          var y = 40 + i * (h - 80) / 8;
-          ctx.fillStyle = 'rgba(40,30,20,' + (0.3 + Math.random() * 0.35) + ')';
-          var len = w * (0.4 + Math.random() * 0.42);
-          ctx.fillRect(40, y, len, 3);
-        }
-        ctx.strokeStyle = 'rgba(201,168,76,0.5)';
-        ctx.lineWidth = 2;
-        ctx.strokeRect(16, 16, w - 32, h - 32);
-      }
+      // paintContents: fondo de expediente. El borde cambia según el tema
+      // (cuero del detective vs pergamino dorado de Hogwarts).
 
       function paintManila(ctx, w, h, def, hover) {
         var g = ctx.createLinearGradient(0, 0, w, h);
@@ -883,7 +871,7 @@
 
         var content = new THREE.Mesh(
           new THREE.PlaneGeometry(1.06, 0.71),
-          new THREE.MeshStandardMaterial({ map: makeCanvasTexture(512, 360, hogwartsMode ? paintHogContents : paintFoldContents), roughness: 0.9, metalness: 0, polygonOffset: true, polygonOffsetFactor: -1, polygonOffsetUnits: -1 })
+          new THREE.MeshStandardMaterial({ map: makeCanvasTexture(512, 360, function (ctx, w, h) { paintContents(ctx, w, h, hogwartsMode ? 'rgba(201,168,76,0.5)' : 'rgba(120,40,30,0.5)'); }), roughness: 0.9, metalness: 0, polygonOffset: true, polygonOffsetFactor: -1, polygonOffsetUnits: -1 })
         );
         content.rotation.x = -Math.PI / 2;
         content.position.y = 0.046;
@@ -940,7 +928,7 @@
       }
 
       // ==================== INSPECCIÓN POV (FOLDER_STATE) ====================
-      var insp = { state: 'DESK', entry: null, home: null, rot: 0, fired: false, onOpen: null };
+      var insp = { state: 'DESK', entry: null, home: null, rot: 0, fired: false, onOpen: null, timer: null };
 
       function povTargetPos() {
         var p = CAM_DESK.rotation.x;
@@ -951,6 +939,7 @@
 
       function beginInspect(entry) {
         if (insp.state !== 'DESK' || !entry || animating) return;
+        if (insp.entry) resetInspection();
         if (hoveredEntry) { setFolderHover(hoveredEntry, false); hoveredEntry = null; }
         setFolderHover(entry, false);
         insp.entry = entry;
@@ -971,12 +960,14 @@
         if (insp.state !== 'HELD_CLOSED' || !insp.entry || insp.fired) return;
         insp.fired = true;
         insp.state = 'HELD_OPEN';
-        if (insp.onOpen) setTimeout(insp.onOpen, 160);
+        if (insp.timer) { clearTimeout(insp.timer); insp.timer = null; }
+        if (insp.onOpen) insp.timer = setTimeout(insp.onOpen, 160);
       }
 
       function cancelInspect() {
         if (insp.state === 'DESK' || !insp.entry) return;
         insp.fired = false;
+        if (insp.timer) { clearTimeout(insp.timer); insp.timer = null; }
         if (reduceMotion) {
           var e = insp.entry;
           e.group.position.set(insp.home.x, 0, insp.home.z);
@@ -991,6 +982,7 @@
 
       function resetInspection() {
         if (!insp.entry) return;
+        if (insp.timer) { clearTimeout(insp.timer); insp.timer = null; }
         var e = insp.entry;
         if (insp.home) e.group.position.set(insp.home.x, 0, insp.home.z);
         e.group.rotation.set(0, 0, 0);
@@ -1314,11 +1306,11 @@
       // ==================== PARED: HINT ====================
       var hintTex = makeCanvasTexture(768, 96, function (ctx, w, h) {
         ctx.clearRect(0, 0, w, h);
-        ctx.fillStyle = '#6b4a2e';
+        ctx.fillStyle = hogwartsMode ? '#c9a84c' : '#6b4a2e';
         ctx.font = '26px "Courier Prime", monospace';
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
-        ctx.fillText('[  click para bajar la mirada  ]', w / 2, h / 2);
+        ctx.fillText(hogwartsMode ? '[  click para recorrer la sala  ]' : '[  click para bajar la mirada  ]', w / 2, h / 2);
       });
       var hint = new THREE.Mesh(
         new THREE.PlaneGeometry(2.3, 0.29),
@@ -1329,7 +1321,7 @@
 
       // ==================== DÍA DE HOGWARTS: ESCENA DEL CASTILLO ====================
       // Todo este bloque se construye una sola vez, cuando la sesión del menú
-      // cae en el 1 de septiembre (o se fuerza con ?hogwarts). El renderer, la
+      // cae en el 1 de septiembre. El renderer, la
       // escena y la cámara son los mismos del menú noir; solo cambian los
       // objetos dentro de la escena y los colores de las luces.
       if (hogwartsMode) {
@@ -1635,13 +1627,20 @@
 
         if (reduceMotion) { finish(); return; }
 
-        var duration = 1500;
+        var duration = 1750;
         var start = performance.now();
+        var c1 = 1.70158, c3 = c1 + 1;
         function step(now) {
           var t = Math.min((now - start) / duration, 1);
-          var ease = t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
-          camPitch = startRot + (endRot - startRot) * ease;
-          camera.fov = startFOV + (endFOV - startFOV) * ease;
+          // easeOutBack permite que la mirada "se asiente" en la mesa con
+          // un micro-ajuste, en vez de clavar el gesto de forma seca.
+          var easeP = 1 + c3 * Math.pow(t - 1, 3) + c1 * Math.pow(t - 1, 2);
+          // El fov arranca un instante después que el giro y respira con un
+          // ease senoidal, así el salto fov 1 -> fov 2 no se percibe brusco.
+          var tf = Math.max(0, Math.min(1, (t - 0.18) / 0.82));
+          var easeF = 0.5 - 0.5 * Math.cos(Math.PI * tf);
+          camPitch = startRot + (endRot - startRot) * easeP;
+          camera.fov = startFOV + (endFOV - startFOV) * easeF;
           camera.updateProjectionMatrix();
           if (t < 1) requestAnimationFrame(step);
           else finish();
@@ -1889,14 +1888,14 @@
         if (insp.entry && insp.state !== 'DESK') {
           var hn = insp.entry.hinge;
           var tp = povTargetPos();
-          var kp = 0.16;
+          var kp = 0.2;
           var grp = insp.entry.group;
           grp.position.x += (tp.x - grp.position.x) * kp;
           grp.position.y += (tp.y - grp.position.y) * kp;
           grp.position.z += (tp.z - grp.position.z) * kp;
           grp.rotation.x += (insp.rot - grp.rotation.x) * kp;
           grp.rotation.y += (0 - grp.rotation.y) * kp;
-          hn.rotation.x += (0 - hn.rotation.x) * 0.18;
+          hn.rotation.x += (0 - hn.rotation.x) * 0.2;
         } else if (insp.entry) {
           var e2 = insp.entry, kr = 0.2;
           e2.group.position.x += (insp.home.x - e2.group.position.x) * kr;

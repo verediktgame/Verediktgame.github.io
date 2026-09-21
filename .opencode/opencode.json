@@ -1,0 +1,15 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "skills": {
+    "paths": [
+      "../Skills/design-and-taste/emil-skills/skills",
+      "../Skills/design-and-taste/impeccable/.agent/skills",
+      "../Skills/design-and-taste/taste-skill/skills",
+      "../Skills/engineering-skills/agent-skills/skills",
+      "../Skills/engineering-skills/coderabbit-skills",
+      "../Skills/engineering-skills/ponytail/skills",
+      "../Skills/engineering-skills/senior-architect-agent",
+      "../Skills/core-frameworks/gsd-core/skills"
+    ]
+  }
+}
