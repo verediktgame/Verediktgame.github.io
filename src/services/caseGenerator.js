@@ -1,6 +1,6 @@
 import { makeLLMRequestWithRetry, parseLLMJson } from './llmAdapter.js';
 import { SafeStorage, obfuscateTruth } from './storage.js';
-import { isHogwartsDay } from '../constants/hogwarts.js';
+import { isHogwartsEasterEggWindow } from '../constants/hogwarts.js';
 
 export const CIUDAD_HOGWARTS = 'Hogwarts, Escocia (ambientá el caso íntegramente en el mundo mágico de Harry Potter)';
 
@@ -245,7 +245,7 @@ export async function generateCaseWithLLM(ciudad, dificultad, apiConfig, onProgr
   let base, sospechosoData, evidenciaData, preguntasData, forenseData, truthData;
 
   // El 1 de septiembre todo caso generado con IA se ambienta en Hogwarts.
-  const tema = isHogwartsDay() ? CIUDAD_HOGWARTS : ciudad;
+  const tema = isHogwartsEasterEggWindow() ? CIUDAD_HOGWARTS : ciudad;
 
   const updateProgress = (stepIndex, text) => {
     if (onProgress) {

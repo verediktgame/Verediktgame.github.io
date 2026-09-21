@@ -107,13 +107,16 @@
       var reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
       // ==================== DÍA DE HOGWARTS (1 DE SEPTIEMBRE) ====================
-      // Se evalúa una sola vez al iniciar la sesión del menú y usa SOLO la fecha
-      // real: el tema Hogwarts únicamente existe el 1 de septiembre de cada año.
-      // No hay override por URL: ningún otro día se puede acceder a esta vista.
-      var hogwartsMode = (function () {
-        var hgNow = new Date();
-        return hgNow.getMonth() === 8 && hgNow.getDate() === 1;
-      })();
+      // Easter egg de Hogwarts: solo existe el 1 de septiembre ENTRE las
+      // 09:45 y las 00:00. Fuera de esa franja el tema siempre es noir.
+      // No hay override por URL: ningún otro día/franja se puede acceder a esta vista.
+      function hogwartsActive() {
+        var d = new Date();
+        if (d.getMonth() !== 8 || d.getDate() !== 1) return false;
+        var mins = d.getHours() * 60 + d.getMinutes();
+        return mins >= 585 && mins < 1440;
+      }
+      var hogwartsMode = hogwartsActive();
       var themeKey = hogwartsMode ? 'hogwarts' : 'noir';
 
       // ==================== BRIDGE CON EL JUEGO ====================
@@ -1741,9 +1744,8 @@
       }
 
       function showMenu() {
-        // Cruce de medianoche: al volver al menú se re-evalúa el día.
-        var hgD = new Date();
-        hogwartsMode = hgD.getMonth() === 8 && hgD.getDate() === 1;
+        // Cruce de medianoche: al volver al menú se re-evalúa el día y la franja.
+        hogwartsMode = hogwartsActive();
         if (hogwartsMode) playHogwartsNote();
         resetInspection();
         menuActive = true;

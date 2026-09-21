@@ -1,18 +1,9 @@
-import { isHogwartsDay } from './hogwarts.js';
+import { isHogwartsEasterEggWindow } from './hogwarts.js';
 
 export function checkHarryPotterEasterEgg() {
-  // El caso Harry Potter solo está disponible el 1 de septiembre.
-  if (!isHogwartsDay()) {
-    return false;
-  }
-  const now = new Date();
-  const h = now.getHours();
-  const m = now.getMinutes();
-  // Activo entre 9:45 y 10:00
-  if ((h === 9 && m >= 45) || (h === 9 && m === 59)) {
-    return true;
-  }
-  return false;
+  // El caso Harry Potter solo existe el 1 de septiembre entre las 09:45 y las
+  // 00:00; cualquier otro día/franja es un caso normal.
+  return isHogwartsEasterEggWindow();
 }
 
 export const CASO_HARRY_POTTER = {

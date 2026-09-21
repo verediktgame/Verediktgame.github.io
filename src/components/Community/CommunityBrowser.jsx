@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from 'react';
-import { isHogwartsDay } from '../../constants/hogwarts.js';
+import { isHogwartsEasterEggWindow } from '../../constants/hogwarts.js';
 
 const INDEX_URL = '/Casos/index.json';
 
-const POLITICA = isHogwartsDay();
+const POLITICA = isHogwartsEasterEggWindow();
 
 function esHarryPotter(casoTxt) {
   return (casoTxt || '').toLowerCase().includes('harry potter');

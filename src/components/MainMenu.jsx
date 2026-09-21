@@ -34,7 +34,7 @@ export function MainMenu({
   };
 
   const handleNuevoCasoClick = () => {
-    // Check Harry Potter Easter Egg (9:45 - 10:00)
+    // Check Harry Potter Easter Egg (1/9, franja 09:45 - 24:00)
     if (checkHarryPotterEasterEgg()) {
       onLoadHarryPotter();
       return;
